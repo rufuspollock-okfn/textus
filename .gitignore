@@ -8,3 +8,4 @@
 /.lein-deps-sum
 /.settings
 .project
+/local-support
