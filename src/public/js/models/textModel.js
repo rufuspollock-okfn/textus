@@ -9,7 +9,8 @@ define([ 'jquery', 'underscore', 'backbone' ], function($, _, Backbone) {
 			text : "",
 			start : 0,
 			end : 0,
-			annotations : []
+			annotations : [],
+			textId : ""
 		},
 
 		/**
@@ -25,8 +26,10 @@ define([ 'jquery', 'underscore', 'backbone' ], function($, _, Backbone) {
 		 *            HTML markup. Each annotation consists of { start, end, css }
 		 *            and is used to create a SPAN element spanning the matching
 		 *            text range and assigning the specified class.
+		 * @param textId
+		 *            the ID of the text
 		 */
-		changeValues : function(start, text, annotations) {
+		changeValues : function(start, text, annotations, textId) {
 			var newAnnotations = annotations.sort(function(a, b) {
 				return a.start - b.start;
 			});
@@ -40,7 +43,8 @@ define([ 'jquery', 'underscore', 'backbone' ], function($, _, Backbone) {
 				end : _end,
 				text : text,
 				// Sort annotations by start index and clip to range of text
-				annotations : newAnnotations
+				annotations : newAnnotations,
+				textId : textId
 			});
 		}
 

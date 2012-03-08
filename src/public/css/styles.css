@@ -41,3 +41,9 @@ a.active {
 	color: #000;
 	text-decoration: none;
 }
+.annotation1 {
+	color: red;
+}
+.annotation2 {
+	color: green;
+}

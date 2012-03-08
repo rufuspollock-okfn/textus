@@ -1,6 +1,6 @@
 var express = require('express');
 var app = express.createServer();
-console.log(app);
+
 app.configure(function() {
 	app.use(express.bodyParser());
 	app.use(app.router);
@@ -13,9 +13,29 @@ app.configure(function() {
 });
 
 // Check that we can intercept routes
-app.get("/api", function(req, res) {
-	res.send('[]');
-});
+app
+		.get(
+				"/api/text/:textid/:fromchar",
+				function(req, res) {
+					var data = {
+						start : req.params.fromchar,
+						text : "This is a piece of text which will be returned to the client, it's from text "
+								+ req.params.textid
+								+ " and starts at character "
+								+ req.params.fromchar,
+						annotations : [ {
+							start : 0,
+							end : 10,
+							css : "annotation1"
+						}, {
+							start : 10,
+							end : 60,
+							css : "annotation2"
+						} ]
+					};
+					res.json(data);
+				});
 
 // Start app on localhost:80
-app.listen(80);
+app.listen(8080);
+console.log("Server running");
