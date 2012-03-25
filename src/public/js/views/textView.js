@@ -1,69 +1,43 @@
 // Defines TextView
 
-define([ 'jquery', 'underscore', 'backbone', 'models/textModel',
-		'models/textSelectionModel' ], function($, _, Backbone, TextModel,
-		TextSelectionModel) {
+define([ 'jquery', 'underscore', 'backbone', 'textus',
+		'text!templates/textView.html' ], function($, _, Backbone, textus,
+		layout) {
 
-	// View for the text model, just renders the contained text out via
-	// a
-	// template
+	/**
+	 * Populate the text area and canvas elements
+	 */
+	var renderText = function(canvas, textContainer, text, offset, typography,
+			semantics) {
+		// Set the HTML content of the text container
+		textContainer.html(textus.markupText(text, offset, typography,
+				semantics));
+		// Need to do stuff [tm] with the canvas here...
+		console.log("Rendering text '" + text + "' at offset " + offset
+				+ " with typography " + typography + " and semantics "
+				+ semantics + " into text container " + textContainer
+				+ " and using canvas " + canvas);
+	};
+
 	var TextView = Backbone.View.extend({
 
-		model : new TextModel(),
-		selectionModel : new TextSelectionModel(),
-
-		initialize : function() {
-			_.bindAll(this);
-			this.model.on("change", this.render, this);
-			_defineSelection = this.defineSelection;
-
-		},
-
 		render : function(event) {
-			var el = $('.page').html("");
+			var el = $('.main').html(layout);
 			el.unbind("mouseup");
-			el.bind("mouseup", _defineSelection);
-			var model = this.model;
-			var start = model.get("start");
-			var end = model.get("end");
-			var cursor = start;
-			var spanTag = this.spanTag;
-			this.model.get("annotations").forEach(
-					function(annotation) {
-						// Append any plain text from
-						// the cursor to the start of
-						// the annotation
-						if (cursor < annotation.start) {
-							el.append(spanTag(cursor, start, null, model.get(
-									"text").substring(cursor - start,
-									annotation.start - start)));
-						}
-						if (annotation.end > cursor) {
-							el.append(spanTag(cursor, start, annotation.css,
-									model.get("text").substring(
-											annotation.start - start,
-											annotation.end - start)));
-							cursor = annotation.end;
-						}
-					});
-			el.append(this.spanTag(cursor, start, null, (model.get("text")
-					.substring(cursor - start, end - start))));
-		},
-
-		// Emit a <span> tag with the appropriate 'offset' attribute and class
-		spanTag : function(cursor, start, annotationClass, spanText) {
-			return "<span "
-					+ (annotationClass ? ("class=\"" + annotationClass + "\" ")
-							: "") + " offset=\""
-					+ Math.max(0, (cursor - start)) + "\">" + spanText
-					+ "</span>";
+			el.bind("mouseup", this.defineSelection);
+			if (this.model) {
+				console.log("Using model " + this.model);
+				renderText($('#pageCanvas'), $('.pageText'), this.model.text,
+						this.model.offset, this.model.typography,
+						this.model.semantics);
+			}
 		},
 
 		// Attempt to get the selected text range, after
 		// trimming any markup
 		defineSelection : function() {
 			var userSelection = "No selection defined!";
-			if (window.getSelection) {
+			if (window.getSelection && this.presenter && this.model) {
 				userSelection = window.getSelection();
 				fromChar = parseInt(userSelection.anchorNode.parentNode
 						.getAttribute("offset"))
@@ -71,12 +45,8 @@ define([ 'jquery', 'underscore', 'backbone', 'models/textModel',
 				toChar = parseInt(userSelection.focusNode.parentNode
 						.getAttribute("offset"))
 						+ parseInt(userSelection.focusOffset);
-				this.selectionModel.set({
-					text : this.model.get("text").substring(fromChar, toChar),
-					textId : this.model.get("textId"),
-					fromChar : fromChar + parseInt(this.model.get("start")),
-					toChar : toChar + parseInt(this.model.get("start"))
-				});
+				this.presenter.handleTextSelection(fromChar, toChar, this.model
+						.get("text").substring(fromChar, toChar));
 			} else if (document.selection) {
 				console.log("Fetching MS Text Range object (IE).");
 				userSelection = document.selection.createRange();
@@ -86,4 +56,5 @@ define([ 'jquery', 'underscore', 'backbone', 'models/textModel',
 	});
 
 	return TextView;
+
 });

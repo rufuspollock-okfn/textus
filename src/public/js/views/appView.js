@@ -1,16 +1,12 @@
-define([ 'jquery', 'underscore', 'backbone', 'text!templates/layout.html' ],
+define([ 'jquery', 'underscore', 'backbone', 'text!templates/appView.html' ],
 		function($, _, Backbone, layoutTemplate) {
-			var AppView = Backbone.View.extend({
-				el : '.container',
+			return Backbone.View.extend({
+				el : '.main',
 				intialize : function() {
 				},
 				render : function() {
 					$(this.el).html(layoutTemplate);
-					require([ 'views/header/menu' ], function(HeaderMenuView) {
-						var headerMenuView = new HeaderMenuView();
-						headerMenuView.render();
-					});
 				}
 			});
-			return AppView;
+
 		});

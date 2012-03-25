@@ -1,49 +1,17 @@
-body {
-	margin: 0;
-	padding: 0;
+.wrapper > div {
+	background-color: #aaa;
 }
 
-.container {
-	margin: auto;
-	width: 660px;
+.wrapper > div > div {
+	border: solid;
+	border-width: 1px;
+	border-color: #777;
 }
 
-.page {
-	margin: 10px 0 10px 0;
+.header, .footer {
+	background-color: white;
 }
 
-.submenu {
-	width: 200px;
-	float: left;
-}
-
-.content {
-	width: 460px;
-	float: left;
-}
-
-.menu {
-	margin: 0;
-	padding: 0;
-	list-style: none;
-}
-
-.menu li {
-	float: left;
-	margin-left: 10px;
-}
-
-.menu li.other-link {
-	float: right;
-}
-
-a.active {
-	color: #000;
-	text-decoration: none;
-}
-.annotation1 {
-	color: red;
-}
-.annotation2 {
-	color: green;
+.main {
+	background-color: #fffaf5;
 }
