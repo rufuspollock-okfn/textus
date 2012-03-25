@@ -52,15 +52,19 @@ define(
 
 				// Location for reading texts
 				text : function(textId, startIndex) {
-					$.getJSON("api/text/" + textId + "/" + startIndex,
+					$.getJSON("mock-data/alice-in-wonderland.txt.json",
 							function(data) {
 								console.log(data);
+								
+								models.textModel.text = data.text;
+								models.textModel.offset = data.offset;
+								models.textModel.typography = data.typography;
 								views.textView.render();
 							});
 				},
 
 				defaultActions : function() {
-					console.log("Unregistered route");
+					console.log("Default route");
 					views.appView.render();
 				}
 
