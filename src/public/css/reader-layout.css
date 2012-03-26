@@ -1,0 +1,37 @@
+.pageContainer {
+	position: relative;
+	height: 100%;
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
+
+.pageContainer canvas#pageCanvas {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	z-index: 1;
+	pointer-events:none;
+}
+
+.pageContainer .pageText {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	overflow-y: hidden;
+	padding: 20px 300px 20px 20px;
+}
+.chapter {
+	display: block;
+	font-weight: bold;
+	font-size: 30px;
+	line-height: 35px;
+	padding-bottom: 10px;
+}
+.paragraph {
+	display: block;
+	font-size: 12pt;
+	line-height: 16pt;
+	padding-bottom: 10px;
+	text-align: justify;
+	text-indent: 20px;
+}

@@ -1,0 +1,17 @@
+.wrapper > div {
+	background-color: #aaa;
+}
+
+.wrapper > div > div {
+	border: solid;
+	border-width: 1px;
+	border-color: #777;
+}
+
+.header, .footer {
+	background-color: white;
+}
+
+.main {
+	background-color: white;
+}
