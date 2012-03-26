@@ -4,38 +4,21 @@ define(
 		function($, _, Backbone, AppView, TextView) {
 
 			var models = {
-				textModel : {
-					text : "",
-					offset : 0,
-					typography : [],
-					semantics : []
-				},
-				textSelectionModel : Backbone.Model.extend({
+				textModel : new (Backbone.Model.extend({
 					defaults : {
 						text : "",
-						textId : "",
-						fromChar : 0,
-						toChar : 0
-					}
-				})
-			};
-
-			var views = {
-				textView : new (TextView.extend({
-					model : models.textModel,
-					selectionModel : models.textSelectionModel,
-					initialize : function() {
-						_.bindAll(this);
-						this.selectionModel.bind("change", function(event) {
-							sel = this.selectionModel;
-							alert("Text selected '" + sel.get("text")
-									+ "' character range ["
-									+ sel.get("fromChar") + ","
-									+ sel.get("toChar") + "]");
-						});
+						offset : 0,
+						typography : [],
+						semantics : []
 					}
 				})),
-				appView : new AppView()
+				textSelectionModel : new (Backbone.Model.extend({
+					defaults : {
+						text : "",
+						start : 0,
+						end : 0
+					}
+				}))
 			};
 
 			/**
@@ -54,18 +37,32 @@ define(
 				text : function(textId, startIndex) {
 					$.getJSON("mock-data/alice-in-wonderland.txt.json",
 							function(data) {
-								console.log(data);
-								
-								models.textModel.text = data.text;
-								models.textModel.offset = data.offset;
-								models.textModel.typography = data.typography;
-								views.textView.render();
+								models.textModel.set({
+									text : data.text,
+									offset : data.offset,
+									typography : data.typography,
+									semantics : data.semantics
+								});
+								var textView = new TextView({
+									textModel : models.textModel,
+									presenter : {
+										handleTextSelection : function(start,
+												end, text) {
+											models.textSelectionModel.set({
+												start : start,
+												end : end,
+												text : text
+											});
+										}
+									}
+								});
+								textView.render();
 							});
 				},
 
 				defaultActions : function() {
-					console.log("Default route");
-					views.appView.render();
+					var appView = new AppView();
+					appView.render();
 				}
 
 			});
@@ -73,6 +70,14 @@ define(
 			return {
 				initialize : function() {
 					_.bindAll(this);
+					var s = models.textSelectionModel;
+					s.bind("change", function(event) {
+						if (s.get("text") != "") {
+							alert("Text selected '" + s.get("text")
+									+ "' character range [" + s.get("start")
+									+ "," + s.get("end") + "]");
+						}
+					});
 					new AppRouter();
 					Backbone.history.start();
 				}
