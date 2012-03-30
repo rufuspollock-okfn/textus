@@ -35,3 +35,7 @@
 	text-align: justify;
 	text-indent: 20px;
 }
+.pageTextMeasure {
+	position: absolute;
+	left: -10000px;
+}

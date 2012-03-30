@@ -1,22 +1,59 @@
 // Router, loads appropriate pages based on target URL
 define(
-		[ 'jquery', 'underscore', 'backbone', 'views/appView', 'views/textView' ],
-		function($, _, Backbone, AppView, TextView) {
+		[ 'jquery', 'underscore', 'backbone', 'activities/appActivity',
+				'activities/readTextActivity' ],
+		function($, _, Backbone, AppActivity, ReadTextActivity) {
 
+			/**
+			 * Models are application-lifecycle scoped and are used to hold all
+			 * state.
+			 */
 			var models = {
 				textModel : new (Backbone.Model.extend({
 					defaults : {
+						// Text retrieved from the server
 						text : "",
+						// Offset of the first character in the retrieved text
 						offset : 0,
+						// Array containing typographical annotations which
+						// overlap with the retrieved text
 						typography : [],
-						semantics : []
+						// Array containing semantic annotations which overlap
+						// with the retrieved text
+						semantics : [],
+						// Used to cache the HTML version of the text, including
+						// marker spans for annotations etc.
+						cachedHTML : ""
 					}
 				})),
 				textSelectionModel : new (Backbone.Model.extend({
 					defaults : {
+						// The raw text captured by the selection
 						text : "",
+						// The location within the enclosing text of the
+						// selected text.
 						start : 0,
+						// The location within the enclosing text of the end of
+						// the selection (i.e. start + text.length assuming
+						// there are no bugs!)
 						end : 0
+					}
+				})),
+				// The location model defines the current text and location
+				// within that text
+				textLocationModel : new (Backbone.Model.extend({
+					defaults : {
+						// Identifier of the text that should be rendered, if
+						// this is null there is no text defined.
+						textId : null,
+						// The offset within the text which defines the range to
+						// render.
+						offset : 0,
+						// If true then the offset is interpreted as the first
+						// character in the text that should appear on the page,
+						// otherwise it is the last character. This is needed to
+						// preserve sanity when going to a previous page.
+						offsetIsAtStart : true
 					}
 				}))
 			};
@@ -25,60 +62,89 @@ define(
 			 * Router defined here, add client-side routes here to handle
 			 * additional pages and manage history sensibly.
 			 */
-			var AppRouter = Backbone.Router.extend({
+			var appRouter = new (Backbone.Router.extend({
 
 				routes : {
 					// Routes for pages go here
-					'/text/:textid/:startindex' : 'text',
+					'/text/:textid/:offset' : 'text',
 					'*actions' : 'defaultActions'
 				},
 
 				// Location for reading texts
-				text : function(textId, startIndex) {
-					$.getJSON("mock-data/alice-in-wonderland.txt.json",
-							function(data) {
-								models.textModel.set({
-									text : data.text,
-									offset : data.offset,
-									typography : data.typography,
-									semantics : data.semantics
-								});
-								var textView = new TextView({
-									textModel : models.textModel,
-									presenter : {
-										handleTextSelection : function(start,
-												end, text) {
-											models.textSelectionModel.set({
-												start : start,
-												end : end,
-												text : text
-											});
-										}
-									}
-								});
-								textView.render();
-							});
+				text : function(textId, offset) {
+					startActivity(new ReadTextActivity(models), {
+						textId : textId,
+						offset : offset
+					});
 				},
 
 				defaultActions : function() {
-					var appView = new AppView();
-					appView.render();
+					startActivity(new AppActivity(models), null);
 				}
 
-			});
+			}));
+
+			// Hold the currently running activity, or null if there isn't one.
+			var _currentActivity = null;
+			// Hold the current URL fragment set by the router, this is used to
+			// restore the appropriate URL when an activity vetoes a stop
+			// request.
+			var _currentFragment = null;
+
+			// Start a new activity, attempting to stop the previously running
+			// one if applicable. If the previous activity vetoes shutdown
+			// nothing happens.
+			var startActivity = function(activity, location) {
+				var activityName = (activity.hasOwnProperty('name') ? activity.name
+						: "<unknown activity>");
+				if (_currentActivity != null) {
+					var currentActivityName = (_currentActivity
+							.hasOwnProperty('name') ? _currentActivity.name
+							: "<unknown activity>");
+					console.log("Requesting that activity '"
+							+ currentActivityName + "' stop on transition to '"
+							+ Backbone.history.fragment + "'");
+					_currentActivity.stop(function(stopAllowed) {
+						if (!stopAllowed) {
+							console.log("Activity '" + currentActivityName
+									+ "' vetoed stop request!");
+							if (_currentFragment != null) {
+								appRouter.navigate(_currentFragment, {
+									trigger : false,
+									replace : false
+								});
+							}
+							// Do nothing, the action vetoed stopping! Here is
+							// where we'd reset the displayed URL to that for
+							// the previous activity which is still running.
+						} else {
+							console.log("Activity '" + currentActivityName
+									+ "' accepted stop request.");
+							// The activity has stopped, done any required
+							// cleanup etc. We can set currentActivity to null
+							// and call this function again.
+							_currentActivity = null;
+							startActivity(activity, location);
+						}
+					});
+				}
+				if (_currentActivity == null) {
+					_currentActivity = activity;
+					_currentFragment = Backbone.history.fragment;
+					if (location != null) {
+						console.log("Starting activity '" + activityName
+								+ "' with location '" + location + "'");
+						activity.start(location);
+					} else {
+						console.log("Starting activity '" + activityName
+								+ "' with no location.");
+						activity.start();
+					}
+				}
+			};
 
 			return {
 				initialize : function() {
-					_.bindAll(this);
-					var s = models.textSelectionModel;
-					s.bind("change", function(event) {
-						if (s.get("text") != "") {
-							alert("Text selected '" + s.get("text")
-									+ "' character range [" + s.get("start")
-									+ "," + s.get("end") + "]");
-						}
-					});
-					new AppRouter();
 					Backbone.history.start();
 				}
 			};
