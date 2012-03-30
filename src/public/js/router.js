@@ -23,7 +23,7 @@ define(
 						semantics : [],
 						// Used to cache the HTML version of the text, including
 						// marker spans for annotations etc.
-						cachedHTML : ""
+						cachedHTML : null
 					}
 				})),
 				textSelectionModel : new (Backbone.Model.extend({

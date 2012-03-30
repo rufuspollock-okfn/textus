@@ -28,9 +28,11 @@ define([ 'jquery', 'underscore', 'backbone', 'textus',
 		canvas.get(0).width = width;
 		var ctx = canvas.get(0).getContext("2d");
 		// Retrieve a list of all the elements corresponding to semantic
-		// annotations, pair them up in a map containing all the coordinates and
+		// annotations, pair them up in a map containing all the
+		// coordinates and
 		// identifiers. Regions are defined as {id:string, startx:int,
-		// starty:int, startlh:int, endx:int, endy:int, endlh:int} and keyed on
+		// starty:int, startlh:int, endx:int, endy:int, endlh:int} and
+		// keyed on
 		// the same id string as held in the record.
 		var regions = {};
 		var regionList = [];
@@ -61,12 +63,16 @@ define([ 'jquery', 'underscore', 'backbone', 'textus',
 		});
 		var leftMargin = 20;
 		var rightMargin = textContainer.width() + leftMargin;
-
+		// A number of pixels to shift the coloured block down by, helps balance
+		// the result visually.
+		var colourOffset = 3;
 		// Render all the regions...
 		regionList.forEach(function(r) {
-			// Retrieve the colour, if specified, for this region. In the full
+			// Retrieve the colour, if specified, for this region. In
+			// the full
 			// system this will be derived from other properties of the
-			// annotation but this will do for now. Defaults to red if colour
+			// annotation but this will do for now. Defaults to red if
+			// colour
 			// isn't available.
 			var annotation = regions[r.id];
 			if (annotation.colour) {
@@ -75,35 +81,52 @@ define([ 'jquery', 'underscore', 'backbone', 'textus',
 				ctx.fillStyle = "rgba(255,0,0,0.1)";
 			}
 			if (r.starty == r.endy) {
-				// Check for a region where the annotation start and end points
-				// are on the same line, in which case the rectangle is simple.
-				ctx.fillRect(r.startx, r.starty, r.endx - r.startx, r.startlh);
+				// Check for a region where the annotation start and end
+				// points
+				// are on the same line, in which case the rectangle is
+				// simple.
+				ctx.fillRect(r.startx, colourOffset + r.starty - r.startlh,
+						r.endx - r.startx, r.startlh);
 			} else {
-				// Otherwise draw rectangles from the start to the right margin
+				// Otherwise draw rectangles from the start to the right
+				// margin
 				// and from the left margin to the end.
-				ctx.fillRect(leftMargin, r.endy, r.endx - leftMargin, r.endlh);
-				ctx.fillRect(r.startx, r.starty, rightMargin - r.startx,
-						r.startlh);
+				ctx.fillRect(leftMargin, colourOffset + r.endy - r.endlh,
+						r.endx - leftMargin, r.endlh);
+				ctx.fillRect(r.startx, colourOffset + r.starty - r.startlh,
+						rightMargin - r.startx, r.startlh);
+				// If there were lines inbetween the two we just drew,
+				// draw in a
+				// box to completely fill the space.
 				if (r.starty + r.startlh < r.endy) {
-					ctx.fillRect(leftMargin, r.starty + r.startlh, rightMargin
-							- leftMargin, r.endy - (r.starty + r.startlh));
+					ctx.fillRect(leftMargin, colourOffset + r.starty,
+							rightMargin - leftMargin, r.endy
+									- (r.starty + r.endlh));
 				}
 			}
-			// Draw in start and end points for annotations, just to make things
+			// Draw in start and end points for annotations, just to
+			// make things
 			// more obvious when they're going wrong!
-			ctx.fillRect(r.startx, r.starty, 6, r.startlh);
-			ctx.fillRect(r.endx - 6, r.endy, 6, r.endlh);
+			ctx.fillRect(r.startx, colourOffset + r.starty - r.startlh, 6,
+					r.startlh);
+			ctx.fillRect(r.endx - 6, colourOffset + r.endy - r.endlh, 6,
+					r.endlh);
 		});
 	};
 
 	/**
 	 * Populate the text area from the model
 	 */
-	var renderText = function(canvas, textContainer, text, offset, typography,
-			semantics) {
-		textContainer.html(textus.markupText(text, offset, typography,
-				semantics));
-		renderCanvas(canvas, textContainer, semantics);
+	var renderText = function(canvas, textContainer, model) {
+		if (model.cachedHTML == null) {
+			model.set({
+				cachedHTML : textus.markupText(model.get("text"), model
+						.get("offset"), model.get("typography"), model
+						.get("semantics"))
+			});
+		}
+		textContainer.html(model.get("cachedHTML"));
+		renderCanvas(canvas, textContainer, model.get("semantics"));
 	};
 
 	/**
@@ -119,8 +142,10 @@ define([ 'jquery', 'underscore', 'backbone', 'textus',
 		var stepSize = 1024;
 		// Get an initial chunk of content
 		var contents = _getTextAndAnnotations(offset, stepSize);
-		// Initially we fetch blocks of text and join them and their annotation
-		// sets together until we have something that overflows the desired
+		// Initially we fetch blocks of text and join them and their
+		// annotation
+		// sets together until we have something that overflows the
+		// desired
 		// height...
 		var doneInitialFill = false;
 		while (!doneInitialFill) {
@@ -130,20 +155,26 @@ define([ 'jquery', 'underscore', 'backbone', 'textus',
 			if (container.height() >= height) {
 				doneInitialFill = true;
 			} else {
-				// Retrieve another chunk of text and annotations and merge it
+				// Retrieve another chunk of text and annotations and
+				// merge it
 				// with the existing content.
 				var more = _getTextAndAnnotations(
 						offset + contents.text.length, stepSize);
 				if (more.text == "") {
-					// Text member will be the empty string if there's no more
-					// text to fetch, i.e. we're at the end of the document.
+					// Text member will be the empty string if there's
+					// no more
+					// text to fetch, i.e. we're at the end of the
+					// document.
 					doneInitialFill = true;
 				} else {
-					// Merge the returned text and annotations into the current
+					// Merge the returned text and annotations into the
+					// current
 					// content and go around again.
 					contents.text = contents.text + more.text;
-					// Don't merge annotations with start positions less than
-					// the start of the new block, we already have those by
+					// Don't merge annotations with start positions less
+					// than
+					// the start of the new block, we already have those
+					// by
 					// definition.
 					more.typography.forEach(function(annotation) {
 						if (annotation.start > offset + contents.text.length) {
@@ -160,23 +191,30 @@ define([ 'jquery', 'underscore', 'backbone', 'textus',
 				}
 			}
 		}
-		// At this point the text is definitely between 0 and stepSize too big,
-		// and stepSize is a power of two. We halve it initially and refine
-		// until we have the correct number of characters. Firstly we keep a
+		// At this point the text is definitely between 0 and stepSize
+		// too big,
+		// and stepSize is a power of two. We halve it initially and
+		// refine
+		// until we have the correct number of characters. Firstly we
+		// keep a
 		// copy of the overflowing text.
 		var originalText = contents.text;
-		// Set the contents text to be the original with stepSize characters
+		// Set the contents text to be the original with stepSize
+		// characters
 		// lopped off the end, we'll add these back on shortly.
 		contents.text = contents.text.subString(0, contents.text.length
 				- stepSize);
 		stepSize = stepSize / 2;
-		// Store the last rendition which fitted within the bounds, we'll return
+		// Store the last rendition which fitted within the bounds,
+		// we'll return
 		// this later.
 		var lastRender = textus.markupText(contents.text, offset,
 				content.typography, content.semantics);
 		while (stepsize > 0) {
-			// We know the current amount of text fits, try adding more. If it
-			// still fits then set the current amount to that quantity. In
+			// We know the current amount of text fits, try adding more.
+			// If it
+			// still fits then set the current amount to that quantity.
+			// In
 			// either case reduce the step size.
 			var candidateText = originalText.subString(contents.text.length
 					+ stepSize);
@@ -195,7 +233,8 @@ define([ 'jquery', 'underscore', 'backbone', 'textus',
 		}
 		// Clear the temporary container
 		container.html("");
-		// The var 'lastRender' now contains the rendered text, and 'contents'
+		// The var 'lastRender' now contains the rendered text, and
+		// 'contents'
 		// contains the source text and annotations.
 		return {
 			text : contents.text,
@@ -244,14 +283,11 @@ define([ 'jquery', 'underscore', 'backbone', 'textus',
 			.extend({
 
 				render : function(event) {
-					var el = $('.main').html(layout);
-					el.unbind("mouseup");
-					el.bind("mouseup", this.defineSelection);
+					this.$el.html(layout).unbind("mouseup").bind("mouseup",
+							this.defineSelection);
 					var model = this.model;
 					if (model) {
-						renderText($('#pageCanvas'), $('.pageText'), model
-								.get("text"), model.get("offset"), model
-								.get("typography"), model.get("semantics"));
+						renderText($('#pageCanvas'), $('.pageText'), model);
 					}
 				},
 
@@ -268,6 +304,24 @@ define([ 'jquery', 'underscore', 'backbone', 'textus',
 							});
 				},
 
+				/**
+				 * Set the location, fetching the text, updating the model and
+				 * re-rendering
+				 */
+				setTextLocation : function(offset) {
+					var model = this.model;
+					this.presenter.retrieveText(offset, 470, function(data) {
+						model.set({
+							cachedHTML : null,
+							text : data.text,
+							offset : offset,
+							typography : data.typography,
+							semantics : data.semantics
+						});
+						renderText($('#pageCanvas'), $('.pageText'), model);
+					});
+				},
+
 				// Attempt to get the selected text range, after
 				// trimming any markup
 				defineSelection : function() {
@@ -280,14 +334,17 @@ define([ 'jquery', 'underscore', 'backbone', 'textus',
 							var fromChar = parseInt(fromNode.parentNode
 									.getAttribute("offset"))
 									+ parseInt(userSelection.anchorOffset)
-									+ offsetInParent(fromNode);
+									+ offsetInParent(fromNode)
+									- this.model.get("offset");
 							var toChar = parseInt(toNode.parentNode
 									.getAttribute("offset"))
 									+ parseInt(userSelection.focusOffset)
-									+ offsetInParent(toNode);
-							this.presenter.handleTextSelection(fromChar,
-									toChar, this.model.get("text").substring(
-											fromChar, toChar));
+									+ offsetInParent(toNode)
+									- this.model.get("offset");
+							this.presenter.handleTextSelection(fromChar
+									+ this.model.get("offset"), toChar
+									+ this.model.get("offset"), this.model.get(
+									"text").substring(fromChar, toChar));
 						}
 					} else if (document.selection) {
 						console.log("Fetching MS Text Range object (IE).");

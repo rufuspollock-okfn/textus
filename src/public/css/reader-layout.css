@@ -39,3 +39,7 @@
 	position: absolute;
 	left: -10000px;
 }
+.textus-annotation-start, .textus-annotation-end {
+	width: 0px;
+	display: inline-block;
+}

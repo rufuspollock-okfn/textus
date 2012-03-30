@@ -4,6 +4,12 @@ define(
 
 			return {
 
+				overlapsRange : function(startA, endA, startB, endB) {
+					return ((startA <= startB && endA >= endB)
+							|| (startB <= startA && endB >= endA)
+							|| (startB <= startA && endB >= startA) || (startB <= endA && endB >= endA));
+				},
+
 				/**
 				 * Render a piece of text and sets of typographical and semantic
 				 * annotations to HTML. Typographical annotations are rendered
@@ -52,11 +58,7 @@ define(
 					// Filter and adjust offsets for annotations
 					var tags = [];
 					// Function to check whether two ranges overlap
-					var overlapsRange = function(startA, endA, startB, endB) {
-						return ((startA <= startB && endA >= endB)
-								|| (startB <= startA && endB >= endA)
-								|| (startB <= startA && endB >= startA) || (startB <= endA && endB >= endA));
-					};
+					var overlapsRange = this.overlapsRange;
 					// Add semantic annotations to the pool of tags
 					semantics
 							.forEach(function(annotation) {
@@ -73,7 +75,7 @@ define(
 												tag : "<span class=\"textus-annotation-start\" annotation-id=\""
 														+ annotation.id
 														+ "\"></span>",
-												order : 0
+												order : 3
 											});
 									// And a similar span for the annotation end
 									// point
@@ -86,30 +88,45 @@ define(
 												tag : "<span class=\"textus-annotation-end\" annotation-id=\""
 														+ annotation.id
 														+ "\"></span>",
-												order : 1
+												order : 0
 											});
 								}
 							});
 					// Add span tag opening and closing parts to the pool of
 					// tags
-					typography.forEach(function(annotation) {
-						if (overlapsRange(textOffset, textOffset + text.length,
-								annotation.start, annotation.end)) {
-							tags.push({
-								pos : (Math.max(
-										(annotation.start - textOffset), 0)),
-								tag : "<span offset=\"" + annotation.start
-										+ "\" class=\"" + annotation.css
-										+ "\">",
-								order : 3
-							}, {
-								pos : (Math.min((annotation.end - textOffset),
-										text.length)),
-								tag : "</span>",
-								order : 2
+					typography
+							.forEach(function(annotation) {
+								if (overlapsRange(textOffset, textOffset
+										+ text.length, annotation.start,
+										annotation.end)) {
+
+									tags
+											.push(
+													{
+														pos : (Math
+																.max(
+																		(annotation.start - textOffset),
+																		0)),
+														tag : "<span offset=\""
+																+ (Math
+																		.max(
+																				(annotation.start - textOffset),
+																				0) + textOffset)
+																+ "\" class=\""
+																+ annotation.css
+																+ "\">",
+														order : 2
+													},
+													{
+														pos : (Math
+																.min(
+																		(annotation.end - textOffset),
+																		text.length)),
+														tag : "</span>",
+														order : 1
+													});
+								}
 							});
-						}
-					});
 					// Sort tags by position then order, ensures that the
 					// semantic
 					// annotations
@@ -148,7 +165,7 @@ define(
 						result.push(stripBrackets(text.substring(cursorIndex,
 								text.length)));
 					}
-					return result.join("");
+					return result.join("")+" ";
 				}
 			};
 
