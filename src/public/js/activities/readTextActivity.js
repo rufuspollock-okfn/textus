@@ -1,5 +1,4 @@
-define(
-		[ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView' ],
+define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView' ],
 		function($, _, Backbone, textus, TextView) {
 
 			return function(models) {
@@ -48,46 +47,10 @@ define(
 					 *       testing without the server running much easier.
 					 */
 					retrieveText : function(offset, length, callback) {
-						$
-								.getJSON(
-										"mock-data/alice-in-wonderland.txt.json",
-										function(data) {
-											// Trim text to the range
-											// selected...
-											var text = data.text.substring(
-													offset, offset + length);
-											var typography = [];
-											var semantics = [];
-											data.typography
-													.forEach(function(
-															annotation) {
-														if (textus
-																.overlapsRange(
-																		annotation.start,
-																		annotation.end,
-																		offset,
-																		offset
-																				+ length)) {
-															typography
-																	.push(annotation);
-														}
-													});
-											data.semantics.forEach(function(
-													annotation) {
-												if (textus.overlapsRange(
-														annotation.start,
-														annotation.end, offset,
-														offset + length)) {
-													semantics.push(annotation);
-												}
-											});
-											callback({
-												text : text,
-												offset : offset,
-												typography : typography,
-												semantics : semantics
-											});
-										});
+						$.getJSON("api/text/textid/" + offset + "/"
+								+ (offset + length), function(data) {
+							callback(data);
+						});
 					}
 
 				};
@@ -118,7 +81,7 @@ define(
 					// Render it to the DOM, it'll be empty at this point
 					// but this will set up the appropriate window
 					// structure.
-					textView.setTextLocation(0);
+					textView.setTextLocation(location.offset);
 				};
 
 				this.stop = function(callback) {

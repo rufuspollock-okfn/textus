@@ -314,7 +314,7 @@ define([ 'jquery', 'underscore', 'backbone', 'textus',
 						model.set({
 							cachedHTML : null,
 							text : data.text,
-							offset : offset,
+							offset : data.start,
 							typography : data.typography,
 							semantics : data.semantics
 						});

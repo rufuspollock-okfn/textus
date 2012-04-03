@@ -74,7 +74,7 @@ define(
 				text : function(textId, offset) {
 					startActivity(new ReadTextActivity(models), {
 						textId : textId,
-						offset : offset
+						offset : parseInt(offset)
 					});
 				},
 
