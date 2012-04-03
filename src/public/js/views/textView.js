@@ -98,7 +98,7 @@ define([ 'jquery', 'underscore', 'backbone', 'textus',
 				// If there were lines inbetween the two we just drew,
 				// draw in a
 				// box to completely fill the space.
-				if (r.starty + r.startlh < r.endy) {
+				if (r.starty < r.endy - r.endlh) {
 					ctx.fillRect(leftMargin, colourOffset + r.starty,
 							rightMargin - leftMargin, r.endy
 									- (r.starty + r.endlh));
