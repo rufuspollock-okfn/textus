@@ -47,6 +47,7 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView' ],
 					 *       testing without the server running much easier.
 					 */
 					retrieveText : function(offset, length, callback) {
+						console.log("Retrieving "+length+" characters of text from "+offset);
 						$.getJSON("api/text/textid/" + offset + "/"
 								+ (offset + length), function(data) {
 							callback(data);
