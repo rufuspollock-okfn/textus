@@ -3,11 +3,17 @@
 	<!-- Groups the canvas and page text together -->
 	<canvas id="pageCanvas">
 			<!-- Used to render annotation indicators -->
-			Text to display if browser doesn't support canvas
+			Your browser doesn't support canvas, this isn't going to end well...
+			</canvas>
+	<canvas id="linkCanvas">
+			<!-- Used to render the links between annotation blobs and their corresponding DIV elements -->
 			</canvas>
 	<!-- The pageTextMeasure is used to work out how much text to render to fill the pageText div -->
 	<div class="pageTextMeasure"></div>
 	<div class="pageText">
 		<!-- Contains the actual text to be read -->
+	</div>
+	<div class="annotations">
+		<!-- Contains divs for each semantic annotation -->
 	</div>
 </div>

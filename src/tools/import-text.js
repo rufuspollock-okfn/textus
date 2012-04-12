@@ -1,7 +1,6 @@
 // Import the named file, processing it and producing an appropriate JSON description of it
 if (process.argv.length < 3) {
-	console.log('Must specify a filename to import : ' + process.argv[1]
-			+ ' FILENAME');
+	console.log('Must specify a filename to import : ' + process.argv[1] + ' FILENAME');
 	process.exit(1);
 }
 
@@ -13,14 +12,31 @@ var string = [];
 var typography = [];
 
 var processString = function(line) {
-	string.push(line.replace("\"", "\\\"", "gim"));
+	string.push(line);
 	typography.push({
 		start : currentPosition,
 		end : currentPosition + line.length,
 		css : (line.substring(0, 7) == "CHAPTER") ? "chapter" : "paragraph"
 	});
-	// console.log(line.replace("\"", "\\\"", "gim"));
 	currentPosition += line.length;
+};
+
+var createDummyAnnotations = function(string, count, spanlength) {
+	annotations = [];
+	for ( var i = 0; i < count; i++) {
+		var startPos = Math.floor(Math.random() * (string.length - spanlength));
+		var endPos = startPos + Math.floor(Math.random() * spanlength);
+		var rCol = function() {
+			return Math.floor(Math.random() * 256);
+		};
+		annotations.push({
+			start : startPos,
+			end : endPos,
+			id : "annotation" + i,
+			colour : "rgba(" + rCol() + "," + rCol() + "," + rCol() + ",0.2)"
+		});
+	}
+	return annotations;
 };
 
 fs.readFile(filename, 'utf8', function(error, data) {
@@ -34,12 +50,13 @@ fs.readFile(filename, 'utf8', function(error, data) {
 			processString(line);
 		}
 	});
+	var text = string.join("");
 	fs.writeFile(filename + ".json", (JSON.stringify({
-		text : string.join(""),
+		text : text,
 		offset : 0,
 		typography : typography,
-		semantics : []
-	})), function(err) {
+		semantics : createDummyAnnotations(text, 2000, 100)
+	}, null, "  ")), function(err) {
 		if (err) {
 			console.log(err);
 		} else {

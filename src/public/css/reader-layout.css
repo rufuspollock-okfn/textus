@@ -5,7 +5,7 @@
 	overflow-x: hidden;
 }
 
-.pageContainer canvas#pageCanvas {
+.pageContainer canvas {
 	position: absolute;
 	top: 0px;
 	left: 0px;
@@ -21,8 +21,29 @@
 	right: 0px;
 	overflow-y: hidden;
 	padding: 20px 300px 20px 20px;
-	
 }
+
+.pageContainer .annotations {
+	position: absolute;
+	top: 0px;
+	bottom: 0px;
+	right: 0px;
+	width: 275px;
+	padding: 5px 5px 0px 15px;
+	overflow-y: scroll;
+}
+
+.pageContainer .annotations > div {
+	display: block;
+	border: solid;
+	border-width: 1px;
+	border-color: #777;
+	position: relative;
+	margin: 0px 0px 5px 0px;
+	background-color: #fffefe;
+	padding: 5px;
+}
+
 .chapter {
 	display: block;
 	font-weight: bold;
@@ -46,4 +67,5 @@
 .textus-annotation-start, .textus-annotation-end {
 	width: 0px;
 	display: inline-block;
+	white-space: nowrap;
 }

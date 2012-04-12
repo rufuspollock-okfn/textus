@@ -14,9 +14,85 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textView.
 	};
 
 	/**
+	 * Create DIV elements in the annotation container corresponding to the supplied semantic
+	 * annotations.
+	 */
+	var populateAnnotationContainer = function(semantics, annotationContainer) {
+		console.log("Populating annotation container");
+		console.log(annotationContainer);
+		annotationContainer.empty();
+		semantics.sort(function(a, b) {
+			if (a.start != b.start) {
+				return a.start - b.start;
+			} else {
+				return a.end - b.end;
+			}
+		});
+		semantics.forEach(function(annotation) {
+			annotationContainer.append("<div annotation-id=\"" + annotation.id + "\">" + annotation.id + "</div>");
+		});
+	};
+
+	/**
+	 * Resize, clear and re-render the lines linking annotation blocks to their corresponding divs
+	 * 
+	 * @param canvas
+	 *            The CANVAS element to use when drawing in the annotation links
+	 * @param semantics
+	 *            The semantic annotations, which must have been updated with the 'anchor' property
+	 *            by the renderCanvas method prior to this being called.
+	 * @param annotationContainer
+	 *            The DIV containing annotation elements as immediate children.
+	 */
+	var renderLinks = function(textContainer, canvas, semantics, annotationContainer) {
+		var width = textContainer.outerWidth(true);
+		var height = textContainer.outerHeight(true);
+		canvas.get(0).height = height;
+		canvas.get(0).width = width;
+		var ctx = canvas.get(0).getContext("2d");
+		ctx.lineWidth = 2;
+		/*
+		 * Gather up all the annotated and positioned regions on the page ready to then iterate over
+		 * the elements in the annotation container and draw in the links.
+		 */
+		regions = {};
+		semantics.forEach(function(annotation) {
+			if (annotation.hasOwnProperty("anchor")) {
+				regions[annotation.id] = {
+					x : annotation.anchor.x,
+					y : annotation.anchor.y,
+					colour : (annotation.colour ? annotation.colour : "rgba(0,0,0,0.2)")
+				};
+			}
+		});
+		annotationContainer.children().each(function() {
+			var child = $(this);
+			var id = child.attr("annotation-id");
+			if (regions[id]) {
+				var coords = relativeCoords(canvas, child);
+				if (coords.y >= (-child.outerHeight()) && coords.y <= height) {
+					var region = regions[id];
+					var anchorY = coords.y + (child.outerHeight() / 2);
+					if (anchorY > 0 && anchorY < height) {
+						ctx.strokeStyle = region.colour;
+						ctx.beginPath();
+						ctx.moveTo(region.x, region.y);
+						ctx.lineTo(coords.x, anchorY);
+						ctx.closePath();
+						ctx.stroke();
+					}
+					ctx.fillStyle = region.colour;
+					ctx.fillRect(coords.x, coords.y, child.outerWidth(), child.outerHeight());
+				}
+			}
+		});
+	};
+
+	/**
 	 * Resize, clear and re-render the overlay of annotation positions on the canvas. This assumes
 	 * that textContainer already contains the appropriate markup including the empty span elements
-	 * indicating annotation start and end points.
+	 * indicating annotation start and end points. Updates the 'anchor' property of the annotation
+	 * elements to be the coordinate to use when drawing lines to the divs.
 	 */
 	var renderCanvas = function(canvas, textContainer, semantics) {
 		var width = textContainer.outerWidth(true);
@@ -24,6 +100,8 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textView.
 		canvas.get(0).height = height;
 		canvas.get(0).width = width;
 		var ctx = canvas.get(0).getContext("2d");
+		var leftMargin = 20;
+		var rightMargin = textContainer.width() + leftMargin;
 		/*
 		 * Retrieve a list of all the elements corresponding to semantic annotations, pair them up
 		 * in a map containing all the coordinates and identifiers. Regions are defined as
@@ -36,6 +114,12 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textView.
 			var coords = relativeCoords(canvas, $(this));
 			var lineHeight = $(this).css("line-height").match(/\d+/)[0];
 			var id = $(this).attr("annotation-id");
+			// If we're right on the end of the line move the start coordinates to the following
+			// line
+			if (coords.x >= rightMargin) {
+				coords.x = leftMargin;
+				coords.y = coords.y + lineHeight;
+			}
 			regions[id] = {
 				id : id,
 				startx : coords.x,
@@ -57,8 +141,7 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textView.
 		semantics.forEach(function(annotation) {
 			regions[annotation.id] = annotation;
 		});
-		var leftMargin = 20;
-		var rightMargin = textContainer.width() + leftMargin;
+
 		/*
 		 * A number of pixels to shift the coloured block down by, helps balance the result
 		 * visually.
@@ -83,6 +166,10 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textView.
 				 * line, in which case the rectangle is simple.
 				 */
 				ctx.fillRect(r.startx, colourOffset + r.starty - r.startlh, r.endx - r.startx, r.startlh);
+				annotation.anchor = {
+					x : r.endx,
+					y : r.endy - (r.endlh / 2)
+				};
 			} else {
 				/*
 				 * Otherwise draw rectangles from the start to the right margin and from the left
@@ -90,6 +177,10 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textView.
 				 */
 				ctx.fillRect(leftMargin, colourOffset + r.endy - r.endlh, r.endx - leftMargin, r.endlh);
 				ctx.fillRect(r.startx, colourOffset + r.starty - r.startlh, rightMargin - r.startx, r.startlh);
+				annotation.anchor = {
+					x : rightMargin,
+					y : r.starty - (r.startlh / 2)
+				};
 				/*
 				 * If there were lines inbetween the two we just drew, draw in a box to completely
 				 * fill the space.
@@ -103,7 +194,8 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textView.
 			 * Draw in start and end points for annotations, just to make things more obvious when
 			 * they're going wrong!
 			 */
-			ctx.fillRect(r.startx, colourOffset + r.starty - r.startlh, 6, r.startlh);
+			ctx.fillRect(r.startx, colourOffset + r.starty - r.startlh, (Math.min(6, rightMargin - r.startx)),
+					r.startlh);
 			ctx.fillRect(r.endx - 6, colourOffset + r.endy - r.endlh, 6, r.endlh);
 		});
 	};
@@ -119,7 +211,9 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textView.
 			});
 		}
 		textContainer.html(model.get("cachedHTML"));
+		populateAnnotationContainer(model.get("semantics"), $('.annotations'));
 		renderCanvas(canvas, textContainer, model.get("semantics"));
+		renderLinks(textContainer, $('#linkCanvas'), model.get("semantics"), $('.annotations'));
 	};
 
 	/**
@@ -255,14 +349,20 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textView.
 				i = i / 2;
 				// 'i' will range from stepsize/2 to 1 then terminate
 				var testData = trimData(textLength + i);
-				test.html(textus.markupText(testData.text, testData.offset, data.typography, []));
+				test.html(textus.markupText(testData.text, testData.offset, data.typography, data.semantics));
 				if (test.height() <= height) {
 					textLength = textLength + i;
 				}
 			}
 			var trimmed = trimData(textLength);
-			trimmed.typography = data.typography;
-			trimmed.semantics = data.semantics;
+			var annotationFilter = function(annotation) {
+				console.log(annotation);
+				console.log(trimmed.offset + ", " + (trimmed.offset + trimmed.text.length));
+				return annotation.end >= trimmed.offset && annotation.start <= (trimmed.offset + trimmed.text.length);
+			};
+			trimmed.typography = data.typography.filter(annotationFilter);
+			trimmed.semantics = data.semantics.filter(annotationFilter);
+			test.html("");
 			callback(trimmed);
 		};
 
@@ -273,6 +373,7 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textView.
 			semantics : [],
 			cachedHTML : null
 		}, 1024);
+
 	};
 
 	/**
@@ -302,7 +403,11 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textView.
 			var presenter = this.presenter;
 			if (model) {
 				renderText($('#pageCanvas'), $('.pageText'), model, presenter);
+
 			}
+			$('.annotations').scroll(function(event) {
+				renderLinks($('.pageText'), $('#linkCanvas'), model.get("semantics"), $('.annotations'));
+			});
 		},
 
 		initialize : function() {
@@ -313,7 +418,9 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textView.
 			var model = this.model;
 			$(window).resize(function() {
 				renderCanvas($('#pageCanvas'), $('.pageText'), model.get("semantics"));
+				renderLinks($('.pageText'), $('#linkCanvas'), model.get("semantics"), $('.annotations'));
 			});
+
 		},
 
 		/**
@@ -326,7 +433,7 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textView.
 			console.log("fillContainer(" + $('.pageText').width() + "," + 400 + "," + offset + ")");
 			fillContainer($('.pageText').width(), $('.pageText').height(), offset, this.presenter, true,
 					function(data) {
-						console.log("Received data from trip function");
+						console.log("Received data from trim function");
 						console.log(data);
 						model.set({
 							cachedHTML : data.cachedHTML,
