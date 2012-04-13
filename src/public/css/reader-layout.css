@@ -69,3 +69,14 @@
 	display: inline-block;
 	white-space: nowrap;
 }
+
+.footer button {
+	position: absolute;
+	height: 29px;
+}
+.footer button#pageBackButton {
+	left: 15px;
+}
+.footer button#pageForwardButton {
+	right: 15px;
+}

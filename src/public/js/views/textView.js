@@ -141,7 +141,7 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textView.
 				id : id,
 				startx : coords.x,
 				starty : coords.y,
-				startlh :lineHeight
+				startlh : lineHeight
 			};
 		});
 		$(".textus-annotation-end").each(function() {
@@ -185,6 +185,7 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textView.
 				ctx.fillRect(r.startx, colourOffset + r.starty - r.startlh, r.endx - r.startx, r.startlh);
 				annotation.anchor = {
 					x : r.endx,
+					//x : rightMargin,
 					y : r.endy - (r.endlh / 2)
 				};
 			} else {

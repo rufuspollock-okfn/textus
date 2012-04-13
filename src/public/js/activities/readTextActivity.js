@@ -1,4 +1,5 @@
-define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView' ], function($, _, Backbone, textus, TextView) {
+define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView', 'views/textFooterView' ], function($, _,
+		Backbone, textus, TextView, TextFooterView) {
 
 	return function(models) {
 
@@ -110,36 +111,58 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView' ], funct
 			 * progressively reduced each iteration.
 			 */
 			var trim = function(data) {
+				console.log("Starting trim function, text has offset " + data.offset + " and length "
+						+ data.text.length);
 				var trimData = function(length) {
 					var amountRemoved = data.text.length - length;
 					return {
-						text : forwards ? (data.text.substring(0, length)) : (data.text
-								.substring(amountRemoved, length)),
-						offset : forwards ? (data.offset) : (data.offset - amountRemoved),
+						text : forwards ? (data.text.substring(0, length)) : (data.text.substring(amountRemoved,
+								data.text.length)),
+						offset : forwards ? (data.offset) : (data.offset + amountRemoved),
 						typography : data.typography,
-						semantics : data.semantics
+						semantics : []
 					};
 				};
 
 				var textLength = data.text.length - (textChunkSize - 1);
+				console.log("Text length starts at " + textLength);
 				var i = textChunkSize;
 				while (i > 1) {
 					i = i / 2;
 					var test = trimData(textLength + i);
-					if (measure(markupStruct(test)) <= height) {
+					console.log("Trim - end offset of text is " + (test.offset + test.text.length));
+					console.log("Trimmed text : " + test.text.substring(0, 20) + "...");
+					var measured = measure(markupStruct(test));
+					if (measured <= height) {
 						textLength = textLength + i;
+						console.log("Text length is " + textLength + " (+" + i + ")");
+					} else {
+						console.log("Text is too high - measured at " + measured + ", maximum is " + height);
 					}
 				}
 				var t = trimData(textLength);
 				var annotationFilter = function(a) {
 					return a.end >= t.offset && a.start <= (t.offset + t.text.length);
 				};
-				models.textModel.set({
-					text : t.text,
-					offset : t.offset,
-					typography : data.typography.filter(annotationFilter),
-					semantics : data.semantics.filter(annotationFilter)
-				});
+				console.log("Offset = " + t.offset + " text.length = " + t.text.length);
+				/*
+				 * Handle the special case where we went back and the start offset ended up being
+				 * zero. In these cases we should re-do the entire call going fowards from zero
+				 */
+				if (!forwards && t.offset == 0) {
+					updateTextAsync(0, true, height, measure);
+				} else {
+					if (forwards && t.text.length == 0) {
+						updateTextAsync(t.offset, false, height, measure);
+					} else {
+						models.textModel.set({
+							text : t.text,
+							offset : t.offset,
+							typography : data.typography.filter(annotationFilter),
+							semantics : data.semantics.filter(annotationFilter)
+						});
+					}
+				}
 			};
 
 			fetch({
@@ -155,6 +178,8 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView' ], funct
 		this.name = "ReadTextActivity";
 
 		this.start = function(location) {
+
+			var currentOffset = location.offset;
 
 			// Create a new textView
 			var textView = new TextView({
@@ -185,15 +210,33 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView' ], funct
 					 * re-filled.
 					 */
 					requestTextFill : function() {
-						updateTextAsync(location.offset, true, textView.pageHeight(), textView.measure);
+						updateTextAsync(models.textModel.get("offset"), true, textView.pageHeight(), textView.measure);
 					}
 				},
 				textLocationModel : models.textLocationModel,
 				el : $('.main')
 			});
 
-			// Set up a listener on selection events on the text
-			// selection model
+			var textFooterView = new TextFooterView(
+					{
+						presenter : {
+							back : function() {
+								updateTextAsync(models.textModel.get("offset"), false, textView.pageHeight(),
+										textView.measure);
+								console.log("Back button pressed.");
+							},
+							forward : function() {
+								updateTextAsync(models.textModel.get("offset") + models.textModel.get("text").length,
+										true, textView.pageHeight(), textView.measure);
+								console.log("Forward button pressed.");
+							}
+						},
+						el : $('.footer')
+					});
+
+			/*
+			 * Set up a listener on selection events on the text selection model
+			 */
 			var s = models.textSelectionModel;
 			s.bind("change", function(event) {
 				if (s.get("text") != "") {
@@ -202,7 +245,19 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView' ], funct
 				}
 			});
 
-			updateTextAsync(location.offset, true, textView.pageHeight(), textView.measure);
+			/*
+			 * Listen to changes on the offset property and re-write the URL appropriately
+			 */
+			var t = models.textModel;
+			t.bind("change offset", function() {
+				location.router.navigate("text/textId/" + t.get("offset"));
+			});
+
+			/*
+			 * Get text and update the view based on the location passed into the activity via the
+			 * URL
+			 */
+			updateTextAsync(currentOffset, true, textView.pageHeight(), textView.measure);
 
 		};
 
