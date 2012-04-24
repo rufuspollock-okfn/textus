@@ -21,19 +21,28 @@ define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activiti
 	var models = {
 		textModel : new (Backbone.Model.extend({
 			defaults : {
-				// Text retrieved from the server
+				/* Text retrieved from the server */
 				text : "",
-				// Offset of the first character in the retrieved text
+				/* Offset of the first character in the retrieved text */
 				offset : 0,
-				// Array containing typographical annotations which
-				// overlap with the retrieved text
+				/*
+				 * Array containing typographical annotations which overlap with the retrieved text
+				 */
 				typography : [],
-				// Array containing semantic annotations which overlap
-				// with the retrieved text
+				/*
+				 * Array containing semantic annotations which overlap with the retrieved text
+				 */
 				semantics : [],
-				// Used to cache the HTML version of the text, including
-				// marker spans for annotations etc.
-				cachedHTML : null
+				/*
+				 * Used to cache the HTML version of the text, including marker spans for
+				 * annotations etc.
+				 */
+				cachedHTML : null,
+				/*
+				 * Structure of the current text, the structure is an array of markers indicating
+				 * structure boundary start points.
+				 */
+				structure : []
 			}
 		})),
 		textSelectionModel : new (Backbone.Model.extend({
