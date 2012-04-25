@@ -1,6 +1,6 @@
 # Textus JSON Import Format and Textus Basic Profile
 
-Version 1.0
+Version 1.0-DRAFT-INCOMPLETE
 
 This document defines the format used when importing a new document into Textus. The document format is based on one or more files containing information in Javascript Object Notation (JSON) format. It is strongly recommended to use a JSON API to generate these files as JSON has specific quoting rules which are non-trivial to implement from scratch!
 
@@ -169,12 +169,16 @@ Semantic annotations and structure nodes contain a type member. Given the value 
 
 ### Typographical Classes
 
-TODO
+The base set of typographical classes correspond to the tag names of HTML elements, and will create the same effects. Styles available as part of this scheme are
+
++ Heading styles - h1,h2,h3,h4,h5
++ Paragraph formatting - p, blockquote, pre
++ Character formatting - b, i
 
 ### Semantic Annotation Types
 
-TODO
+TODO - probably derive most of these from http://dtd.nlm.nih.gov/book/tag-library/
 
 ### Structure Marker Types
 
-TODO
+TODO 
