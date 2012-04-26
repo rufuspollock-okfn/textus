@@ -62,6 +62,8 @@ The formats for each of these data types are defined later in this document, the
 }
 ```
 
+Note - while the import specification does not include identifiers for semantic annotations such annotations are assigned unique URIs within textus and any export will expose these as an 'id' property.
+
 Each of the text, typography, semantics and structure members are optional - it is possible to specify annotations outside the boundary of the text but this is not meaningful and such annotations will never be displayed. Text chunks are ordered by sequence property and joined during import, in almost all cases the textual data will be small enough to specify as a single block but the ability to split it into smaller chunks is there if this turns out not to be the case.
 
 ### Typographical annotations
@@ -177,7 +179,82 @@ The base set of typographical classes correspond to the tag names of HTML elemen
 
 ### Semantic Annotation Types
 
-TODO - probably derive most of these from http://dtd.nlm.nih.gov/book/tag-library/
+Semantic annotations enrich the text with descriptions, provenance information, comments, links to related resources and similar. The basic profile includes the following annotation types:
+
+#### BibJSON Metadata
+
+If the type string is set to 'textus:bibjson' the payload member should contain a description of the referenced range using the tag names defined at the [BibJSON site](http://bibjson.org/). Because the annotation defines the character range (the subject of the metadata) we don't use the full BibJSON representation, we already have the subject and therefore have no need to reference it via a link or identifier. 
+
+Note - in the future we may choose to expose these classes of annotations explicitly, in which case the appropriate URL for the referenced character range will be inserted into the surfaced annotations, but for now the context is implicit so we don't do this.
+
+The format for the BibJSON payload is a list of sub-properties, all of which are optional, where the sub-property names are derived from the BibTeX tags for bibliographic information (see the [tag names](http://en.wikipedia.org/wiki/BibTeX#Bibliographic_information_file) on Wikipedia). For the corresponding value types see the BibJSON page, in general simple types such as year, month etc. are strings and all others are objects or lists of objects. A full annotation block describing a book might appear as an item in the 'semantics' list as follows:
+
+```javascript
+	"start" : 0,
+	"end" : 3242342,
+	"type" : "textus:bibjson",
+	"user" : "someone@textus.org",
+	"date" : "2010-10-28T12:34Z",
+	"payload" : {
+		"title" : "Alice in Wonderland",
+		"type" : "book",
+		"author" : [ {
+			"name" : "Caroll, Lewis" } ],
+		"year" : "1865",
+		"edition" : "first",
+		"license" : [ {
+            "type" : "copyheart",
+            "url" : "http://copyheart.org/manifesto/",
+            "description" : "A great license",
+            "jurisdiction" : "universal" } ]    		
+	}
+```
+
+In a sense we're deferring responsibility for sensible metadata to the BibJSON project here, which is maybe no ideal, but the intent is to work with that project to pin down the allowable keys and their interpretation in slightly greater detail rather than inventing our own.
+
+#### Free Text Comments
+
+These are the simplest annotation, consisting of a free-form comment from a user:
+
+```javascript
+	"start" : 300,
+	"end" : 320,
+	"type" : "textus:comment",
+	"user" : "someone@textus.org",
+	"date" : "2010-10-28T12:34Z",
+	"payload" : {
+		"lang" : "en"
+		"text" : "Those twenty characters really blow me away, man..." 		
+	}
+```
+
+The optional 'lang' property in the payload can be used to specify the [ISO 939-2 code](http://www.loc.gov/standards/iso639-2/php/code_list.php) for the language of the comment. If omitted the default is to assume a comment in English, so the above example is not actually necessary (there is no distinction in that particular ISO standard between British and American English, for example, but I doubt that's something we have to worry about).
+
+#### Source
+
+Used to indicate the provenance of a particular section of text, including links out to scanned images or other textual representations.
+
+```javascript
+	"start" : 0,
+	"end" : 3095,
+	"type" : "textus:source",
+	"user" : "someone@textus.org",
+	"date" : "2010-10-28T12:34Z",
+	"payload" : {
+		"type" : "scanned-image",
+		"url" : "http://my.transcription.site/texts/mytext/pages/1.html",
+		"data-url" : "http://my.transcription.site/texts/mytext/pages/1/image.png" 		
+	}
+```
+
+The 'url' property is a web page which contains the source, whether directly or indirectly. There is no expecation that automated processing can do anything with the resource at this location, for example we don't expect to be able to automatically infer the image URL for a scanned image, but it acts as a target for a 'more details' link within the reader. It may also be the only option for resources which disallow deep links into their actual content or for where there is no valid URL for the granularity of data we want (for example we might have an annotation on the entire text linking to the top level page for a transcription service in cases where the service doesn't allow for links to individual pages of a transcribed book).
+
+The 'type' can be either of the following, and influences the interpretation of the optional 'data-url':
+
++ scanned-image : The data-url, if present, references an image resource containing a scan or photograph of a physical book, manuscript etc from which the annotated text is transcribed. The data-url should reference a resource with MIME type image/*.
++ audio : The data-url, if present, references an audio resource from which the annotated text has been transcribed. The data-url should reference a resource with MIME type audio/*.
+
+This set may be expanded in the future.
 
 ### Structure Marker Types
 
