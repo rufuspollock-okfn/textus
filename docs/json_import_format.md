@@ -241,7 +241,7 @@ Used to indicate the provenance of a particular section of text, including links
 	"user" : "someone@textus.org",
 	"date" : "2010-10-28T12:34Z",
 	"payload" : {
-		"type" : "scanned-image",
+		"type" : "textus:scanned-image",
 		"url" : "http://my.transcription.site/texts/mytext/pages/1.html",
 		"data-url" : "http://my.transcription.site/texts/mytext/pages/1/image.png" 		
 	}
@@ -251,11 +251,69 @@ The 'url' property is a web page which contains the source, whether directly or 
 
 The 'type' can be either of the following, and influences the interpretation of the optional 'data-url':
 
-+ scanned-image : The data-url, if present, references an image resource containing a scan or photograph of a physical book, manuscript etc from which the annotated text is transcribed. The data-url should reference a resource with MIME type image/*.
-+ audio : The data-url, if present, references an audio resource from which the annotated text has been transcribed. The data-url should reference a resource with MIME type audio/*.
++ textus:scanned-image : The data-url, if present, references an image resource containing a scan or photograph of a physical book, manuscript etc from which the annotated text is transcribed. The data-url should reference a resource with MIME type image/*.
++ textus:audio : The data-url, if present, references an audio resource from which the annotated text has been transcribed. The data-url should reference a resource with MIME type audio/*.
 
 This set may be expanded in the future.
 
 ### Structure Marker Types
 
-TODO 
+Structure markers overlap to a degree with semantic annotations, in the both are used to interpret the text to which they apply. Some of the structure markers carry metadata themselves - these metadata could be represented as semantic annotations, in general we use structure markers when the following can all be said to be true for the piece of metadata:
+
++ The metadata applies to a recognizable structural unit in the text, a book, chapter, scene or similar. Such units should exist irrespective of edition or other similar variations.
++ The metadata is inarguably true. The actors in a scene, or the author of a letter are true facts rather than opinions (if a letter has an unknown author the author should be empty and a semantic annotation used to comment on this fact!)
++ The metadata is applicable to all possible instances of that structural type. All letters have an author, all scenes in a play have actors (even if they have zero actors the concept is valid). This is why 'textus:book' doesn't have an author - the concept is used in a sufficiently diverse range of contexts that while all books have authors it isn't necessarily the case that a 'textus:book' is associated with a particular author.
+
+In all other cases semantic annotations should be used instead of structure markers (or in addition to, where there is also structure).
+
+The following types all have a payload containing the name of the section used to display in navigation controls etc.
+
+```javascript
+	"name" : "Chapter II"
+```
+
++ textus:front : A preface or prologue to the main content of the text
++ textus:back : An epilogue, appendix or similar
++ textus:body : The primary content of the text
++ textus:book : A book, the precise definition of which is somewhat ambiguous (for example some physical books have multiple 'books' within them, most notably the bible)
++ textus:chapter : A chapter (prose)
++ textus:section : A section (prose)
++ textus:part : A part or sub-section (prose)
++ textus:canto : Used for verse
++ textus:act : Used for dramatic texts
+
+The following have either no payload or more specialized payloads to carry more information about the structural unit. With no payload we have stanzas and paragraphs, both of which are indexed by position within their parent when used for navigation:
+
++ textus:stanza (verse)
++ textus:paragraph (all)
+
+Markers with more elaborate payloads are as follows:
+
+#### Scenes in Dramatic Texts
+
+Scenes are entities within a dramatic text distinguished by a place, a time and a set of actors (in the 'things which cause effects' rather than 'people wearing costumes' sense). All properties are free text, to make these markers meaningful care should be taken to sensibly normalise e.g. names of characters such that a free text comparison works at a semantic level.
+
+```javascript
+	"type" : "textus:scene",
+	"payload" : {
+		"name" : "Scene III", // Optional - indices within parent used if absent
+		"place" : "A spooky wood",
+		"time" : "Just before midnight",
+		"actors" : [
+			"Frightened rabbit",
+			"Scarecrow" ] }
+```
+
+#### Letters
+
+Letters have an author or authors, a date and a recipient or set of recipients. They may also have a title which can be used as a name when displaying the marker but do not require such - when there is no title a marker of this kind should be displayed using the author, recipient and date fields. Dates are represented as YYYY-MM-DD, with the optional 'date-name' property used when this should be overridden for display purposes (we keep a formal date representation to simplify querying by date range).
+
+```javascript
+	"type" : "textus:letter",
+	"payload" : {
+		"title" : "On Being Liberated from the Bastille", // Optional - title inferred from other fields if absent
+		"authors" : [ "Voltaire" ],
+		"recipients" : [ "the Lieutenant of Police" ],
+		"date" : "1718-04-05",
+		"date-name" : "Good Friday, April 5, 1718" }
+```
