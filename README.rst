@@ -8,3 +8,13 @@ building as it does on the OpenShakspeare platform (which powered
 http://openshakespeare.org from 2005 until 2011) and the OpenCorrespondence
 system (which powered http://opencorrespondence.org from 2009-2011).
 
+Quick getting started guide (very beta code!)
+
++ Install Node.js and NPM (Node Package Manager)
++ In a shell:
+  + git clone git://github.com/okfn/textus.git
+  + cd textus
+  + npm install
+  + cd src
+  + node server.js
++ Point web browser at http://localhost:8080
