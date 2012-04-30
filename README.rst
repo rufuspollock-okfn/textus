@@ -12,9 +12,9 @@ Quick getting started guide (very beta code!)
 
 + Install Node.js and NPM (Node Package Manager)
 + In a shell:
-  * git clone git://github.com/okfn/textus.git
-  * cd textus
-  * npm install
-  * cd src
-  * node server.js
+	* git clone git://github.com/okfn/textus.git
+	* cd textus
+	* npm install
+	* cd src
+	* node server.js
 + Point web browser at http://localhost:8080
