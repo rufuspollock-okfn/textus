@@ -10,7 +10,7 @@
 	top: 0px;
 	left: 0px;
 	z-index: 1;
-	pointer-events:none;
+	pointer-events: none;
 }
 
 .pageContainer .pageText {
@@ -33,7 +33,7 @@
 	overflow-y: scroll;
 }
 
-.pageContainer .annotations > div {
+.pageContainer .annotations>div {
 	display: block;
 	border: solid;
 	border-width: 1px;
@@ -51,7 +51,8 @@
 	line-height: 35px;
 	padding-bottom: 10px;
 }
-.paragraph {
+
+span.p, span.paragraph {
 	display: block;
 	font-size: 12pt;
 	line-height: 16pt;
@@ -59,12 +60,19 @@
 	text-align: justify;
 	text-indent: 20px;
 }
+
+span.b {
+	display: inline;
+	font-weight: bold;
+}
+
 .pageTextMeasure {
 	position: absolute;
 	padding: 20px 300px 20px 20px;
 	left: -10000px;
 }
-.textus-annotation-start, .textus-annotation-end {
+
+.textus-annotation-start,.textus-annotation-end {
 	width: 0px;
 	display: inline-block;
 	white-space: nowrap;
@@ -74,9 +82,11 @@
 	position: absolute;
 	height: 29px;
 }
+
 .footer button#pageBackButton {
 	left: 15px;
 }
+
 .footer button#pageForwardButton {
 	right: 15px;
 }

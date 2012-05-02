@@ -65,6 +65,7 @@ define([ 'jquery', 'underscore', 'backbone' ], function($, _, Backbone) {
 			});
 			// Add span tag opening and closing parts to the pool of
 			// tags
+			
 			typography.forEach(function(annotation) {
 				if (overlapsRange(textOffset, textOffset + text.length, annotation.start, annotation.end)) {
 
@@ -72,7 +73,8 @@ define([ 'jquery', 'underscore', 'backbone' ], function($, _, Backbone) {
 						pos : (Math.max((annotation.start - textOffset), 0)),
 						tag : "<span offset=\"" + (Math.max((annotation.start - textOffset), 0) + textOffset)
 								+ "\" class=\"" + annotation.css + "\">",
-						order : 2
+						order : 2,
+						endpos: (Math.min((annotation.end - textOffset), text.length))
 					}, {
 						pos : (Math.min((annotation.end - textOffset), text.length)),
 						tag : "</span>",
@@ -91,7 +93,14 @@ define([ 'jquery', 'underscore', 'backbone' ], function($, _, Backbone) {
 				if (a.pos != b.pos) {
 					return a.pos - b.pos;
 				} else {
-					return a.order - b.order;
+					if (a.order != b.order) {
+						return a.order - b.order;
+					} else {
+						if (a.endpos != null && b.endpos != null) {
+							return b.endpos - a.endpos;
+						}
+						return 0;
+					}
 				}
 			});
 			// Quick function to replace angled brackets with their HTML
@@ -107,13 +116,17 @@ define([ 'jquery', 'underscore', 'backbone' ], function($, _, Backbone) {
 			// appropriate.
 			tags.forEach(function(tag) {
 				if (tag.pos > cursorIndex) {
+					result.push("<span offset=\""+(cursorIndex+textOffset)+"\">");
 					result.push(stripBrackets(text.substring(cursorIndex, tag.pos)));
+					result.push("</span>");
 					cursorIndex = tag.pos;
 				}
 				result.push(tag.tag);
 			});
 			if (cursorIndex < text.length) {
+				result.push("<span offset=\""+(cursorIndex+textOffset)+"\">");
 				result.push(stripBrackets(text.substring(cursorIndex, text.length)));
+				result.push("</span>");
 			}
 			return result.join("") + " ";
 		}
