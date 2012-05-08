@@ -13,7 +13,7 @@ The Textus data model for a text consists of three kinds of metadata anchored by
 + Text contains visible characters and whitespace, but does not contain formatting information. It defines the coordinate system used for positions of annotations and structure markers, with the first character in the text being at position 0 (zero). When a range is defined between characters A and B the range will include all characters where the character index I satisfies (B > I >= A), that is to say start positions are inclusive and end positions exclusive - a character range [0,5] does not overlap with [5,6] and the range [5,5] is not meaningful (as it has no content)
 + Typography defines formatting to be applied to the text when rendering to a particular device. In the initial case this device is a web browser and the typography is defined in terms of CSS styles. Typographical annotations have a start position, end position and CSS style string. Typographical annotations may not overlap but may be contained within other typographical annotations - this limitation reflects the representation of the rendered HTML.
 + Semantics define any metadata which are not used when rendering the text to a display device. A semantic annotation also has a start and end position but whereas typographical annotations may not overlap there is no such restriction on semantic annotations. In addition to the location the semantic annotation defines a type and optionally an author and creation date - where omitted the interpretation is that the annotation was created during the text import and was the result of an automated process or script. Some annotation types may require additional information to be useful in which case the additional information is included as a payload property which must be an object and may contain any arbitrary information necessary for the particular type. Types are strings, and act as an extension point with a set of types defined by the Textus Basic Profile defined later in this document.
-+ Structure is used to assist in navigation within the text. The structure is defined as a set of markers denoting structure start points; the end point is defined to be either the next highest position property of a node of the same depth or lower or the end of the document, whichever is smaller. Each node defines a type and a depth property where the type indicates the kind of structural boundary and the depth is used to allow partial structures. Nodes can also contain a metadata payload where the type requires it - types are extensible but an initial set is defined in the Textus Basic Profile defined later in this document.
++ Structure is used to assist in navigation within the text. The structure is defined as a set of markers denoting structure start points; the end point is defined to be either the next highest position property of a node of the same depth or lower or the end of the document, whichever is smaller. Each node defines a type and a depth property where the type indicates the kind of structural boundary and the depth is used to allow partial structures. Nodes can contain a description and short display name, and may also include a set of semantic annotations which will be applied to the character range of the structure when imported.
 
 The formats for each of these data types are defined later in this document, the Textus import tool accepts data in one or more distinct files and will merge the information from all files before further processing. Each import file must contain JSON of the form:
 
@@ -47,9 +47,11 @@ The formats for each of these data types are defined later in this document, the
 		"type" : "textus:document",
 		"start" : 0,
 		"depth" : 0,
-		"payload" : {
-			"heading" : "Some random document"
-		}
+		"description" : "A document we imported",
+		"display-name" : "Document",
+		"annotations" : [
+			// (see example later, similar structure to semantic annotations)
+		]
 	}, {
 		"type" : "textus:sentence",
 		"start" : 0,
@@ -153,9 +155,24 @@ Note that the above is not the representation for structure markers, and used on
 		"type" : "textus:document",
 		"start" : 0,
 		"depth" : 0,
-		"payload" : {
-			"heading" : "Some random document"
-		}
+		"description" : "This document defines the json import specification",
+		"display-name" : "Import Spec.",
+		"annotations" : [ {	
+			"type" : "textus:bibjson",
+			"user" : "someone@textus.org",
+			"date" : "2010-10-28T12:34Z",
+			"payload" : {
+				"title" : "TEXTUS JSON Import Specification",
+				"type" : "article",
+				"author" : [ {
+					"name" : "Oinn, Tom" } ],
+				"year" : "2012",
+				"edition" : "first",
+				"license" : [ {
+					"type" : "copyheart",
+					"url" : "http://copyheart.org/manifesto/",
+					"description" : "A great license",
+					"jurisdiction" : "universal" } ] } } ]   		
 	}, {
 		"type" : "textus:sentence",
 		"start" : 0,
@@ -163,7 +180,11 @@ Note that the above is not the representation for structure markers, and used on
 	} ]
 ```
 
-The payload property is optional but may be required to correctly interpret the structure marker (for example, to render it in the 'current location' display) based on the type. The set of available marker types and their required payload metadata is defined in the Textus Basic Profile.
+Any structure type may contain a description, a display-name and a set of annotations. These are all optional, and are interpreted as follows:
+
++ description - used in the UI when showing more information about a location
++ display-name - used in the UI when summarizing a location, for example in a breadcrumb trail like display.
++ annotations - an array of semantic annotations (see that section) without start and end points. The start and end points for the annotations are resolved in terms of the boundary of the associated piece of structure, but are then fixed in place once imported (that is to say they won't be moved around should the structure locations change).
 
 ## Textus Basic Profile
 
@@ -256,42 +277,9 @@ The 'type' can be either of the following, and influences the interpretation of 
 
 This set may be expanded in the future.
 
-### Structure Marker Types
+#### Scene
 
-Structure markers overlap to a degree with semantic annotations, in the both are used to interpret the text to which they apply. Some of the structure markers carry metadata themselves - these metadata could be represented as semantic annotations, in general we use structure markers when the following can all be said to be true for the piece of metadata:
-
-+ The metadata applies to a recognizable structural unit in the text, a book, chapter, scene or similar. Such units should exist irrespective of edition or other similar variations.
-+ The metadata is inarguably true. The actors in a scene, or the author of a letter are true facts rather than opinions (if a letter has an unknown author the author should be empty and a semantic annotation used to comment on this fact!)
-+ The metadata is applicable to all possible instances of that structural type. All letters have an author, all scenes in a play have actors (even if they have zero actors the concept is valid). This is why 'textus:book' doesn't have an author - the concept is used in a sufficiently diverse range of contexts that while all books have authors it isn't necessarily the case that a 'textus:book' is associated with a particular author.
-
-In all other cases semantic annotations should be used instead of structure markers (or in addition to, where there is also structure).
-
-The following types all have a payload containing the name of the section used to display in navigation controls etc.
-
-```javascript
-	"name" : "Chapter II"
-```
-
-+ textus:front : A preface or prologue to the main content of the text
-+ textus:back : An epilogue, appendix or similar
-+ textus:body : The primary content of the text
-+ textus:book : A book, the precise definition of which is somewhat ambiguous (for example some physical books have multiple 'books' within them, most notably the bible)
-+ textus:chapter : A chapter (prose)
-+ textus:section : A section (prose)
-+ textus:part : A part or sub-section (prose)
-+ textus:canto : Used for verse
-+ textus:act : Used for dramatic texts
-
-The following have either no payload or more specialized payloads to carry more information about the structural unit. With no payload we have stanzas and paragraphs, both of which are indexed by position within their parent when used for navigation:
-
-+ textus:stanza (verse)
-+ textus:paragraph (all)
-
-Markers with more elaborate payloads are as follows:
-
-#### Scenes in Dramatic Texts
-
-Scenes are entities within a dramatic text distinguished by a place, a time and a set of actors (in the 'things which cause effects' rather than 'people wearing costumes' sense). All properties are free text, to make these markers meaningful care should be taken to sensibly normalise e.g. names of characters such that a free text comparison works at a semantic level.
+Scenes are entities within a dramatic text distinguished by a place, a time and a set of actors (in the 'things which cause effects' rather than 'people wearing costumes' sense). All properties are free text, to make these annotations meaningful care should be taken to sensibly normalise e.g. names of characters such that a free text comparison works at a semantic level.
 
 ```javascript
 	"type" : "textus:scene",
@@ -304,7 +292,7 @@ Scenes are entities within a dramatic text distinguished by a place, a time and 
 			"Scarecrow" ] }
 ```
 
-#### Letters
+#### Letter
 
 Letters have an author or authors, a date and a recipient or set of recipients. They may also have a title which can be used as a name when displaying the marker but do not require such - when there is no title a marker of this kind should be displayed using the author, recipient and date fields. Dates are represented as YYYY-MM-DD, with the optional 'date-name' property used when this should be overridden for display purposes (we keep a formal date representation to simplify querying by date range).
 
@@ -317,3 +305,21 @@ Letters have an author or authors, a date and a recipient or set of recipients. 
 		"date" : "1718-04-05",
 		"date-name" : "Good Friday, April 5, 1718" }
 ```
+
+### Structure Marker Types
+
+Structure markers overlap to a degree with semantic annotations, in the both are used to interpret the text to which they apply. Markers may also contain inlined semantic annotations, some of which will be particularly appropriate (i.e. the textus:letter marker containing the letter semantic annotation described above).
+
++ textus:front : A preface or prologue to the main content of the text
++ textus:back : An epilogue, appendix or similar
++ textus:body : The primary content of the text
++ textus:book : A book, the precise definition of which is somewhat ambiguous (for example some physical books have multiple 'books' within them, most notably the bible)
++ textus:chapter : A chapter (prose)
++ textus:section : A section (prose)
++ textus:part : A part or sub-section (prose)
++ textus:canto : Used for verse
++ textus:act : Used for dramatic texts
++ textus:stanza (verse)
++ textus:paragraph (all)
++ textus:scene : A scene in a dramatic work, use in conjunction with the scene semantic metadata block.
++ textus:letter : A single piece of correspondance, use in conjunction with the letter semantic metadata block.
