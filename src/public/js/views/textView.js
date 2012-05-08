@@ -96,6 +96,18 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textView.
 		});
 	};
 
+	var getLineHeight = function(e) {
+		while (e!= null && e.css("line-height").match(/\d+/) == null) {
+			console.log(e);
+			e = e.parent();
+			console.log(e);
+		}
+		if (e == null) {
+			return 0;
+		}
+		return parseInt(e.css("line-height").match(/\d+/)[0]);
+	};
+	
 	/**
 	 * Resize, clear and re-render the overlay of annotation positions on the canvas. This assumes
 	 * that textContainer already contains the appropriate markup including the empty span elements
@@ -129,7 +141,8 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textView.
 		var regionList = [];
 		$(".textus-annotation-start").each(function() {
 			var coords = relativeCoords(canvas, $(this));
-			var lineHeight = parseInt($(this).css("line-height").match(/\d+/)[0]);
+			
+			var lineHeight = getLineHeight($(this));
 			var id = $(this).attr("annotation-id");
 			// If we're right on the end of the line move the start coordinates to the following
 			// line
@@ -146,7 +159,8 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textView.
 		});
 		$(".textus-annotation-end").each(function() {
 			var coords = relativeCoords(canvas, $(this));
-			var lineHeight = $(this).css("line-height").match(/\d+/)[0];
+			
+			var lineHeight = getLineHeight($(this));
 			var id = $(this).attr("annotation-id");
 			var struct = regions[id];
 			struct.endx = coords.x;

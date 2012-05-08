@@ -2,6 +2,8 @@ define([ 'jquery', 'underscore', 'backbone' ], function($, _, Backbone) {
 
 	return {
 
+		knownTagNames : [ "h1", "h2", "h3", "h4", "h5", "h6", "ul", "ol", "li" ],
+
 		overlapsRange : function(startA, endA, startB, endB) {
 			return (endB > startA) && (startB < endA);
 		},
@@ -43,6 +45,7 @@ define([ 'jquery', 'underscore', 'backbone' ], function($, _, Backbone) {
 			var tags = [];
 			// Function to check whether two ranges overlap
 			var overlapsRange = this.overlapsRange;
+			var knownTagNames = [ "h1", "h2", "h3", "h4", "h5", "h6", "ul", "ol", "li" ];
 			// Add semantic annotations to the pool of tags
 			semantics.forEach(function(annotation) {
 				if (overlapsRange(textOffset, textOffset + text.length, annotation.start, annotation.end)) {
@@ -54,8 +57,9 @@ define([ 'jquery', 'underscore', 'backbone' ], function($, _, Backbone) {
 										+ "\"></span>",
 								order : 3
 							});
-					// And a similar span for the annotation end
-					// point
+					/*
+					 * And a similar span for the annotation end point
+					 */
 					tags.push({
 						pos : (Math.min((annotation.end - textOffset), text.length)),
 						tag : "<span class=\"textus-annotation-end\" annotation-id=\"" + annotation.id + "\"></span>",
@@ -63,32 +67,41 @@ define([ 'jquery', 'underscore', 'backbone' ], function($, _, Backbone) {
 					});
 				}
 			});
-			// Add span tag opening and closing parts to the pool of
-			// tags
-			
+			/*
+			 * Add span tag opening and closing parts to the pool of tags
+			 */
 			typography.forEach(function(annotation) {
 				if (overlapsRange(textOffset, textOffset + text.length, annotation.start, annotation.end)) {
-
+					var tagName = "span";
+					var tagNameIndex = 0;
+					var tagPriority = 0;
+					knownTagNames.forEach(function(candidateTagName) {
+						if (candidateTagName == annotation.css) {
+							tagName = candidateTagName;
+							tagPriority = tagNameIndex;
+						}
+						tagNameIndex++;
+					});
 					tags.push({
 						pos : (Math.max((annotation.start - textOffset), 0)),
-						tag : "<span offset=\"" + (Math.max((annotation.start - textOffset), 0) + textOffset)
-								+ "\" class=\"" + annotation.css + "\">",
+						tag : "<" + tagName + " offset=\""
+								+ (Math.max((annotation.start - textOffset), 0) + textOffset) + "\" class=\""
+								+ annotation.css + "\">",
 						order : 2,
-						endpos: (Math.min((annotation.end - textOffset), text.length))
+						endpos : (Math.min((annotation.end - textOffset), text.length)),
+						tagPriority : tagPriority
 					}, {
 						pos : (Math.min((annotation.end - textOffset), text.length)),
-						tag : "</span>",
-						order : 1
+						tag : "</" + tagName + ">",
+						order : 1,
+						tagPriority : tagPriority
 					});
 				}
 			});
-			// Sort tags by position then order, ensures that the
-			// semantic
-			// annotations
-			// end up inside the typographical ones where there's the
-			// potential
-			// for this
-			// to happen otherwise.
+			/*
+			 * Sort tags by position then order, ensures that the semantic annotations end up inside
+			 * the typographical ones where there's the potential for this to happen otherwise.
+			 */
 			tags.sort(function(a, b) {
 				if (a.pos != b.pos) {
 					return a.pos - b.pos;
@@ -97,26 +110,37 @@ define([ 'jquery', 'underscore', 'backbone' ], function($, _, Backbone) {
 						return a.order - b.order;
 					} else {
 						if (a.endpos != null && b.endpos != null) {
-							return b.endpos - a.endpos;
+							if (b.endpos == a.endpos) {
+								if (a.tagPriority != null && b.tagPriority != null) {
+									return a.tagPriority - b.tagPriority;
+								}
+							} else {
+								if (b.endpos == a.endpos) {
+									if (a.tagPriority != null && b.tagPriority != null) {
+										return b.tagPriority - a.tagPriority;
+									}
+								}
+								return b.endpos - a.endpos;
+							}
 						}
 						return 0;
 					}
 				}
 			});
-			// Quick function to replace angled brackets with their HTML
-			// literal
-			// equivalents.
+			/*
+			 * Quick function to replace angled brackets with their HTML literal equivalents.
+			 */
 			var stripBrackets = function(string) {
 				return string.replace("<", "&lt;", "g").replace(">", "&gt;", "g");
 			};
 			var result = [];
 			var cursorIndex = 0;
-			// Push each tag to the result, inserting the wrapped text
-			// where
-			// appropriate.
+			/*
+			 * Push each tag to the result, inserting the wrapped text where appropriate.
+			 */
 			tags.forEach(function(tag) {
 				if (tag.pos > cursorIndex) {
-					result.push("<span offset=\""+(cursorIndex+textOffset)+"\">");
+					result.push("<span offset=\"" + (cursorIndex + textOffset) + "\">");
 					result.push(stripBrackets(text.substring(cursorIndex, tag.pos)));
 					result.push("</span>");
 					cursorIndex = tag.pos;
@@ -124,7 +148,7 @@ define([ 'jquery', 'underscore', 'backbone' ], function($, _, Backbone) {
 				result.push(tag.tag);
 			});
 			if (cursorIndex < text.length) {
-				result.push("<span offset=\""+(cursorIndex+textOffset)+"\">");
+				result.push("<span offset=\"" + (cursorIndex + textOffset) + "\">");
 				result.push(stripBrackets(text.substring(cursorIndex, text.length)));
 				result.push("</span>");
 			}

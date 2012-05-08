@@ -14,10 +14,9 @@ app.configure(function() {
 
 var fs = require('fs');
 var dummyData = JSON.parse(fs.readFileSync(__dirname
-		+ "/public/mock-data/alice-in-wonderland.txt.json"));
+		+ "/public/mock-data/test-data.json"));
 
-console.log("Loaded test data :");
-console.log(dummyData);
+console.log("Loaded test data.");
 
 var overlapsRange = function(startA, endA, startB, endB) {
 	return ((startA <= startB && endA >= endB)
@@ -45,8 +44,8 @@ app.get("/api/text/:textid/:start/:end", function(req, res) {
 		typography : dummyData.typography.filter(includeAnnotation),
 		semantics : dummyData.semantics.filter(includeAnnotation)
 	};
-	console.log("Returning data :");
-	console.log(data);
+//	console.log("Returning data :");
+//	console.log(data);
 	res.json(data);
 });
 

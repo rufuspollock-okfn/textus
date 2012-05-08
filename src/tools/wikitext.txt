@@ -1,0 +1,54 @@
+= First Heading =
+
+This is some text which could be found in a wiki. This bit is '''bold''', this bit is ''italic'' and this bit is '''''bold and italic'''''
+
+== Second Heading ==
+
+This is some paragraph text within the second heading. There's a list next:
+
+* This is a list item
+** This is a nested list item
+** and a second one
+* Back to the top level list now
+* A list item with '''some''' markup and ''emphasis''
+
+# An ordered list item
+# And a second
+## Nested ordered list
+##* Unordered within ordered
+# Back to top level list
+
+=== Third Heading ===
+
+Something under the third heading
+This is text on the next line which should be merged
+And
+so
+is
+this
+
+: This text is indented
+: So is this
+:: Second indentation
+::: Third indentation
+
+
+
+Some
+
+
+
+
+
+Very
+
+
+
+
+
+
+Widely spaced text
+
+==== Fourth Heading ====
+
+And finally some text under the fourth level heading.
