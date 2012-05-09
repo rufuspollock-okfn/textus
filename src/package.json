@@ -1,9 +1,10 @@
 {
   "name": "textus-server",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "dependencies": {
     "express":"",
     "elastical":"",
-    "requirejs":""
+    "requirejs":"",
+    "optimist":""
   }
 }
