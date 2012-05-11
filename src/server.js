@@ -5,7 +5,7 @@ var args = require('optimist')
 	.default("port", 8080)
 	.alias('p', 'port')
 	.describe('p', 'The port number on which the server should listen for connections.').argv;
-var datastore = require('./js/datastore/dataStore-test.js');
+var datastore = require('./js/datastore/dataStore-test.js')(args);
 
 app.configure(function() {
 	app.use(express.bodyParser());
