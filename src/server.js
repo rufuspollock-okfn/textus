@@ -5,7 +5,7 @@ var args = require('optimist')
 	.default("port", 8080)
 	.alias('p', 'port')
 	.describe('p', 'The port number on which the server should listen for connections.').argv;
-var datastore = require('./js/datastore/dataStore-test.js')(args);
+var datastore = require('./js/datastore/dataStore-elastic.js')(args);
 
 app.configure(function() {
 	app.use(express.bodyParser());
@@ -21,7 +21,11 @@ app.configure(function() {
 
 // Check that we can intercept routes
 app.get("/api/text/:textid/:start/:end", function(req, res) {
-		res.json(datastore.fetchText(req.params.textid, parseInt(req.params.start), parseInt(req.params.end)));
+		datastore.fetchText("Text1", parseInt(req.params.start), parseInt(req.params.end), function(data) {
+			res.json(data);
+		});	
+		// res.json(datastore.fetchText(req.params.textid, parseInt(req.params.start),
+		// parseInt(req.params.end)));
 });
 
 // Start app on localhost:80

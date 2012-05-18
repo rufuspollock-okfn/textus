@@ -1,12 +1,9 @@
-var http = require('http');
 var fs = require('fs');
-var wikiText = require('./wikitext.js');
+var args = require('optimist').usage('Usage: $0 --title [TITLE]').alias('t', 'title').describe('t',
+		'The title of a work in the English WikiSource wiki.').demand([ 't' ]).argv;
+var importer = require('../js/import/wikisource.js')(args);
 
-if (process.argv.length < 3) {
-	console.log("Specify a wikisource-en title from which to import : " + process.argv[1] + " TITLE");
-	process.exit(1);
-}
-var title = process.argv[2];
+var title = args.title;
 
 var createDummyAnnotations = function(string, count, spanlength) {
 	annotations = [];
@@ -32,10 +29,13 @@ var createDummyAnnotations = function(string, count, spanlength) {
 var textProcessingCompleted = function(text, typography) {
 	var fileName = title.toLowerCase() + ".json";
 	fs.writeFile(fileName, (JSON.stringify({
-		text : text,
-		offset : 0,
+		text : [ {
+			text : text,
+			sequence : 0
+		} ],
 		typography : typography,
-		semantics : createDummyAnnotations(text, 500, 50)
+		semantics : createDummyAnnotations(text, 500, 50),
+		structure : []
 	}, null, " ")), function(err) {
 		if (err) {
 			console.log(err);
@@ -45,27 +45,4 @@ var textProcessingCompleted = function(text, typography) {
 	});
 };
 
-http.get({
-	host : "en.wikisource.org",
-	port : 80,
-	headers : {
-		"User-Agent" : "textus-harvester, tom.oinn@okfn.org"
-	},
-	path : "/w/api.php?action=query&prop=revisions&rvprop=content&format=json&titles=" + title
-}, function(res) {
-	// console.log(res);
-	var pageData = "";
-	res.setEncoding('utf8');
-	res.on('data', function(chunk) {
-		pageData += chunk;
-	});
-	res.on('end', function() {
-		var o = JSON.parse(pageData);
-		for ( var pageId in o.query.pages) {
-			if (o.query.pages.hasOwnProperty(pageId)) {
-				var result = wikiText.readWikiText(o.query.pages[pageId].revisions[0]["*"]);
-				textProcessingCompleted(result.text, result.typography);
-			}
-		}
-	});
-});
+importer.import(textProcessingCompleted, title);

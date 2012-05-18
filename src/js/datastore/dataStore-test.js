@@ -23,27 +23,19 @@ module.exports = exports = function(args) {
 		 * Retrieve a block of text and annotations for the specified textid and start and end
 		 * offsets.
 		 */
-		fetchText : function(textId, textStart, textEnd) {
+		fetchText : function(textId, textStart, textEnd, callback) {
 			var start = clamp(0, dummyData.text.length, textStart);
 			var end = clamp(0, dummyData.text.length, textEnd);
 			var includeAnnotation = function(annotation) {
 				return overlapsRange(start, end, annotation.start, annotation.end);
 			};
-			return {
+			callback({
 				start : start,
 				end : end,
 				text : dummyData.text.substring(start, end),
 				typography : dummyData.typography.filter(includeAnnotation),
 				semantics : dummyData.semantics.filter(includeAnnotation)
-			};
-		},
-
-		/*
-		 * Retrieve the structure of the text, structure is retrieved as a list of structure node
-		 * definitions.
-		 */
-		fetchStructure : function(textId) {
-			return [];
+			});
 		}
 
 	};

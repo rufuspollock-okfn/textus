@@ -5,9 +5,10 @@ exports.readWikiText = function(wikiText) {
 	textParts = [];
 	typography = [];
 	index = 0;
-	linegroups = wikiText.split(/(?=(?:\r?\n){2,})|(?:\r?\n(?=[\*|\:|\#]))/);
+
+	var linegroups = wikiText.split(/(?=(?:\r?\n){2,})|(?:\r?\n(?=[\*|\:|\#]))/);
 	linegroups.forEach(function(linegroup) {
-		line = linegroup.split(/\r?\n/).join(" ").trim();
+		var line = linegroup.split(/\r?\n/).join(" ").trim();
 		if (line != "") {
 			/* Avoid processing lines consisting entirely of whitespace */
 			processString(line);
@@ -19,6 +20,7 @@ exports.readWikiText = function(wikiText) {
 			}
 		}
 	});
+
 	return {
 		text : textParts.join(""),
 		typography : typography
