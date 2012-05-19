@@ -73,7 +73,7 @@ h3,h4,h5,h6 {
 	line-height: 20px;
 }
 
-span.p,span.paragraph, span.i1, span.i2, span.i3, span.i4, span.i5, span.i6 {
+span.p,span.paragraph,span.i1,span.i2,span.i3,span.i4,span.i5,span.i6 {
 	display: block;
 	font-size: 12pt;
 	line-height: 16pt;
@@ -82,12 +82,12 @@ span.p,span.paragraph, span.i1, span.i2, span.i3, span.i4, span.i5, span.i6 {
 	text-indent: 0px;
 }
 
-ol, ul {
+ol,ul {
 	padding-top: 10px;
 	padding-bottom: 10px;
 }
 
-ul > ol, ul > ul, ol > ol, ol > ul {
+ul>ol,ul>ul,ol>ol,ol>ul {
 	padding-top: 2px;
 	padding-bottom: 2px;
 }
@@ -150,4 +150,11 @@ span.i {
 
 .footer button#pageForwardButton {
 	right: 15px;
+}
+
+.footer a#menu {
+	position: absolute;
+	display: block;
+	left: 120px;
+	height: 29px;
 }

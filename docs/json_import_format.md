@@ -48,7 +48,7 @@ The formats for each of these data types are defined later in this document, the
 		"start" : 0,
 		"depth" : 0,
 		"description" : "A document we imported",
-		"display-name" : "Document",
+		"name" : "Document",
 		"annotations" : [
 			// (see example later, similar structure to semantic annotations)
 		]
@@ -156,7 +156,7 @@ Note that the above is not the representation for structure markers, and used on
 		"start" : 0,
 		"depth" : 0,
 		"description" : "This document defines the json import specification",
-		"display-name" : "Import Spec.",
+		"name" : "Import Spec.",
 		"annotations" : [ {	
 			"type" : "textus:bibjson",
 			"user" : "someone@textus.org",
@@ -183,7 +183,7 @@ Note that the above is not the representation for structure markers, and used on
 Any structure type may contain a description, a display-name and a set of annotations. These are all optional, and are interpreted as follows:
 
 + description - used in the UI when showing more information about a location
-+ display-name - used in the UI when summarizing a location, for example in a breadcrumb trail like display.
++ name - used in the UI when summarizing a location, for example in a breadcrumb trail like display.
 + annotations - an array of semantic annotations (see that section) without start and end points. The start and end points for the annotations are resolved in terms of the boundary of the associated piece of structure, but are then fixed in place once imported (that is to say they won't be moved around should the structure locations change).
 
 ## Textus Basic Profile
@@ -231,7 +231,7 @@ The format for the BibJSON payload is a list of sub-properties, all of which are
 	}
 ```
 
-In a sense we're deferring responsibility for sensible metadata to the BibJSON project here, which is maybe no ideal, but the intent is to work with that project to pin down the allowable keys and their interpretation in slightly greater detail rather than inventing our own.
+In a sense we're deferring responsibility for sensible metadata to the BibJSON project here, which is maybe not ideal, but the intent is to work with that project to pin down the allowable keys and their interpretation in slightly greater detail rather than inventing our own.
 
 #### Free Text Comments
 

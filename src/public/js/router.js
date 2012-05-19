@@ -1,6 +1,6 @@
 // Router, loads appropriate pages based on target URL
-define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activities/readTextActivity' ], function($, _,
-		Backbone, AppActivity, ReadTextActivity) {
+define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activities/readTextActivity',
+		'activities/listTextsActivity' ], function($, _, Backbone, AppActivity, ReadTextActivity, ListTextsActivity) {
 
 	/**
 	 * Extend a close() operation to all views to help remove potential zombie listeners and
@@ -86,13 +86,19 @@ define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activiti
 		routes : {
 			// Routes for pages go here
 			'text/:textid/:offset' : 'text',
+			'texts' : 'texts',
 			'*actions' : 'defaultActions'
+		},
+
+		// Location for listing all available texts
+		texts : function() {
+			startActivity(new ListTextsActivity(models));
 		},
 
 		// Location for reading texts
 		text : function(textId, offset) {
 			startActivity(new ReadTextActivity(models), {
-				textId : textId,
+				textid : textId,
 				offset : parseInt(offset),
 				router : appRouter
 			});

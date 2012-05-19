@@ -1,7 +1,9 @@
 var fs = require('fs');
-var args = require('optimist').usage('Usage: $0 --title [TITLE]').alias('t', 'title').describe('t',
-		'The title of a work in the English WikiSource wiki.').demand([ 't' ]).argv;
+var args = require('optimist').usage('Usage: $0 --title TITLE [--file-only]').alias('t', 'title').alias('f',
+		'file-only').describe('t', 'The title of a work in the English WikiSource wiki.').describe('f',
+		'If defined the import will simply write the file and not access the data store').demand([ 't' ]).argv;
 var importer = require('../js/import/wikisource.js')(args);
+var ds = require('../js/datastore/dataStore-elastic.js')(args);
 
 var title = args.title;
 
@@ -27,8 +29,7 @@ var createDummyAnnotations = function(string, count, spanlength) {
  * Called when a text has been read in and parsed
  */
 var textProcessingCompleted = function(text, typography) {
-	var fileName = title.toLowerCase() + ".json";
-	fs.writeFile(fileName, (JSON.stringify({
+	var data = {
 		text : [ {
 			text : text,
 			sequence : 0
@@ -42,7 +43,18 @@ var textProcessingCompleted = function(text, typography) {
 			description : "Imported from WikiSource-en with title '" + title + "'",
 			name : title
 		} ]
-	}, null, " ")), function(err) {
+	};
+	if (!args.f) {
+		ds.importData(data, function(err, textId) {
+			if (err) {
+				console.log("Import to data store failed : " + err);
+			} else {
+				console.log("Imported '" + title + "' to data store, assigned text ID '" + textId + "'.");
+			}
+		});
+	}
+	var fileName = title.toLowerCase().replace(" ", "_", "gi") + ".json";
+	fs.writeFile(fileName, (JSON.stringify(data, null, " ")), function(err) {
 		if (err) {
 			console.log(err);
 		} else {
@@ -51,4 +63,4 @@ var textProcessingCompleted = function(text, typography) {
 	});
 };
 
-importer.import(textProcessingCompleted, title);
+importer.import(textProcessingCompleted, title.replace(" ", "_", "gi"));

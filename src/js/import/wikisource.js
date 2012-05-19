@@ -2,6 +2,7 @@ module.exports = exports = function(args) {
 
 	var wikitext = require("./wikitext-parser.js");
 	var http = require('http');
+	var querystring = require("querystring");
 
 	var fetchFromWikiSource = function(callback, title) {
 		http.get({
@@ -10,7 +11,13 @@ module.exports = exports = function(args) {
 			headers : {
 				"User-Agent" : "textus-harvester, tom.oinn@okfn.org"
 			},
-			path : "/w/api.php?action=query&prop=revisions&rvprop=content&format=json&titles=" + title
+			path : "/w/api.php?" + querystring.stringify({
+				action : "query",
+				prop : "revisions",
+				rvprop : "content",
+				format : "json",
+				titles : title
+			})
 		}, function(res) {
 			// console.log(res);
 			var pageData = "";
