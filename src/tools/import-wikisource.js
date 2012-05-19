@@ -35,7 +35,13 @@ var textProcessingCompleted = function(text, typography) {
 		} ],
 		typography : typography,
 		semantics : createDummyAnnotations(text, 500, 50),
-		structure : []
+		structure : [ {
+			type : "textus:document",
+			start : 0,
+			depth : 0,
+			description : "Imported from WikiSource-en with title '" + title + "'",
+			name : title
+		} ]
 	}, null, " ")), function(err) {
 		if (err) {
 			console.log(err);

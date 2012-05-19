@@ -103,43 +103,94 @@ module.exports = exports = function(args) {
 			client.index(index, type, item, function(err, res) {
 				if (err) {
 					console.log(err);
+					callback(err);
 				} else {
 					indexArray(index, type, list, callback);
 				}
 			});
 		} else {
-			callback();
+			console.log("Indexed data with type " + type);
+			callback(null);
+		}
+	};
+
+	var indexArrays = function(index, lists, callback) {
+		var wrap = lists.shift();
+		if (wrap) {
+			var type = wrap.type;
+			var list = wrap.list;
+			indexArray(index, type, list, function(err) {
+				if (err) {
+					err.message = "Error while indexing " + type;
+					callback(err);
+				} else {
+					indexArrays(index, lists, callback);
+				}
+			});
 		}
 	};
 
 	return {
 
-		fetch : function() {
-			client.search(buildRangeQuery("Text1", 0, 2000), function(err, results, res) {
+		/**
+		 * Returns all text structure records in the database in the form { textid : STRING,
+		 * structure : [] } via the callback(error, data).
+		 */
+		getTextStructures : function(callback) {
+			var query = {
+				"query" : {
+					"match_all" : {}
+				},
+				"filter" : {
+					"type" : {
+						"value" : "structure"
+					}
+				},
+				"size" : 10000
+			};
+			client.search(query, function(err, results, res) {
 				if (err) {
-					console.log(err);
+					callback(err, null);
 				} else {
-					var chunks = results.hits.map(function(hit) {
-						return hit._source;
-					});
-					var result = joinTextChunksAndTrim(10, 100, chunks);
-
-					console.log(result);
-					console.log(result.text.length);
-
+					callback(null, results.hits.map(function(hit) {
+						return {
+							textid : hit._id,
+							structure : hit._source.structure
+						};
+					}));
 				}
-				// console.log(results);
 			});
 		},
 
+		/**
+		 * Retrieves text along with the associated typographical and semantic annotations which
+		 * overlap at least partially with the specified range.
+		 * 
+		 * @param textId
+		 *            the TextID of the text
+		 * @param start
+		 *            character offset within the text, this will be the first character in the
+		 *            result
+		 * @param end
+		 *            character offset within the text, this will be the character one beyond the
+		 *            end of the result, so the result is a string of end-start length
+		 * @param callback
+		 *            a callback function callback(err, data) called with the data from the
+		 *            elasticsearch query massaged into the form { textid : STRING, text : STRING,
+		 *            typography : [], semantics : [], start : INT, end : INT }, and the err value
+		 *            set to any error (or null if no error) from the underlying elasticsearch
+		 *            instance.
+		 * @returns
+		 */
 		fetchText : function(textId, start, end, callback) {
 			client.search(buildRangeQuery(textId, start, end), function(err, results, res) {
 				if (err) {
-					console.log(err);
+					callback(err, null);
 				} else {
 					var textChunks = [];
 					var typography = [];
 					var semantics = [];
+					var error = null;
 					results.hits.forEach(function(hit) {
 						if (hit._type == "text") {
 							textChunks.push(hit._source);
@@ -148,11 +199,11 @@ module.exports = exports = function(args) {
 						} else if (hit._type == "semantics") {
 							semantics.push(hit._source);
 						} else {
-							console.log("Unknown result type!");
+							error = "Unknown result type! '" + hit._type + "'.";
 							console.log(hit);
 						}
 					});
-					callback({
+					callback(error, {
 						textid : textId,
 						text : joinTextChunksAndTrim(start, end, textChunks).text,
 						typography : typography,
@@ -164,34 +215,56 @@ module.exports = exports = function(args) {
 			});
 		},
 
-		importData : function(textId, data) {
-
-			var textChunks = createTextChunks(textChunkSize, data).map(function(chunk) {
-				return {
-					textid : textId,
-					text : chunk.text,
-					start : chunk.offset,
-					end : chunk.offset + chunk.text.length
-				};
-			});
-
-			indexArray("textus", "text", textChunks, function() {
-				console.log("Imported text chunks.");
-				indexArray("textus", "semantics", data.semantics.map(function(annotation) {
-					annotation.textid = textId;
-					return annotation;
-				}), function() {
-					console.log("Imported semantics.");
-					indexArray("textus", "typography", data.typography.map(function(annotation) {
-						annotation.textid = textId;
-						return annotation;
-					}), function() {
-						console.log("Imported typography.");
+		/**
+		 * Index the given data, calling the callback function on completion with either an error
+		 * message or the text ID of the stored data.
+		 * 
+		 * @param data {
+		 *            text : [ { text : STRING, sequence : INT } ... ], semantics : [], typography :
+		 *            [], structure : [] }
+		 * @param callback
+		 *            a function of type function(error, textID)
+		 * @returns immediately, asynchronous function.
+		 */
+		importData : function(data, callback) {
+			var indexName = "textus";
+			client.index(indexName, "structure", {
+				time : Date.now(),
+				structure : data.structure
+			}, function(err, res) {
+				if (!err) {
+					var textId = res._id;
+					console.log("Registered structure, textID set to " + textId);
+					var dataToIndex = [ {
+						type : "text",
+						list : createTextChunks(textChunkSize, data).map(function(chunk) {
+							return {
+								textid : textId,
+								text : chunk.text,
+								start : chunk.offset,
+								end : chunk.offset + chunk.text.length
+							};
+						})
+					}, {
+						type : "semantics",
+						list : data.semantics.map(function(annotation) {
+							annotation.textid = textId;
+							return annotation;
+						})
+					}, {
+						type : "typography",
+						list : data.typography.map(function(annotation) {
+							annotation.textid = textId;
+							return annotation;
+						})
+					} ];
+					indexArrays(indexName, dataToIndex, function(err) {
+						callback(err, textId);
 					});
-				});
-
+				} else {
+					callback(err, null);
+				}
 			});
-
 		}
 	};
 

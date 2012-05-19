@@ -3,4 +3,16 @@ var ds = require('./js/datastore/dataStore-elastic.js')(args);
 var fs = require('fs');
 var dummyData = JSON.parse(fs.readFileSync(__dirname + "/tools/meno.json"));
 console.log("Loaded test data.");
-ds.importData("Text1", dummyData);
+// ds.importData(dummyData, function(err, textId) {
+// if (err) {
+// console.log("Import failed : " + err);
+// } else {
+// console.log("Import success : " + textId);
+// }
+// });
+ds.getTextStructures(function(err, data) {
+	data.forEach(function(hit) {
+		console.log("Text ID : " + hit.textid);
+		console.log(hit.structure);
+	});
+});
