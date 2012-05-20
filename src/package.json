@@ -5,6 +5,7 @@
     "express":"",
     "elastical":"",
     "requirejs":"",
-    "optimist":""
+    "optimist":"",
+    "connect":""
   }
 }

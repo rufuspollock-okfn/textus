@@ -4,7 +4,17 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/appView' ], functi
 		this.name = "AppActivity";
 
 		this.start = function() {
-			var appView = new AppView();
+			console.log("App actitivity started");
+			var appView = new AppView({
+				presenter : {
+					getCurrentUser : function(callback) {
+						callback({
+							loggedin : false
+						});
+					}
+				}
+			});
+			console.log(appView);
 			appView.render();
 		};
 

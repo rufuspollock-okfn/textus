@@ -8,7 +8,8 @@ require.config({
 		backbone : 'libs/backbone-0.9.1-amd',
 		text : 'libs/require-text-1.0.7',
 		order : 'libs/require-order-1.0.7',
-		templates : '../templates'
+		templates : '../templates',
+		form : 'libs/backbone-forms-0.9.0-amd'
 	}
 });
 
