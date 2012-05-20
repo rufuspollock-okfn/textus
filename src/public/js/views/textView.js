@@ -97,7 +97,7 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textView.
 	};
 
 	var getLineHeight = function(e) {
-		while (e!= null && e.css("line-height").match(/\d+/) == null) {
+		while (e != null && e.css("line-height").match(/\d+/) == null) {
 			console.log(e);
 			e = e.parent();
 			console.log(e);
@@ -107,7 +107,7 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textView.
 		}
 		return parseInt(e.css("line-height").match(/\d+/)[0]);
 	};
-	
+
 	/**
 	 * Resize, clear and re-render the overlay of annotation positions on the canvas. This assumes
 	 * that textContainer already contains the appropriate markup including the empty span elements
@@ -141,7 +141,7 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textView.
 		var regionList = [];
 		$(".textus-annotation-start").each(function() {
 			var coords = relativeCoords(canvas, $(this));
-			
+
 			var lineHeight = getLineHeight($(this));
 			var id = $(this).attr("annotation-id");
 			// If we're right on the end of the line move the start coordinates to the following
@@ -159,7 +159,7 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textView.
 		});
 		$(".textus-annotation-end").each(function() {
 			var coords = relativeCoords(canvas, $(this));
-			
+
 			var lineHeight = getLineHeight($(this));
 			var id = $(this).attr("annotation-id");
 			var struct = regions[id];
@@ -199,7 +199,7 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textView.
 				ctx.fillRect(r.startx, colourOffset + r.starty - r.startlh, r.endx - r.startx, r.startlh);
 				annotation.anchor = {
 					x : r.endx,
-					//x : rightMargin,
+					// x : rightMargin,
 					y : r.endy - (r.endlh / 2)
 				};
 			} else {
@@ -271,6 +271,13 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textView.
 				renderCanvas(pageCanvas, pageText, model.get("semantics"));
 				renderLinks(pageText, linkCanvas, model.get("semantics"), annotations);
 			});
+		},
+
+		destroy : function() {
+			var model = this.model = this.options.textModel;
+			model.unbind("change:text");
+			model.unbind("change:semantics");
+			$(window).unbind("resize");
 		},
 
 		/**

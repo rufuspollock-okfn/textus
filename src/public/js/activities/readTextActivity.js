@@ -157,7 +157,7 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView', 'views/
 					updateTextAsync(0, true, height, measure);
 				} else {
 					if (forwards && t.text.length == 0) {
-						updateTextAsync(t.offset, false, height, measure);
+						updateTextAsync(textid, t.offset, false, height, measure);
 					} else {
 						models.textModel.set({
 							text : t.text,
@@ -180,6 +180,8 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView', 'views/
 		};
 
 		this.name = "ReadTextActivity";
+
+		var viewsToDestroy = [];
 
 		this.start = function(location) {
 
@@ -238,6 +240,9 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView', 'views/
 				el : $('.footer')
 			});
 
+			viewsToDestroy.push(textView);
+			viewsToDestroy.push(textFooterView);
+
 			/*
 			 * Set up a listener on selection events on the text selection model
 			 */
@@ -267,7 +272,19 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView', 'views/
 
 		this.stop = function(callback) {
 			// Unbind the change listener on the text selection model
-			models.textSelectionModel.unbind("change");
+			models.textSelectionModel.unbind();
+			models.textModel.unbind();
+			models.textLocationModel.unbind();
+			$('.footer').empty();
+			viewsToDestroy.forEach(function(view) {
+				if (view.destroy) {
+					view.destroy();
+				}
+				view.remove();
+				view.unbind();
+			});
+			$(".main-wrapper").append($('<div class="main"/>'));
+			$(".footer-wrapper").append($('<div class="footer"/>'));
 			callback(true);
 		};
 	};
