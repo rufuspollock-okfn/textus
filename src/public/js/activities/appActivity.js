@@ -13,6 +13,17 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/appView' ], functi
 						$.getJSON("api/user", function(data) {
 							console.log(data);
 							callback(data);
+							if (data.loggedin) {
+								models.loginModel.set({
+									loggedIn : data.loggedin,
+									user : data.details.user
+								});
+							} else {
+								models.loginModel.set({
+									loggedIn : false,
+									user : null
+								});
+							}
 						});
 					},
 

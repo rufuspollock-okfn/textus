@@ -1,5 +1,6 @@
-define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView', 'views/textFooterView' ], function($, _,
-		Backbone, textus, TextView, TextFooterView) {
+define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView', 'views/textFooterView',
+		'views/editSemanticAnnotationView' ], function($, _, Backbone, textus, TextView, TextFooterView,
+		EditSemanticAnnotationView) {
 
 	return function(models) {
 
@@ -202,6 +203,23 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView', 'views/
 		var viewsToDestroy = null;
 
 		this.start = function(location) {
+			$.getJSON("api/user", function(data) {
+				if (data.loggedin) {
+					models.loginModel.set({
+						loggedIn : data.loggedin,
+						user : data.details.user
+					});
+				} else {
+					models.loginModel.set({
+						loggedIn : false,
+						user : null
+					});
+				}
+				start2(location);
+			});
+		};
+
+		var start2 = function(location) {
 
 			/*
 			 * Capture the initial offset and the textId from the URL (in turn derived from the
@@ -276,15 +294,60 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView', 'views/
 			 * Set up a listener on selection events on the text selection model.
 			 */
 			var s = models.textSelectionModel;
+
 			s.bind("change", function(event) {
+				if (models.loginModel.get("loggedIn") == false) {
+					return;
+				}
 				var text = s.get("text");
 				var start = s.get("start");
 				var end = s.get("end");
 				var textId = models.textLocationModel.get("textId");
-
+				$('.annotationEditor').remove();
 				if (s.get("text") != "") {
-					alert("Text selected '" + s.get("text") + "' character range [" + s.get("start") + ","
-							+ s.get("end") + "] from textId '" + textId + "'");
+					var editView = new EditSemanticAnnotationView({
+						text : s.get("text"),
+						start : s.get("start"),
+						end : s.get("end"),
+						textId : models.textLocationModel.get("textId"),
+						annotation : {
+							type : "textus:comment",
+							payload : null
+						},
+						presenter : {
+							storeAnnotation : function(data) {
+								console.log("Annotation data : " + data);
+								$('.annotationEditor').remove();
+								var newAnnotation = {
+									start : s.get("start"),
+									end : s.get("end"),
+									textId : models.textLocationModel.get("textId"),
+									type : data.type,
+									payload : data.payload
+								};
+								$.post("api/semantics", newAnnotation, function(data) {
+									console.log(data);
+									newAnnotation.id = data.id;
+									newAnnotation.colour = data.colour;
+									console.log("Created new annotation");
+									console.log(newAnnotation);
+									var semanticsArray = models.textModel.get("semantics").slice(0);
+									semanticsArray.push(newAnnotation);
+									models.textModel.set({
+										semantics : semanticsArray
+									});
+								});
+							}
+						}
+					}).render();
+					$('body').append("<div class='annotationEditor'/>");
+					$('.annotationEditor').html(editView.el);
+
+					// alert("Text selected '" + s.get("text") + "' character range [" +
+					// s.get("start") + ","
+					// + s.get("end") + "] from textId '" + textId + "'");
+				} else {
+					$('.annotationEditor').remove();
 				}
 			});
 

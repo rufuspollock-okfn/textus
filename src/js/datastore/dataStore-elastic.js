@@ -132,6 +132,18 @@ module.exports = exports = function(args) {
 
 	return {
 
+		createSemanticAnnotation : function(annotation, callback) {
+			client.index("textus", "semantics", annotation, function(err, response) {
+				if (err) {
+					console.log(err);
+				} else {
+					console.log("Created new semantic annotation");
+					console.log(response);
+				}
+				callback(err, response);
+			});
+		},
+
 		/**
 		 * Returns all text structure records in the database in the form { textid : STRING,
 		 * structure : [] } via the callback(error, data).
@@ -195,8 +207,10 @@ module.exports = exports = function(args) {
 						if (hit._type == "text") {
 							textChunks.push(hit._source);
 						} else if (hit._type == "typography") {
+							hit._source.id = hit._id;
 							typography.push(hit._source);
 						} else if (hit._type == "semantics") {
+							hit._source.id = hit._id;
 							semantics.push(hit._source);
 						} else {
 							error = "Unknown result type! '" + hit._type + "'.";

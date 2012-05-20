@@ -267,6 +267,12 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textView.
 				pageText.html(model.get("cachedHTML"));
 			});
 			model.bind("change:semantics", function() {
+				console.log("Semantics changed - re-rendering");
+				model.set({
+					cachedHTML : textus.markupText(model.get("text"), model.get("offset"), model.get("typography"),
+							model.get("semantics"))
+				});
+				pageText.html(model.get("cachedHTML"));
 				populateAnnotationContainer(model.get("semantics"), annotations);
 				renderCanvas(pageCanvas, pageText, model.get("semantics"));
 				renderLinks(pageText, linkCanvas, model.get("semantics"), annotations);

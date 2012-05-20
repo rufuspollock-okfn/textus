@@ -68,6 +68,29 @@ app.get("/api/user", function(req, res) {
 	}
 });
 
+/* Create new semantic annotation */
+app.post("/api/semantics", checkLogin, function(req, res) {
+	var annotation = {
+		user : req.session.user,
+		type : req.body.type,
+		payload : req.body.payload,
+		start : parseInt(req.body.start),
+		end : parseInt(req.body.end),
+		textid : req.body.textId,
+		colour : "rgba(255,100,23,0.2)"
+	};
+	datastore.createSemanticAnnotation(annotation, function(err, response) {
+		if (err) {
+			res.json(err);
+		}
+		else {
+			res.json({id:response._id, colour:"rgba(255,0,200,0.2)"});
+		}
+	});
+	
+});
+
+/* Log into the server */
 app.post("/api/login", function(req, res) {
 	// TODO - login logic!
 	var user = req.body.user;
@@ -76,6 +99,7 @@ app.post("/api/login", function(req, res) {
 	res.json("Okay");
 });
 
+/* Log out */
 app.post("/api/logout", function(req, res) {
 	delete req.session.user;
 	res.json("Okay");

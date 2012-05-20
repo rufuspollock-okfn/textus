@@ -19,6 +19,16 @@ define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activiti
 	 * Models are application-lifecycle scoped and are used to hold all state.
 	 */
 	var models = {
+		/*
+		 * Hold the current logged in user name, used to determine whether certain UI components
+		 * should be active
+		 */
+		loginModel : new (Backbone.Model.extend({
+			defaults : {
+				user : null,
+				loggedIn : false
+			}
+		})),
 		textModel : new (Backbone.Model.extend({
 			defaults : {
 				/* Text retrieved from the server */
@@ -68,11 +78,11 @@ define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activiti
 				// The offset within the text which defines the range to
 				// render.
 				offset : 0,
-//				// If true then the offset is interpreted as the first
-//				// character in the text that should appear on the page,
-//				// otherwise it is the last character. This is needed to
-//				// preserve sanity when going to a previous page.
-//				offsetIsAtStart : true
+			// // If true then the offset is interpreted as the first
+			// // character in the text that should appear on the page,
+			// // otherwise it is the last character. This is needed to
+			// // preserve sanity when going to a previous page.
+			// offsetIsAtStart : true
 			}
 		}))
 	};
@@ -145,7 +155,9 @@ define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activiti
 					// cleanup etc. We can set currentActivity to null
 					// and call this function again.
 					_currentActivity = null;
+					// Retrieve the current user from the server, then start the new activity.
 					startActivity(activity, location);
+
 				}
 			});
 		}
