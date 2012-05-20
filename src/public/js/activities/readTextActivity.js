@@ -154,21 +154,39 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView', 'views/
 				 * zero. In these cases we should re-do the entire call going fowards from zero
 				 */
 				if (!forwards && t.offset == 0) {
+					/*
+					 * Reached the start of the text by going backwards, re-do by running forwards
+					 * from offset zero
+					 */
 					updateTextAsync(0, true, height, measure);
 				} else {
 					if (forwards && t.text.length == 0) {
+						/*
+						 * Reached the end of the text, re-do by running backwards from the end to
+						 * fill the page
+						 */
 						updateTextAsync(textid, t.offset, false, height, measure);
 					} else {
+						/*
+						 * Got a sensible location, update the textModel and textLocationModel with
+						 * the text, offset, typography and semantics.
+						 */
 						models.textModel.set({
 							text : t.text,
 							offset : t.offset,
 							typography : data.typography.filter(annotationFilter),
 							semantics : data.semantics.filter(annotationFilter)
 						});
+						models.textLocationModel.set({
+							offset : t.offset
+						});
 					}
 				}
 			};
 
+			/*
+			 * Start the fetch, zero-ing the accumulators used to collect the text and annotations.
+			 */
 			fetch({
 				text : "",
 				offset : offset,
@@ -181,11 +199,18 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView', 'views/
 
 		this.name = "ReadTextActivity";
 
-		var viewsToDestroy = [];
+		var viewsToDestroy = null;
 
 		this.start = function(location) {
 
-			var currentOffset = location.offset;
+			/*
+			 * Capture the initial offset and the textId from the URL (in turn derived from the
+			 * location object)
+			 */
+			models.textLocationModel.set({
+				offset : location.offset,
+				textId : location.textid
+			});
 
 			// Create a new textView
 			var textView = new TextView({
@@ -204,11 +229,13 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView', 'views/
 					 *            The text of the selection.
 					 */
 					handleTextSelection : function(start, end, text) {
-						models.textSelectionModel.set({
-							start : start,
-							end : end,
-							text : text
-						});
+						if (!isNaN(start) && !isNaN(end)) {
+							models.textSelectionModel.set({
+								start : ((start < end) ? start : end),
+								end : ((end > start) ? end : start),
+								text : text
+							});
+						}
 					},
 
 					/**
@@ -216,23 +243,23 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView', 'views/
 					 * re-filled.
 					 */
 					requestTextFill : function() {
-						updateTextAsync(location.textid, models.textModel.get("offset"), true, textView.pageHeight(),
-								textView.measure);
+						updateTextAsync(models.textLocationModel.get("textId"), models.textLocationModel.get("offset"),
+								true, textView.pageHeight(), textView.measure);
 					}
 				},
 				textLocationModel : models.textLocationModel,
 				el : $('.main')
 			});
 
-			var textFooterView = new TextFooterView({
+			var footerView = new TextFooterView({
 				presenter : {
 					back : function() {
-						updateTextAsync(location.textid, models.textModel.get("offset"), false, textView.pageHeight(),
-								textView.measure);
+						updateTextAsync(models.textLocationModel.get("textId"), models.textLocationModel.get("offset"),
+								false, textView.pageHeight(), textView.measure);
 						console.log("Back button pressed.");
 					},
 					forward : function() {
-						updateTextAsync(location.textid, models.textModel.get("offset")
+						updateTextAsync(models.textLocationModel.get("textId"), models.textLocationModel.get("offset")
 								+ models.textModel.get("text").length, true, textView.pageHeight(), textView.measure);
 						console.log("Forward button pressed.");
 					}
@@ -240,11 +267,13 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView', 'views/
 				el : $('.footer')
 			});
 
-			viewsToDestroy.push(textView);
-			viewsToDestroy.push(textFooterView);
+			/*
+			 * Store references to the two views to pass to the cleanup function on activity exit.
+			 */
+			viewsToDestroy = [ textView, footerView ];
 
 			/*
-			 * Set up a listener on selection events on the text selection model
+			 * Set up a listener on selection events on the text selection model.
 			 */
 			var s = models.textSelectionModel;
 			s.bind("change", function(event) {
@@ -255,9 +284,9 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView', 'views/
 			});
 
 			/*
-			 * Listen to changes on the offset property and re-write the URL appropriately
+			 * Listen to changes on the offset property and re-write the URL appropriately.
 			 */
-			var t = models.textModel;
+			var t = models.textLocationModel;
 			t.bind("change offset", function() {
 				location.router.navigate("text/" + location.textid + "/" + t.get("offset"));
 			});
@@ -266,23 +295,29 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView', 'views/
 			 * Get text and update the view based on the location passed into the activity via the
 			 * URL
 			 */
-			updateTextAsync(location.textid, currentOffset, true, textView.pageHeight(), textView.measure);
+			updateTextAsync(models.textLocationModel.get("textId"), models.textLocationModel.get("offset"), true,
+					textView.pageHeight(), textView.measure);
 
 		};
 
+		/**
+		 * Called when stopping the activity, removes any event listeners and similar that would
+		 * cause zombie instances of the text rendered to be left kicking around.
+		 */
 		this.stop = function(callback) {
 			// Unbind the change listener on the text selection model
 			models.textSelectionModel.unbind();
 			models.textModel.unbind();
 			models.textLocationModel.unbind();
-			$('.footer').empty();
-			viewsToDestroy.forEach(function(view) {
-				if (view.destroy) {
-					view.destroy();
-				}
-				view.remove();
-				view.unbind();
-			});
+			if (viewsToDestroy) {
+				viewsToDestroy.forEach(function(view) {
+					if (view.destroy) {
+						view.destroy();
+					}
+					view.remove();
+					view.unbind();
+				});
+			}
 			$(".main-wrapper").append($('<div class="main"/>'));
 			$(".footer-wrapper").append($('<div class="footer"/>'));
 			callback(true);
