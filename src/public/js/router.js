@@ -68,11 +68,11 @@ define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activiti
 				// The offset within the text which defines the range to
 				// render.
 				offset : 0,
-				// If true then the offset is interpreted as the first
-				// character in the text that should appear on the page,
-				// otherwise it is the last character. This is needed to
-				// preserve sanity when going to a previous page.
-				offsetIsAtStart : true
+//				// If true then the offset is interpreted as the first
+//				// character in the text that should appear on the page,
+//				// otherwise it is the last character. This is needed to
+//				// preserve sanity when going to a previous page.
+//				offsetIsAtStart : true
 			}
 		}))
 	};

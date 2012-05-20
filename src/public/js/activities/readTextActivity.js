@@ -277,9 +277,14 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView', 'views/
 			 */
 			var s = models.textSelectionModel;
 			s.bind("change", function(event) {
+				var text = s.get("text");
+				var start = s.get("start");
+				var end = s.get("end");
+				var textId = models.textLocationModel.get("textId");
+
 				if (s.get("text") != "") {
 					alert("Text selected '" + s.get("text") + "' character range [" + s.get("start") + ","
-							+ s.get("end") + "]");
+							+ s.get("end") + "] from textId '" + textId + "'");
 				}
 			});
 
@@ -309,6 +314,18 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView', 'views/
 			models.textSelectionModel.unbind();
 			models.textModel.unbind();
 			models.textLocationModel.unbind();
+			models.textModel.set({
+				text : "",
+				offset : 0,
+				typography : [],
+				semantics : [],
+				cachedHTML : null,
+				structure : []
+			});
+			models.textLocationModel.set({
+				textId : null,
+				offset : 0
+			});
 			if (viewsToDestroy) {
 				viewsToDestroy.forEach(function(view) {
 					if (view.destroy) {
