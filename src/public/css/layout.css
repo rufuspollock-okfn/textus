@@ -60,6 +60,16 @@ html,body {
 	padding: 20px;
 }
 
+.header > .links {
+	position: absolute;
+	bottom: 10px;	
+	left: 35px;
+}
+.header > .links > a {
+	display: inline-block;
+	padding-right: 10px;
+}
+
 .main {
 	padding: 5px;
 	margin: 10px;

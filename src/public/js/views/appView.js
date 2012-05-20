@@ -10,17 +10,18 @@ define([ 'jquery', 'underscore', 'backbone', 'text!templates/appView.html', 'for
 
 		render : function() {
 			$('.main').html(layoutTemplate);
-			var presenter = this.presenter = this.options.presenter;
-			console.log(this.options);
-			console.log(presenter);
+			var presenter = this.options.presenter;
+			var $l = $('.login');
 			if (presenter) {
-				console.log("Presenter found");
 				presenter.getCurrentUser(function(user) {
-					console.log("Presenter called, result was " + user);
+					$l.empty();
 					if (user.loggedin) {
-						$('.login').html("Logged in...");
+						$l.append("<div>Logged in as " + user.details.user + "</div>");
+						$l.append("<button id='logoutButton'>Log Out</button>");
+						$('#logoutButton').bind("click", function() {
+							presenter.logout();
+						});
 					} else {
-						console.log(Form);
 						var form = new Form({
 							data : {
 								user : "",
@@ -29,11 +30,13 @@ define([ 'jquery', 'underscore', 'backbone', 'text!templates/appView.html', 'for
 							schema : {
 								user : 'Text',
 								password : 'Password'
-								
+
 							}
 						}).render();
-						console.log(form);
-						$('.login').append(form.el);
+						$l.append(form.el, "<button id='loginButton'>Log In</button>");
+						$('#loginButton').bind("click", function() {
+							presenter.login(form.getValue().user, form.getValue().password);
+						});
 					}
 				});
 			}

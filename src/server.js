@@ -1,7 +1,10 @@
 var express = require('express');
 var app = express.createServer();
+app.use(express.bodyParser());
 app.use(express.cookieParser());
-app.use(express.session({ secret: "my secret..." }));
+app.use(express.session({
+	secret : "my secret..."
+}));
 var args = require('optimist').usage('Usage: $0 --port [num]').default("port", 8080).alias('p', 'port').describe('p',
 		'The port number on which the server should listen for connections.').argv;
 var datastore = require('./js/datastore/dataStore-elastic.js')(args);
@@ -18,12 +21,12 @@ app.configure(function() {
 });
 
 var checkLogin = function(req, res, next) {
-	  if (!req.session.user) {
-		    res.send('Not authorized', 401);
-		  } else {
-		    next();
-		  }
-		};
+	if (!req.session.user) {
+		res.send('Not authorized', 401);
+	} else {
+		next();
+	}
+};
 
 // GET requests for text and annotation data
 app.get("/api/text/:textid/:start/:end", function(req, res) {
@@ -44,7 +47,7 @@ app.get("/api/texts", function(req, res) {
 			console.log(err);
 		} else {
 			res.json(data);
-		}		
+		}
 	});
 });
 
@@ -52,13 +55,31 @@ app.get("/api/texts", function(req, res) {
 // is no logged in user.
 app.get("/api/user", function(req, res) {
 	if (!req.session.user) {
-		res.json({login:false});
-	}
-	else {
-		res.json({login:true, user:req.session.user});
+		res.json({
+			loggedin : false
+		});
+	} else {
+		res.json({
+			loggedin : true,
+			details : {
+				user : req.session.user
+			}
+		});
 	}
 });
 
+app.post("/api/login", function(req, res) {
+	// TODO - login logic!
+	var user = req.body.user;
+	var password = req.body.password;
+	req.session.user = user;
+	res.json("Okay");
+});
+
+app.post("/api/logout", function(req, res) {
+	delete req.session.user;
+	res.json("Okay");
+});
 
 // Start app on whatever port is configured, defaulting to 8080 if not specified.
 app.listen(args.port);
