@@ -1,1 +1,8 @@
 This will be a text upload form....
+
+<form id="uploadForm" action="/api/texts" method="post"
+	data-remote="true" enctype="multipart/form-data">
+	<input type="text" name="message" /> <input type="file"
+		name="text" />
+	<button>Submit</button>
+</form>
