@@ -1,8 +1,22 @@
-This will be a text upload form....
-
+Use the form below to upload either a plain text or, optionally, plain
+text with wiki markup. Enter a description and short name, pick a file
+from your local disk and click the 'upload' button...
 <form id="uploadForm" action="/api/texts" method="post"
 	data-remote="true" enctype="multipart/form-data">
-	<input type="text" name="message" /> <input type="file"
-		name="text" />
-	<button>Submit</button>
+	<div class="row">
+		<div class="label">Title</div>
+		<input type="text" name="title" />
+	</div>
+	<div class="row">
+		<div class="label">Description</div>
+		<input type="textarea" name="description" />
+	</div>
+	<div class="row">
+		<div class="label">Text file</div>
+		<input type="file" name="text" />
+	</div>
+	<div class="row">
+		<div class="label"></div>
+		<button>Upload</button>
+	</div>
 </form>

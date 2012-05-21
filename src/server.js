@@ -9,6 +9,8 @@ var args = require('optimist').usage('Usage: $0 --port [num]').default("port", 8
 		'The port number on which the server should listen for connections.').argv;
 var datastore = require('./js/datastore/dataStore-elastic.js')(args);
 
+
+
 app.configure(function() {
 	app.use(express.bodyParser());
 	app.use(app.router);
@@ -55,7 +57,16 @@ app.get("/api/texts", function(req, res) {
 app.post("/api/texts", checkLogin, function(req, res) { 
 	console.log(req.body);
 	console.log(req.files.text);
-	res.redirect('/#texts');
+	datastore.loadFromWikiTextFile(req.files.text.path, req.body.title, req.body.description, function(err, textId) {
+		if (!err) {
+			console.log("Returned from datastore call...");
+			res.redirect('/#text/'+textId+'/0');
+		}
+		else {
+			console.log(err);
+			res.json(err);
+		}
+	});
 });
 
 // GET request for current user, returns {login:BOOLEAN, user:STRING}, where user is absent if there
