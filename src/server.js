@@ -51,6 +51,14 @@ app.get("/api/texts", function(req, res) {
 	});
 });
 
+// Posts to /api/texts to create a new text through a file upload
+app.post("/api/texts", checkLogin, function(req, res) { 
+	
+	console.log(req);
+	console.log(req.files.text);
+	
+});
+
 // GET request for current user, returns {login:BOOLEAN, user:STRING}, where user is absent if there
 // is no logged in user.
 app.get("/api/user", function(req, res) {

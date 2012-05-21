@@ -1,7 +1,7 @@
 // Router, loads appropriate pages based on target URL
 define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activities/readTextActivity',
-		'activities/listTextsActivity', 'views/loginView', 'form' ], function($, _, Backbone, AppActivity,
-		ReadTextActivity, ListTextsActivity, LoginView, Form) {
+		'activities/listTextsActivity', 'views/loginView', 'form', 'activities/textUploadActivity' ], function($, _,
+		Backbone, AppActivity, ReadTextActivity, ListTextsActivity, LoginView, Form, TextUploadActivity) {
 
 	/**
 	 * Extend a close() operation to all views to help remove potential zombie listeners and
@@ -98,6 +98,7 @@ define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activiti
 			// Routes for pages go here
 			'text/:textid/:offset' : 'text',
 			'texts' : 'texts',
+			'upload' : 'uploadText',
 			'*actions' : 'defaultActions'
 		},
 
@@ -113,6 +114,10 @@ define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activiti
 				offset : parseInt(offset),
 				router : appRouter
 			});
+		},
+
+		uploadText : function() {
+			startActivity(new TextUploadActivity(models), null);
 		},
 
 		defaultActions : function() {
@@ -184,8 +189,7 @@ define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activiti
 			};
 			Form.helpers.setTemplates(templates);
 			var loginView = new LoginView({
-				presenter : 
-				{
+				presenter : {
 					getCurrentUser : function(callback) {
 						console.log("getCurrentUser");
 						$.getJSON("api/user", function(data) {
