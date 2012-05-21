@@ -137,8 +137,7 @@ module.exports = exports = function(args) {
 				if (err) {
 					console.log(err);
 				} else {
-					console.log("Created new semantic annotation");
-					console.log(response);
+					//
 				}
 				callback(err, response);
 			});

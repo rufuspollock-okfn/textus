@@ -325,14 +325,9 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView', 'views/
 									type : data.type,
 									payload : data.payload
 								};
-								$.post("api/semantics", newAnnotation, function(data) {
-									console.log(data);
-									newAnnotation.id = data.id;
-									newAnnotation.colour = data.colour;
-									console.log("Created new annotation");
-									console.log(newAnnotation);
+								$.post("api/semantics", newAnnotation, function(returnedAnnotation) {
 									var semanticsArray = models.textModel.get("semantics").slice(0);
-									semanticsArray.push(newAnnotation);
+									semanticsArray.push(returnedAnnotation);
 									models.textModel.set({
 										semantics : semanticsArray
 									});

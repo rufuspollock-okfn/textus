@@ -1,6 +1,7 @@
 // Router, loads appropriate pages based on target URL
 define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activities/readTextActivity',
-		'activities/listTextsActivity' ], function($, _, Backbone, AppActivity, ReadTextActivity, ListTextsActivity) {
+		'activities/listTextsActivity', 'views/loginView', 'form' ], function($, _, Backbone, AppActivity,
+		ReadTextActivity, ListTextsActivity, LoginView, Form) {
 
 	/**
 	 * Extend a close() operation to all views to help remove potential zombie listeners and
@@ -176,6 +177,56 @@ define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activiti
 
 	return {
 		initialize : function() {
+			var templates = {
+				form : '<form class="bbf-form">{{fieldsets}}</form>',
+				fieldset : '<fieldset>{{legend}}{{fields}}</fieldset>',
+				field : '<div><label for="{{id}}">{{title}}</label><div class="editor">{{editor}}</div></div>'
+			};
+			Form.helpers.setTemplates(templates);
+			var loginView = new LoginView({
+				presenter : 
+				{
+					getCurrentUser : function(callback) {
+						console.log("getCurrentUser");
+						$.getJSON("api/user", function(data) {
+							console.log()
+							console.log(data);
+							callback(data);
+							if (data.loggedin) {
+								models.loginModel.set({
+									loggedIn : data.loggedin,
+									user : data.details.user
+								});
+							} else {
+								models.loginModel.set({
+									loggedIn : false,
+									user : null
+								});
+							}
+						});
+					},
+
+					logout : function() {
+						console.log("logout");
+						$.post("api/logout", function(data) {
+							loginView.render();
+						});
+					},
+
+					login : function(user, password) {
+						console.log("login");
+						$.post("api/login", {
+							user : user,
+							password : password
+						}, function(data) {
+							console.log("Login response");
+							console.log(data);
+							loginView.render();
+						});
+					}
+
+				}
+			}).render();
 			Backbone.history.start();
 		}
 	};

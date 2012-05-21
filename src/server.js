@@ -84,7 +84,8 @@ app.post("/api/semantics", checkLogin, function(req, res) {
 			res.json(err);
 		}
 		else {
-			res.json({id:response._id, colour:"rgba(255,0,200,0.2)"});
+			annotation.id = response._id;
+			res.json(annotation);
 		}
 	});
 	

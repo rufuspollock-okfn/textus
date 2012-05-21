@@ -1,7 +1,8 @@
 // Defines TextView
 
-define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textView.html' ], function($, _, Backbone,
-		textus, layout) {
+define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textView.html',
+		'text!templates/annotations/comment.html', 'text!templates/annotations/bibjson.html' ], function($, _,
+		Backbone, textus, layout, annotationComment, annotationBibjson) {
 
 	/**
 	 * Get the offset of the target in the container's coordinate space.
@@ -11,6 +12,11 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textView.
 			x : target.offset().left - container.offset().left,
 			y : target.offset().top - container.offset().top
 		};
+	};
+
+	var annotationRenderers = {
+		"textus:comment" : _.template(annotationComment),
+		"textus:bibjson" : _.template(annotationBibjson)
 	};
 
 	/**
@@ -34,7 +40,13 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textView.
 			}
 		});
 		semantics.forEach(function(annotation) {
-			annotationContainer.append("<div annotation-id=\"" + annotation.id + "\">" + annotation.id + "</div>");
+			var d = $("<div annotation-id=\"" + annotation.id + "\"/>");
+			if (annotationRenderers[annotation.type]) {
+				d.html(annotationRenderers[annotation.type](annotation));
+			} else {
+				d.html(annotation.id);
+			}
+			annotationContainer.append(d);
 		});
 	};
 

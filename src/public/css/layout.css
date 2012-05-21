@@ -60,14 +60,70 @@ html,body {
 	padding: 20px;
 }
 
-.header > .links {
+.header>.links {
 	position: absolute;
-	bottom: 10px;	
+	bottom: 10px;
 	left: 35px;
 }
-.header > .links > a {
+
+.header>.links>a {
 	display: inline-block;
 	padding-right: 10px;
+}
+
+.login-wrapper {
+	display: block;
+	position: absolute;
+	bottom: 10px;
+	right: 20px;
+	height: 60px;
+}
+
+.login-wrapper .editor,.login-wrapper label,.login-wrapper>form,.login-wrapper>button,.login-wrapper>div
+	{
+	display: inline-block;
+}
+.login-wrapper > form > fieldset {
+	border: none;
+}
+.login-wrapper label {
+	margin-right: 6px;
+	font-size: 12px;
+	width: 100px;
+	text-align: right;
+}
+.login-wrapper div.editor {
+	margin-right: 0px;
+	
+}
+.login-wrapper > form > fieldset > div {
+	margin-top: 0px;
+	margin-bottom: 6px;
+}
+.logged-in {
+	margin-top: 34px;
+	height:25px;
+}
+.logged-in > * {
+	display: inline-block;
+}
+.logged-in > .label {
+	font-size: 12px;
+	margin-right: 3px;
+}
+.logged-in > .user-name {
+	font-size: 12px;
+	font-weight: bold;
+	font-style: italic;
+	margin-right: 10px;
+}
+
+div#textList > div {
+	margin-bottom: 14px;
+}
+div#textList, div#textListSummary {
+	text-align: justify;
+	padding: 20px;
 }
 
 .main {

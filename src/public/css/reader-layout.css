@@ -1,3 +1,14 @@
+.annotation-textus-comment > .annotation-author {
+	font-weight: bold;
+	font-size: 12px;
+}
+.annotation-textus-comment > .comment {
+	font-size: 12px;
+	text-align: justify;
+	padding-top: 2px;
+}
+
+
 .pageContainer {
 	position: relative;
 	height: 100%;
