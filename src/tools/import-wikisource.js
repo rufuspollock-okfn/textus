@@ -35,7 +35,7 @@ var textProcessingCompleted = function(text, typography) {
 			sequence : 0
 		} ],
 		typography : typography,
-		semantics : [],
+		semantics : createDummyAnnotations(text, 10000, 20),
 		structure : [ {
 			type : "textus:document",
 			start : 0,

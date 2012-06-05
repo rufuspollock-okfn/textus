@@ -106,6 +106,10 @@ span.p,span.paragraph,span.i1,span.i2,span.i3,span.i4,span.i5,span.i6 {
 	text-indent: 0px;
 }
 
+span.p {
+	margin-bottom: 10px;
+}
+
 ol,ul {
 	padding-top: 10px;
 	padding-bottom: 10px;
