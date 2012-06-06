@@ -1,7 +1,9 @@
 // Router, loads appropriate pages based on target URL
 define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activities/readTextActivity',
-		'activities/listTextsActivity', 'views/loginView', 'form', 'activities/textUploadActivity' ], function($, _,
-		Backbone, AppActivity, ReadTextActivity, ListTextsActivity, LoginView, Form, TextUploadActivity) {
+		'activities/listTextsActivity', 'views/loginView', 'form', 'activities/textUploadActivity',
+		'activities/registerUserActivity', 'activities/userPrefsActivity' ], function($, _, Backbone, AppActivity,
+		ReadTextActivity, ListTextsActivity, LoginView, Form, TextUploadActivity, RegisterUserActivity,
+		UserPrefsActivity) {
 
 	/**
 	 * Extend a close() operation to all views to help remove potential zombie listeners and
@@ -99,6 +101,8 @@ define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activiti
 			'text/:textid/:offset' : 'text',
 			'texts' : 'texts',
 			'upload' : 'uploadText',
+			'user-options' : 'userPrefs',
+			'register' : 'register',
 			'*actions' : 'defaultActions'
 		},
 
@@ -120,6 +124,14 @@ define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activiti
 			startActivity(new TextUploadActivity(models), null);
 		},
 
+		userPrefs : function() {
+			startActivity(new UserPrefsActivity(models), null);
+		},
+
+		register : function() {
+			startActivity(new RegisterUserActivity(models), null);
+		},
+
 		defaultActions : function() {
 			startActivity(new AppActivity(models), null);
 		}
@@ -132,6 +144,8 @@ define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activiti
 	// restore the appropriate URL when an activity vetoes a stop
 	// request.
 	var _currentFragment = null;
+
+	var _listenersToUnbind = null;
 
 	// Start a new activity, attempting to stop the previously running
 	// one if applicable. If the previous activity vetoes shutdown
@@ -157,6 +171,14 @@ define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activiti
 					// the previous activity which is still running.
 				} else {
 					console.log("Activity '" + currentActivityName + "' accepted stop request.");
+					// Clean up any model listeners returned by the activity
+					if (_listenersToUnbind) {
+						_listenersToUnbind.forEach(function(l) {
+							console.log("Cleaning up listener registration " + l);
+							l.model.unbind(l.event, l.handler);
+						});
+					}
+
 					// The activity has stopped, done any required
 					// cleanup etc. We can set currentActivity to null
 					// and call this function again.
@@ -172,10 +194,10 @@ define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activiti
 			_currentFragment = Backbone.history.fragment;
 			if (location != null) {
 				console.log("Starting activity '" + activityName + "' with location '" + location + "'");
-				activity.start(location);
+				_listenersToUnbind = activity.start(location);
 			} else {
 				console.log("Starting activity '" + activityName + "' with no location.");
-				activity.start();
+				_listenersToUnbind = activity.start();
 			}
 		}
 	};
