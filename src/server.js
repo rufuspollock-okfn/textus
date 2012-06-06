@@ -8,8 +8,7 @@ app.use(express.session({
 var args = require('optimist').usage('Usage: $0 --port [num]').default("port", 8080).alias('p', 'port').describe('p',
 		'The port number on which the server should listen for connections.').argv;
 var datastore = require('./js/datastore/dataStore-elastic.js')(args);
-
-
+var login = require('./js/login.js')(datastore);
 
 app.configure(function() {
 	app.use(express.bodyParser());
@@ -21,14 +20,6 @@ app.configure(function() {
 		showStack : true
 	}));
 });
-
-var checkLogin = function(req, res, next) {
-	if (!req.session.user) {
-		res.send('Not authorized', 401);
-	} else {
-		next();
-	}
-};
 
 // GET requests for text and annotation data
 app.get("/api/text/:textid/:start/:end", function(req, res) {
@@ -54,15 +45,14 @@ app.get("/api/texts", function(req, res) {
 });
 
 // Posts to /api/texts to create a new text through a file upload
-app.post("/api/texts", checkLogin, function(req, res) { 
+app.post("/api/texts", login.checkLogin, function(req, res) {
 	console.log(req.body);
 	console.log(req.files.text);
 	datastore.loadFromWikiTextFile(req.files.text.path, req.body.title, req.body.description, function(err, textId) {
 		if (!err) {
 			console.log("Returned from datastore call...");
-			res.redirect('/#text/'+textId+'/0');
-		}
-		else {
+			res.redirect('/#text/' + textId + '/0');
+		} else {
 			console.log(err);
 			res.json(err);
 		}
@@ -72,55 +62,78 @@ app.post("/api/texts", checkLogin, function(req, res) {
 // GET request for current user, returns {login:BOOLEAN, user:STRING}, where user is absent if there
 // is no logged in user.
 app.get("/api/user", function(req, res) {
-	if (!req.session.user) {
-		res.json({
-			loggedin : false
-		});
-	} else {
-		res.json({
-			loggedin : true,
-			details : {
-				user : req.session.user
-			}
-		});
-	}
+	login.getCurrentUser(req, function(user) {
+		if (user == null) {
+			res.json({
+				loggedin : false
+			});
+		} else {
+			res.json({
+				loggedin : true,
+				details : user
+			});
+		}
+	});
 });
 
 /* Create new semantic annotation */
-app.post("/api/semantics", checkLogin, function(req, res) {
+app.post("/api/semantics", login.checkLogin, function(req, res) {
 	var annotation = {
 		user : req.session.user,
 		type : req.body.type,
 		payload : req.body.payload,
 		start : parseInt(req.body.start),
 		end : parseInt(req.body.end),
-		textid : req.body.textId,
-		colour : "rgba(255,100,23,0.2)"
+		textid : req.body.textId
 	};
 	datastore.createSemanticAnnotation(annotation, function(err, response) {
 		if (err) {
 			res.json(err);
-		}
-		else {
+		} else {
 			annotation.id = response._id;
 			res.json(annotation);
 		}
 	});
-	
+
 });
 
 /* Log into the server */
 app.post("/api/login", function(req, res) {
 	// TODO - login logic!
-	var user = req.body.user;
-	var password = req.body.password;
-	req.session.user = user;
-	res.json("Okay");
+	login.login(req, function(result) {
+		if (result == null) {
+			res.json({
+				okay : false,
+				user : null
+			});
+		} else {
+			res.json({
+				okay : true,
+				user : result
+			});
+		}
+	});
+});
+
+/* Create a new user */
+app.post("/api/users", function(req, res) {
+	login.createUser(req.body.email, req.body.password, function(newUser) {
+		if (newUser == null) {
+			res.json({
+				okay : false
+			});
+		} else {
+			res.json({
+				okay : true,
+				user : newUser
+			});
+		}
+	});
 });
 
 /* Log out */
 app.post("/api/logout", function(req, res) {
-	delete req.session.user;
+	login.logout(req);
 	res.json("Okay");
 });
 

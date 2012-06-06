@@ -21,7 +21,7 @@ define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activiti
 	 */
 	var models = {
 		/*
-		 * Hold the current logged in user name, used to determine whether certain UI components
+		 * Hold the current logged in user record, used to determine whether certain UI components
 		 * should be active
 		 */
 		loginModel : new (Backbone.Model.extend({
@@ -190,6 +190,7 @@ define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activiti
 			Form.helpers.setTemplates(templates);
 			var loginView = new LoginView({
 				presenter : {
+
 					getCurrentUser : function(callback) {
 						console.log("getCurrentUser");
 						$.getJSON("api/user", function(data) {
@@ -199,7 +200,7 @@ define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activiti
 							if (data.loggedin) {
 								models.loginModel.set({
 									loggedIn : data.loggedin,
-									user : data.details.user
+									user : data.user
 								});
 							} else {
 								models.loginModel.set({
@@ -225,6 +226,9 @@ define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activiti
 						}, function(data) {
 							console.log("Login response");
 							console.log(data);
+							if (data.okay == false) {
+								window.alert("Username / Password pair not recognized.");
+							}
 							loginView.render();
 						});
 					}

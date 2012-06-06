@@ -6,6 +6,8 @@
     "elastical":"",
     "requirejs":"",
     "optimist":"",
-    "connect":""
+    "connect":"",
+    "password-hash":"",
+    "crypto":""
   }
 }

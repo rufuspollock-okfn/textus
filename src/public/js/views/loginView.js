@@ -17,7 +17,7 @@ define([ 'jquery', 'underscore', 'backbone', 'form' ], function($, _, Backbone, 
 					if (user.loggedin) {
 						var $i = $("<div class='logged-in'/>");
 						$i
-								.append("<div class='label'>User :</div><div class='user-name'>" + user.details.user
+								.append("<div class='label'>User :</div><div class='user-name'>" + user.details.id
 										+ "</div>");
 						$i.append("<button id='logoutButton'>Log Out</button>");
 						$l.append($i);
