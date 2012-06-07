@@ -55,11 +55,11 @@ define([ 'jquery', 'underscore', 'backbone', 'views/registerUserView' ], functio
 			view.render();
 			$('.main').empty();
 			$('.main').append(view.el);
-			//$('.login-wrapper').hide();
+			$('.login-wrapper').hide();
 		};
 
 		this.stop = function(callback) {
-			//$('.login-wrapper').show();
+			$('.login-wrapper').show();
 			callback(true);
 		};
 	};
