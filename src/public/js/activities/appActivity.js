@@ -2,6 +2,8 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/appView' ], functi
 	return function(models) {
 
 		this.name = "AppActivity";
+		
+		this.pageTitle = "TEXTUS Beta";
 
 		this.start = function() {
 			console.log("App actitivity started");

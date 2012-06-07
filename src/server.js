@@ -99,7 +99,6 @@ app.post("/api/semantics", login.checkLogin, function(req, res) {
 
 /* Log into the server */
 app.post("/api/login", function(req, res) {
-	// TODO - login logic!
 	login.login(req, function(result) {
 		if (result == null) {
 			res.json({
@@ -117,7 +116,7 @@ app.post("/api/login", function(req, res) {
 
 /* Create a new user */
 app.post("/api/users", function(req, res) {
-	login.createUser(req.body.email, req.body.password, function(newUser) {
+	login.createUser(req.body.id, req.body.password, function(newUser) {
 		if (newUser == null) {
 			res.json({
 				okay : false

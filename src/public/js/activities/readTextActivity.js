@@ -199,6 +199,8 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView', 'views/
 		};
 
 		this.name = "ReadTextActivity";
+		
+		this.pageTitle = "Reading...";
 
 		var viewsToDestroy = null;
 

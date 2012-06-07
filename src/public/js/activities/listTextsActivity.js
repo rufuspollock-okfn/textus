@@ -42,6 +42,8 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/listTextsView' ], 
 
 		this.name = "ListTextsActivity";
 
+		this.pageTitle = "All Texts";
+		
 		this.start = function() {
 			var view = new ListTextsView();
 			view.render();

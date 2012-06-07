@@ -47,7 +47,7 @@ define(
 												}).render();
 												$l
 														.append(form.el, "<button id='loginButton'>Log In</button>",
-																"<div class='login-links'><a href='#register'>Register</a><a href='#lost-password'>Lost password?</a></div>");
+																"<div class='login-links'><a href='#register'>Register</a></div>");
 												$('#loginButton').bind("click", function() {
 													presenter.login(form.getValue().user, form.getValue().password);
 												});

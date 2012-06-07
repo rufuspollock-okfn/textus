@@ -178,7 +178,6 @@ define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activiti
 							l.model.unbind(l.event, l.handler);
 						});
 					}
-
 					// The activity has stopped, done any required
 					// cleanup etc. We can set currentActivity to null
 					// and call this function again.
@@ -192,6 +191,13 @@ define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activiti
 		if (_currentActivity == null) {
 			_currentActivity = activity;
 			_currentFragment = Backbone.history.fragment;
+			if (activity.pageTitle) {
+				$('#headerTitle').html(activity.pageTitle);
+				window.document.title = "Textus - " + activity.pageTitle;
+			} else {
+				$('#headerTitle').html("No title");
+				window.document.title = "Textus Beta";
+			}
 			if (location != null) {
 				console.log("Starting activity '" + activityName + "' with location '" + location + "'");
 				_listenersToUnbind = activity.start(location);
@@ -216,7 +222,6 @@ define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activiti
 					getCurrentUser : function(callback) {
 						console.log("getCurrentUser");
 						$.getJSON("api/user", function(data) {
-							console.log()
 							console.log(data);
 							callback(data);
 							if (data.loggedin) {
@@ -236,6 +241,7 @@ define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activiti
 					logout : function() {
 						console.log("logout");
 						$.post("api/logout", function(data) {
+							window.location.replace("/#");
 							loginView.render();
 						});
 					},
@@ -243,7 +249,7 @@ define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activiti
 					login : function(user, password) {
 						console.log("login");
 						$.post("api/login", {
-							user : user,
+							id : user,
 							password : password
 						}, function(data) {
 							console.log("Login response");
@@ -257,6 +263,9 @@ define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activiti
 
 				}
 			}).render();
+			models.loginModel.bind("change", function() {
+				loginView.render();
+			});
 			Backbone.history.start();
 		}
 	};

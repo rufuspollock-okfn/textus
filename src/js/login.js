@@ -101,9 +101,12 @@ module.exports = exports = function(datastore) {
 			};
 			datastore.createUser(user, function(err, newUser) {
 				if (err) {
+					console.log(err);
 					callback(null);
 				} else {
 					userCache[user.id] = user;
+					console.log("Created new user id = "+user.id);
+					console.log(user);
 					callback(newUser);
 				}
 			});
@@ -120,9 +123,9 @@ module.exports = exports = function(datastore) {
 		 *            a function called with either the user record (success) or null (failure)
 		 */
 		login : function(req, callback) {
-			console.log("Login : user = " + req.body.user + ", password = " + req.body.password);
-			if (req.body.user && req.body.password) {
-				datastore.getUser(req.body.user, function(err, result) {
+			console.log("Login : id = " + req.body.id + ", password = " + req.body.password);
+			if (req.body.id && req.body.password) {
+				datastore.getUser(req.body.id, function(err, result) {
 					if (err || result == null) {
 						/* No user found with that id */
 						console.log("No such user");
