@@ -21,13 +21,43 @@ app.configure(function() {
 	}));
 });
 
+var augmentAnnotations = function(annotations, newAnnotations, callback) {
+	var annotation = annotations.pop();
+	if (annotation) {
+		if (annotation.user) {
+			login.getUser(annotation.user, function(user) {
+				if (user) {
+					var colour = "rgba(" + user.prefs.colour.red + "," + user.prefs.colour.green + ","
+							+ user.prefs.colour.blue + ",0.2)";
+					annotation.colour = colour;
+					newAnnotations.push(annotation);
+					augmentAnnotations(annotations, newAnnotations, callback);
+				} else {
+					newAnnotations.push(annotation);
+					augmentAnnotations(annotations, newAnnotations, callback);
+				}
+			});
+		} else {
+			newAnnotations.push(annotation);
+			augmentAnnotations(annotations, newAnnotations, callback);
+		}
+	} else {
+		callback(newAnnotations);
+	}
+};
+
 // GET requests for text and annotation data
 app.get("/api/text/:textid/:start/:end", function(req, res) {
 	datastore.fetchText(req.params.textid, parseInt(req.params.start), parseInt(req.params.end), function(err, data) {
 		if (err) {
 			console.log(err);
 		} else {
-			res.json(data);
+			// Use the login object to fetch colours for each user and augment the semantic
+			// annotations
+			augmentAnnotations(data.semantics, [], function(newSemantics) {
+				data.semantics = newSemantics;
+				res.json(data);
+			});
 		}
 	});
 });
@@ -91,10 +121,15 @@ app.post("/api/semantics", login.checkLogin, function(req, res) {
 			res.json(err);
 		} else {
 			annotation.id = response._id;
-			res.json(annotation);
+			login.getUser(annotation.user, function(user) {
+				if (user) {
+					annotation.colour = "rgba(" + user.prefs.colour.red + "," + user.prefs.colour.green + ","
+							+ user.prefs.colour.blue + ",0.2)";
+				}
+				res.json(annotation);
+			});
 		}
 	});
-
 });
 
 /* Log into the server */

@@ -174,7 +174,7 @@ module.exports = exports = function(datastore) {
 				for (prop in prefs) {
 					user.prefs[prop] = prefs[prop];
 				}
-				datastore.updateUser(user, function(err, result) {
+				datastore.createOrUpdateUser(user, function(err, result) {
 					if (err) {
 						callback(null);
 					} else {
