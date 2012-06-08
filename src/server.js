@@ -1,60 +1,48 @@
-var express = require('express');
-var app = express.createServer();
-app.use(express.bodyParser());
-app.use(express.cookieParser());
-app.use(express.session({
-	secret : "my secret..."
-}));
-var args = require('optimist').usage('Usage: $0 --port [num]').default("port", 8080).alias('p', 'port').describe('p',
-		'The port number on which the server should listen for connections.').argv;
-var datastore = require('./js/datastore/dataStore-elastic.js')(args);
+// Textus configuration
+var conf = require('./js/textusConfiguration.js').conf();
+// Backend datastore, requires configuration
+var datastore = require('./js/datastore/dataStore-elastic.js')(conf);
+// Login and user helper, requires datastore
 var login = require('./js/login.js')(datastore);
+// Annotation painter, requires login helper
+var painter = require('./js/annotationPainter.js')(login);
 
-app.configure(function() {
-	app.use(express.bodyParser());
-	app.use(app.router);
-	// Declare local routes to serve public content
-	app.use(express.static(__dirname + "/public"));
-	app.use(express.errorHandler({
-		dumpExceptions : true,
-		showStack : true
+/**
+ * Configure the HTTP server with the body parser used to handle file uploads.
+ */
+var app = function() {
+	var express = require('express');
+	var _app = express.createServer();
+	_app.use(express.bodyParser());
+	_app.use(express.cookieParser());
+	_app.use(express.session({
+		secret : "my secret..."
 	}));
-});
+	_app.configure(function() {
+		_app.use(express.bodyParser());
+		_app.use(_app.router);
+		// Declare local routes to serve public content
+		_app.use(express.static(__dirname + "/public"));
+		_app.use(express.errorHandler({
+			dumpExceptions : true,
+			showStack : true
+		}));
+	});
+	return _app;
+}();
 
-var augmentAnnotations = function(annotations, newAnnotations, callback) {
-	var annotation = annotations.pop();
-	if (annotation) {
-		if (annotation.user) {
-			login.getUser(annotation.user, function(user) {
-				if (user) {
-					var colour = "rgba(" + user.prefs.colour.red + "," + user.prefs.colour.green + ","
-							+ user.prefs.colour.blue + ",0.2)";
-					annotation.colour = colour;
-					newAnnotations.push(annotation);
-					augmentAnnotations(annotations, newAnnotations, callback);
-				} else {
-					newAnnotations.push(annotation);
-					augmentAnnotations(annotations, newAnnotations, callback);
-				}
-			});
-		} else {
-			newAnnotations.push(annotation);
-			augmentAnnotations(annotations, newAnnotations, callback);
-		}
-	} else {
-		callback(newAnnotations);
-	}
-};
-
-// GET requests for text and annotation data
+/**
+ * GET requests for text and annotation data
+ */
 app.get("/api/text/:textid/:start/:end", function(req, res) {
 	datastore.fetchText(req.params.textid, parseInt(req.params.start), parseInt(req.params.end), function(err, data) {
 		if (err) {
 			console.log(err);
 		} else {
-			// Use the login object to fetch colours for each user and augment the semantic
+			// Use the login object to fetch colours for each user and augment the
+			// semantic
 			// annotations
-			augmentAnnotations(data.semantics, [], function(newSemantics) {
+			painter.augmentAnnotations(data.semantics, [ painter.painters.colourByUser ], function(newSemantics) {
 				data.semantics = newSemantics;
 				res.json(data);
 			});
@@ -62,8 +50,10 @@ app.get("/api/text/:textid/:start/:end", function(req, res) {
 	});
 });
 
-// GET request for a list of all texts along with their structure (used to display the list of
-// texts)
+/**
+ * GET request for a list of all texts along with their structure (used to display the list of
+ * texts)
+ */
 app.get("/api/texts", function(req, res) {
 	datastore.getTextStructures(function(err, data) {
 		if (err) {
@@ -74,13 +64,12 @@ app.get("/api/texts", function(req, res) {
 	});
 });
 
-// Posts to /api/texts to create a new text through a file upload
+/**
+ * POST to /api/texts to create a new text through a file upload
+ */
 app.post("/api/texts", login.checkLogin, function(req, res) {
-	console.log(req.body);
-	console.log(req.files.text);
 	datastore.loadFromWikiTextFile(req.files.text.path, req.body.title, req.body.description, function(err, textId) {
 		if (!err) {
-			console.log("Returned from datastore call...");
 			res.redirect('/#text/' + textId + '/0');
 		} else {
 			console.log(err);
@@ -89,8 +78,10 @@ app.post("/api/texts", login.checkLogin, function(req, res) {
 	});
 });
 
-// GET request for current user, returns {login:BOOLEAN, user:STRING}, where user is absent if there
-// is no logged in user.
+/**
+ * GET request for current user, returns {login:BOOLEAN, user:STRING}, where user is absent if there
+ * is no logged in user.
+ */
 app.get("/api/user", function(req, res) {
 	login.getCurrentUser(req, function(user) {
 		if (user == null) {
@@ -106,7 +97,9 @@ app.get("/api/user", function(req, res) {
 	});
 });
 
-/* Create new semantic annotation */
+/**
+ * POST to create new semantic annotation
+ */
 app.post("/api/semantics", login.checkLogin, function(req, res) {
 	var annotation = {
 		user : req.session.user,
@@ -123,8 +116,7 @@ app.post("/api/semantics", login.checkLogin, function(req, res) {
 			annotation.id = response._id;
 			login.getUser(annotation.user, function(user) {
 				if (user) {
-					annotation.colour = "rgba(" + user.prefs.colour.red + "," + user.prefs.colour.green + ","
-							+ user.prefs.colour.blue + ",0.2)";
+					painter.painters.colourByUser(annotation, user);
 				}
 				res.json(annotation);
 			});
@@ -132,7 +124,9 @@ app.post("/api/semantics", login.checkLogin, function(req, res) {
 	});
 });
 
-/* Log into the server */
+/**
+ * POST to log into the server
+ */
 app.post("/api/login", function(req, res) {
 	login.login(req, function(result) {
 		if (result == null) {
@@ -149,7 +143,9 @@ app.post("/api/login", function(req, res) {
 	});
 });
 
-/* Create a new user */
+/**
+ * POST to create a new user
+ */
 app.post("/api/users", function(req, res) {
 	login.createUser(req.body.id, req.body.password, function(newUser) {
 		if (newUser == null) {
@@ -165,12 +161,13 @@ app.post("/api/users", function(req, res) {
 	});
 });
 
-/* Log out */
+/**
+ * POST to log out of any current active session
+ */
 app.post("/api/logout", function(req, res) {
 	login.logout(req);
 	res.json("Okay");
 });
 
-// Start app on whatever port is configured, defaulting to 8080 if not specified.
-app.listen(args.port);
-console.log("Textus listening on port " + args.port);
+app.listen(conf.textus.port);
+console.log("Textus listening on port " + conf.textus.port);

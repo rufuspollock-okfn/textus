@@ -65,7 +65,6 @@ module.exports = exports = function(datastore) {
 		getCurrentUser : function(req, callback) {
 			var user = req.session.user;
 			var userKey = req.session.userKey;
-			console.log("getCurrentUser : user = " + user + ", userKey = " + userKey);
 			if (user && userKey && loginSecrets[user] && loginSecrets[user] == userKey) {
 				this.getUser(user, callback);
 			} else {
@@ -105,8 +104,6 @@ module.exports = exports = function(datastore) {
 					callback(null);
 				} else {
 					userCache[user.id] = user;
-					console.log("Created new user id = "+user.id);
-					console.log(user);
 					callback(newUser);
 				}
 			});
@@ -123,12 +120,11 @@ module.exports = exports = function(datastore) {
 		 *            a function called with either the user record (success) or null (failure)
 		 */
 		login : function(req, callback) {
-			console.log("Login : id = " + req.body.id + ", password = " + req.body.password);
 			if (req.body.id && req.body.password) {
 				datastore.getUser(req.body.id, function(err, result) {
 					if (err || result == null) {
 						/* No user found with that id */
-						console.log("No such user");
+						console.log("No user with id " + req.body.id);
 						callback(null);
 					} else {
 						userCache[result.id] = result;
@@ -139,13 +135,10 @@ module.exports = exports = function(datastore) {
 							req.session.user = result.id;
 							req.session.userKey = randomSecret();
 							loginSecrets[req.session.user] = req.session.userKey;
-							console.log("Added properties to session : user = " + result.id + ", userKey = "
-									+ req.session.userKey);
-							console.log("User found and verified");
 							callback(result);
 						} else {
 							/* Password incorrect */
-							console.log("User found but password doesn't match");
+							console.log("User with id '" + req.body.id + "' found but password doesn't match");
 							callback(null);
 						}
 					}
@@ -178,6 +171,7 @@ module.exports = exports = function(datastore) {
 					if (err) {
 						callback(null);
 					} else {
+						userCache[user.id] = user;
 						callback(user);
 					}
 				});

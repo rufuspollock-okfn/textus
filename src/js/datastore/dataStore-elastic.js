@@ -95,10 +95,14 @@ var joinTextChunksAndTrim = function(start, end, chunks) {
 	};
 };
 
-module.exports = exports = function(args) {
+module.exports = exports = function(conf) {
 
 	var elastical = require('elastical');
-	var client = new elastical.Client();
+	var client = new elastical.Client(conf.es.host, {
+		port : conf.es.port,
+		protocol : conf.es.protocol,
+		timeout : conf.es.timeout
+	});
 
 	var indexArray = function(index, type, list, callback) {
 		var item = list.shift();
@@ -219,7 +223,7 @@ module.exports = exports = function(args) {
 			client.index("textus-users", "user", user, {
 				id : user.id,
 				refresh : true,
-				create: true
+				create : true
 			}, function(err, result) {
 				if (err) {
 					callback(err, null);
@@ -228,16 +232,16 @@ module.exports = exports = function(args) {
 				}
 			});
 		},
-		
+
 		/**
 		 * As with create, but will not fail if the user already exists
 		 */
 		createOrUpdateUser : function(user, callback) {
 			cliend.index("textus-users", "user", user, {
-				id: user.id,
-				refresh: true,
-				create: false
-			},function(err, result) {
+				id : user.id,
+				refresh : true,
+				create : false
+			}, function(err, result) {
 				if (err) {
 					callback(err, null);
 				} else {
@@ -250,11 +254,10 @@ module.exports = exports = function(args) {
 		 * Delete the specified user record
 		 */
 		deleteUser : function(userId, callback) {
-			client.delete("textus-users","user",userId, function(err, result) {
+			client.delete("textus-users", "user", userId, function(err, result) {
 				if (err) {
 					callback(err, null);
-				}
-				else {
+				} else {
 					callback(null, result);
 				}
 			});
