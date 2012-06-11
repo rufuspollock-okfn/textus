@@ -1,0 +1,27 @@
+div#textList {
+	overflow-y: auto;
+	position: absolute;
+	top: 80px;
+	bottom: 20px;
+	left: 20px;
+	right: 20px;
+}
+
+div#textList>div {
+	margin-bottom: 6px;
+}
+
+div#textList>div>div {
+	font-size: 12px;
+}
+
+div#textList>div>a {
+	font-size: 12px;
+	font-weight: bold;
+}
+
+div#textList,div#textListSummary,div.main div.summary {
+	text-align: justify;
+	padding: 20px;
+	padding-right: 50px;
+}

@@ -1,0 +1,138 @@
+* {
+	margin: 0px;
+}
+
+p,a,div.label {
+	font-size: 14px;
+}
+
+ul,ol,li {
+	line-height: 16px;
+}
+
+ol,ul {
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+ul>ol,ul>ul,ol>ol,ol>ul {
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+
+h1 {
+	padding-bottom: 20px;
+	line-height: 34px;
+}
+
+h2 {
+	padding-top: 6px;
+	padding-bottom: 9px;
+	line-height: 25px;
+}
+
+h3,h4,h5,h6 {
+	padding-top: 5px;
+	padding-bottom: 8px;
+	line-height: 20px;
+}
+
+html,body {
+	background-color: #999;
+	margin: 0px;
+	font-family: sans-serif;
+	height: 100%;
+	min-height: 200px;
+}
+
+.wrapper>div {
+	background-color: #aaa;
+}
+
+.wrapper>div>div {
+	border: solid;
+	border-width: 1px;
+	border-color: #777;
+}
+
+/* Header panel */
+.header {
+	margin: 10px;
+	height: 48px;
+	padding: 20px;
+	background-color: white;
+}
+
+.header-wrapper {
+	position: absolute;
+	top: 0px;
+	padding: 0px;
+	margin-right: 10px;
+	width: 100%;
+	height: 90px;
+	padding-bottom: 10px;
+}
+
+/* Contains the links in the header below the title */
+.header>.links {
+	position: absolute;
+	bottom: 10px;
+	left: 35px;
+}
+
+/* Style for links in the header link panel */
+.header>.links>a {
+	display: inline-block;
+	padding-right: 10px;
+}
+
+/* Main container */
+.main {
+	padding: 5px;
+	margin: 10px;
+	height: 100%;
+	background-color: white;
+}
+
+.main-wrapper {
+	position: absolute;
+	top: 100px;
+	bottom: 50px;
+	left: 0px;
+	right: 0px;
+	width: 100%;
+	padding-bottom: 32px;
+	min-height: 200px;
+}
+
+/* Page footer */
+.footer {
+	margin: 0px 10px;
+	padding: 5px;
+	height: 29px;
+	background-color: white;
+}
+
+.footer-wrapper {
+	position: absolute;
+	bottom: 0px;
+	clear: both;
+	height: 40px;
+	min-height: 40px;
+	width: 100%;
+	padding-bottom: 10px;
+}
+
+/* Style definitions below this point are to enforce footer position etc */
+.wrapper {
+	position: relative;
+	display: block;
+	width: 100%;
+	top: 0px;
+	min-height: 100%;
+	height: auto !important;
+	height: 100%;
+	margin: 0px auto -50px;
+	background-color: red;
+	padding: 0px;
+}

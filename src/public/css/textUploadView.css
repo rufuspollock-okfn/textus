@@ -1,0 +1,22 @@
+form#uploadForm {
+	padding: 20px 20px 5px 20px;
+	margin: 0px 20px 0px 20px;
+	background-color: #e9ffe0;
+}
+
+form#uploadForm>div.row {
+	display: block;
+	margin-bottom: 10px;
+}
+
+form#uploadForm>div.row>div.label {
+	display: inline-block;
+	width: 100px;
+	text-align: right;
+	font-size: 14px;
+	padding-right: 5px;
+}
+
+form#uploadForm>div.row>input,form#uploadForm>div.row>button {
+	display: inline-block;
+}

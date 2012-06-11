@@ -1,0 +1,74 @@
+.login-wrapper {
+	display: block;
+	position: absolute;
+	bottom: 10px;
+	right: 20px;
+	height: 70px;
+}
+
+.login-wrapper .editor,.login-wrapper label,.login-wrapper>form,.login-wrapper>button,.login-wrapper>div
+	{
+	display: inline-block;
+}
+
+.login-wrapper>form>fieldset {
+	border: none;
+	padding-bottom: 0px;
+	margin-bottom: 0px;
+}
+
+.login-wrapper label {
+	margin-right: 6px;
+	font-size: 12px;
+	width: 100px;
+	text-align: right;
+}
+
+.login-wrapper div.editor {
+	margin-right: 0px;
+}
+
+.login-wrapper>.login-links {
+	display: block;
+	padding-left: 120px;
+	height: 10px;
+	margin-top: -5px;
+}
+
+.logged-in>.login-links {
+	display: block;
+	padding-left: 0px;
+	height: 10px;
+	margin-top: -5px;
+}
+
+.login-links>a {
+	font-size: 12px;
+	padding-right: 10px;
+}
+
+.login-wrapper>form>fieldset>div {
+	margin-top: 0px;
+	margin-bottom: 6px;
+}
+
+.logged-in {
+	margin-top: 34px;
+	height: 25px;
+}
+
+.logged-in>* {
+	display: inline-block;
+}
+
+.logged-in>.label {
+	font-size: 12px;
+	margin-right: 3px;
+}
+
+.logged-in>.user-name {
+	font-size: 12px;
+	font-weight: bold;
+	font-style: italic;
+	margin-right: 10px;
+}

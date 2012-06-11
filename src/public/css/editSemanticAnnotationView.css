@@ -1,0 +1,12 @@
+.annotationEditor {
+	position: absolute;
+	top: 103px;
+	left: 3px;
+	padding: 10px;
+	margin: 10px;
+	z-index: 30;
+	background-color: white;
+	border: solid;
+	border-width: 1px;
+	border-color: #777;
+}

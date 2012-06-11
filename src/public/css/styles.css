@@ -1,17 +1,14 @@
-.wrapper > div {
-	background-color: #aaa;
-}
-
-.wrapper > div > div {
-	border: solid;
-	border-width: 1px;
-	border-color: #777;
-}
-
-.header, .footer {
-	background-color: white;
-}
-
-.main {
-	background-color: white;
-}
+/* Controls header, main panel and footer positioning rules */
+@import url('mainLayout.css');
+/* Login panel */
+@import url('loginView.css');
+/* List of all texts */
+@import url('listTextsView.css');
+/* New user registration */
+@import url('registerUserView.css');
+/* Text reader UI */
+@import url('textView.css');
+/* Edit / create semantic annotation UI */
+@import url('editSemanticAnnotationView.css');
+/* Upload new text */
+@import url('textUploadView.css');
