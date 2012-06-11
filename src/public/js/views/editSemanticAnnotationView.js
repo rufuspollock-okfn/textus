@@ -42,8 +42,9 @@ define([ 'jquery', 'underscore', 'backbone', 'text!templates/editSemanticAnnotat
 					data : annotation.payload,
 					schema : schemas[annotation.type]
 				});
-				this.$el.append(form.render().el);
-				this.$el.append("<button id='submitAnnotation'>" + (creating ? "Create" : "Update") + "</button>");
+				this.$el.find('#annotationEditor').append(form.render().el);
+				this.$el.find('#annotationEditor').append(
+						"<button id='submitAnnotation'>" + (creating ? "Create" : "Update") + "</button>");
 				this.$el.find('#submitAnnotation').bind("click", function() {
 					console.log(form.getValue());
 					presenter.storeAnnotation({
@@ -55,6 +56,10 @@ define([ 'jquery', 'underscore', 'backbone', 'text!templates/editSemanticAnnotat
 				console.log("Unable to find edit schema for annotation " + annotation);
 			}
 			return this;
+		},
+
+		giveFocus : function() {
+			this.$el.find('textarea#text').focus();
 		}
 
 	});

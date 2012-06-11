@@ -1,7 +1,21 @@
 form#uploadForm {
 	padding: 20px 20px 5px 20px;
 	margin: 0px 20px 0px 20px;
-	background-color: #e9ffe0;
+	background-image: linear-gradient(bottom, rgb(255,250,224) 0%, rgb(255,248,232) 74%);
+background-image: -o-linear-gradient(bottom, rgb(255,250,224) 0%, rgb(255,248,232) 74%);
+background-image: -moz-linear-gradient(bottom, rgb(255,250,224) 0%, rgb(255,248,232) 74%);
+background-image: -webkit-linear-gradient(bottom, rgb(255,250,224) 0%, rgb(255,248,232) 74%);
+background-image: -ms-linear-gradient(bottom, rgb(255,250,224) 0%, rgb(255,248,232) 74%);
+
+background-image: -webkit-gradient(
+	linear,
+	left bottom,
+	left top,
+	color-stop(0, rgb(255,250,224)),
+	color-stop(0.74, rgb(255,248,232))
+);
+	-moz-border-radius: 15px;
+	border-radius: 15px;
 }
 
 form#uploadForm>div.row {

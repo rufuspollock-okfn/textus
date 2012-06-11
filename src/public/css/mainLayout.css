@@ -1,9 +1,74 @@
+button:hover {
+	background-image: linear-gradient(bottom, rgb(250, 210, 118) 0%,
+		rgb(242, 216, 155) 74% );
+	background-image: -o-linear-gradient(bottom, rgb(250, 210, 118) 0%,
+		rgb(242, 216, 155) 74% );
+	background-image: -moz-linear-gradient(bottom, rgb(250, 210, 118) 0%,
+		rgb(242, 216, 155) 74% );
+	background-image: -webkit-linear-gradient(bottom, rgb(250, 210, 118) 0%,
+		rgb(242, 216, 155) 74% );
+	background-image: -ms-linear-gradient(bottom, rgb(250, 210, 118) 0%,
+		rgb(242, 216, 155) 74% );
+	background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, rgb(250,
+		210, 118) ), color-stop(0.74, rgb(242, 216, 155) ) );
+}
+
+button {
+	background-color: #F8DC96;
+	border: none;
+	padding: 5px 10px 5px 10px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	-moz-box-shadow: 0 0 3px #666;
+	-webkit-box-shadow: 0 0 3px #666;
+	box-shadow: 0 0 3px #666;
+	background-image: linear-gradient(bottom, rgb(250, 226, 170) 0%,
+		rgb(245, 232, 201) 74% );
+	background-image: -o-linear-gradient(bottom, rgb(250, 226, 170) 0%,
+		rgb(245, 232, 201) 74% );
+	background-image: -moz-linear-gradient(bottom, rgb(250, 226, 170) 0%,
+		rgb(245, 232, 201) 74% );
+	background-image: -webkit-linear-gradient(bottom, rgb(250, 226, 170) 0%,
+		rgb(245, 232, 201) 74% );
+	background-image: -ms-linear-gradient(bottom, rgb(250, 226, 170) 0%,
+		rgb(245, 232, 201) 74% );
+	background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, rgb(250,
+		226, 170) ), color-stop(0.74, rgb(245, 232, 201) ) );
+}
+
 * {
 	margin: 0px;
 }
 
-p,a,div.label {
+p,a,div.label,li {
 	font-size: 14px;
+}
+
+p {
+	padding: 5px 0px 5px 0px;
+}
+
+a:link,a:visited {
+	color: #555;
+	text-decoration: none;
+}
+
+.main a:link, .main a:visited {
+	color: #264C73
+}
+
+.main a:hover {
+	color: #7FA3C8
+}
+
+a:hover {
+	color: black;
+	text-decoration: none;
+}
+
+a:active {
+	color: #6B5DA8;
+	text-decoration: none;
 }
 
 ul,ol,li {
@@ -46,21 +111,30 @@ html,body {
 }
 
 .wrapper>div {
-	background-color: #aaa;
+	background-color: pink;
 }
 
 .wrapper>div>div {
-	border: solid;
-	border-width: 1px;
 	border-color: #777;
 }
 
 /* Header panel */
 .header {
-	margin: 10px;
-	height: 48px;
-	padding: 20px;
-	background-color: white;
+	margin: 0px;
+	height: 45px;
+	padding: 10px 20px 30px 20px;
+	background-image: linear-gradient(bottom, rgb(201, 213, 224) 24%,
+		rgb(235, 245, 255) 85% );
+	background-image: -o-linear-gradient(bottom, rgb(201, 213, 224) 24%,
+		rgb(235, 245, 255) 85% );
+	background-image: -moz-linear-gradient(bottom, rgb(201, 213, 224) 24%,
+		rgb(235, 245, 255) 85% );
+	background-image: -webkit-linear-gradient(bottom, rgb(201, 213, 224) 24%,
+		rgb(235, 245, 255) 85% );
+	background-image: -ms-linear-gradient(bottom, rgb(201, 213, 224) 24%,
+		rgb(235, 245, 255) 85% );
+	background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0.24, rgb(201
+		, 213, 224) ), color-stop(0.85, rgb(235, 245, 255) ) );
 }
 
 .header-wrapper {
@@ -69,48 +143,113 @@ html,body {
 	padding: 0px;
 	margin-right: 10px;
 	width: 100%;
-	height: 90px;
-	padding-bottom: 10px;
+	height: 85px;
+	padding-bottom: 0px;
 }
 
 /* Contains the links in the header below the title */
 .header>.links {
 	position: absolute;
-	bottom: 10px;
-	left: 35px;
+	bottom: 0px;
+	left: 0px;
+	padding: 0px;
+	margin-top: -4px;
+	text-space-collapse: trim-inner
 }
 
 /* Style for links in the header link panel */
 .header>.links>a {
+	position: relative;
+	top: 0px;
 	display: inline-block;
-	padding-right: 10px;
+	margin: 0px;
+	height: 30px;
+	line-height: 25px;
+	padding: 5px 10px 0px 10px;
+	border: solid;
+	border-width: 1px 0px 0px 0px;
+	border-color: #aaa;
+	background-image: linear-gradient(bottom, rgb(255, 250, 224) 0%,
+		rgb(255, 248, 232) 74% );
+	background-image: -o-linear-gradient(bottom, rgb(255, 250, 224) 0%,
+		rgb(255, 248, 232) 74% );
+	background-image: -moz-linear-gradient(bottom, rgb(255, 250, 224) 0%,
+		rgb(255, 248, 232) 74% );
+	background-image: -webkit-linear-gradient(bottom, rgb(255, 250, 224) 0%,
+		rgb(255, 248, 232) 74% );
+	background-image: -ms-linear-gradient(bottom, rgb(255, 250, 224) 0%,
+		rgb(255, 248, 232) 74% );
+	background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, rgb(255,
+		250, 224) ), color-stop(0.74, rgb(255, 248, 232) ) );
+	background-image: linear-gradient(bottom, rgb(255, 250, 224) 0%,
+		rgb(255, 248, 232) 74% );
+}
+
+.header>.links>a:last-child {
+	border-width: 1px 1px 0px 0px;
+	padding-right: 20px;
+	border-top-right-radius: 15px;
+	-moz-border-top-right-radius: 15px;
+}
+
+.header>.links>a:first-child {
+	padding-left: 20px;
+}
+
+.header>.links>a:hover {
+	background-image: linear-gradient(bottom, rgb(250, 226, 170) 0%,
+		rgb(245, 232, 201) 74% );
+	background-image: -o-linear-gradient(bottom, rgb(250, 226, 170) 0%,
+		rgb(245, 232, 201) 74% );
+	background-image: -moz-linear-gradient(bottom, rgb(250, 226, 170) 0%,
+		rgb(245, 232, 201) 74% );
+	background-image: -webkit-linear-gradient(bottom, rgb(250, 226, 170) 0%,
+		rgb(245, 232, 201) 74% );
+	background-image: -ms-linear-gradient(bottom, rgb(250, 226, 170) 0%,
+		rgb(245, 232, 201) 74% );
+	background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, rgb(250,
+		226, 170) ), color-stop(0.74, rgb(245, 232, 201) ) );
 }
 
 /* Main container */
 .main {
 	padding: 5px;
-	margin: 10px;
+	margin: 0px;
 	height: 100%;
 	background-color: white;
+	-moz-box-shadow: inset 0 0 10px #444;
+	-webkit-box-shadow: inset 0 0 10px #444;
+	box-shadow: inset 0 0 10px #444;
 }
 
 .main-wrapper {
 	position: absolute;
-	top: 100px;
-	bottom: 50px;
+	top: 85px;
+	bottom: 40px;
 	left: 0px;
 	right: 0px;
 	width: 100%;
-	padding-bottom: 32px;
+	padding-bottom: 10px;
 	min-height: 200px;
 }
 
 /* Page footer */
 .footer {
-	margin: 0px 10px;
-	padding: 5px;
-	height: 29px;
-	background-color: white;
+	margin: 0px 0px 0px 0px;
+	padding: 5px 15px 5px 15px;
+	height: 30px;
+	background-image: linear-gradient(bottom, rgb(201, 213, 224) 24%,
+		rgb(235, 245, 255) 85% );
+	background-image: -o-linear-gradient(bottom, rgb(201, 213, 224) 24%,
+		rgb(235, 245, 255) 85% );
+	background-image: -moz-linear-gradient(bottom, rgb(201, 213, 224) 24%,
+		rgb(235, 245, 255) 85% );
+	background-image: -webkit-linear-gradient(bottom, rgb(201, 213, 224) 24%,
+		rgb(235, 245, 255) 85% );
+	background-image: -ms-linear-gradient(bottom, rgb(201, 213, 224) 24%,
+		rgb(235, 245, 255) 85% );
+	background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0.24, rgb(201
+		, 213, 224) ), color-stop(0.85, rgb(235, 245, 255) ) );
 }
 
 .footer-wrapper {
@@ -120,7 +259,7 @@ html,body {
 	height: 40px;
 	min-height: 40px;
 	width: 100%;
-	padding-bottom: 10px;
+	padding-bottom: 0px;
 }
 
 /* Style definitions below this point are to enforce footer position etc */

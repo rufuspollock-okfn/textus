@@ -21,6 +21,9 @@ define([ 'jquery', 'underscore', 'backbone', 'text!templates/listTextsView.html'
 				var a = $('<a href="#text/' + text.textid + '/' + text.offset + '">' + text.name + '</a>');
 				d.append(a, desc);
 				$('#textList').append(d);
+				d.click(function() {
+					window.location.href = "#text/" + text.textid + "/" + text.offset;
+				});
 			});
 		}
 	});

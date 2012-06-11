@@ -73,7 +73,7 @@ app.post("/api/texts", login.checkLogin, function(req, res) {
 			res.redirect('/#text/' + textId + '/0');
 		} else {
 			console.log(err);
-			res.json(err);
+			res.redirect('/#texts');
 		}
 	});
 });

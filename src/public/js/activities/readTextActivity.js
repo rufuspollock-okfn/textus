@@ -339,7 +339,7 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView', 'views/
 					}).render();
 					$('body').append("<div class='annotationEditor'/>");
 					$('.annotationEditor').html(editView.el);
-
+					editView.giveFocus();
 					// alert("Text selected '" + s.get("text") + "' character range [" +
 					// s.get("start") + ","
 					// + s.get("end") + "] from textId '" + textId + "'");

@@ -1,12 +1,88 @@
 .annotationEditor {
 	position: absolute;
-	top: 103px;
-	left: 3px;
+	top: 100px;
+	left: -20px;
 	padding: 10px;
-	margin: 10px;
+	margin: 0px;
 	z-index: 30;
 	background-color: white;
 	border: solid;
-	border-width: 1px;
+	border-width: 1px 1px 1px 0px;
 	border-color: #777;
+	padding: 13px 13px 13px 0px;
+	margin: 0px 20px 0px 20px;
+	-moz-border-top-right-radius: 15px;
+	border-top-right-radius: 15px;
+	-moz-border-bottom-right-radius: 15px;
+	border-bottom-right-radius: 15px;
+	-moz-box-shadow: 0 0 10px #888;
+	-webkit-box-shadow: 0 0 10px #888;
+	box-shadow: 0 0 10px #888;
+	background-image: linear-gradient(bottom, rgb(255, 250, 224) 0%,
+		rgb(255, 248, 232) 74% );
+	background-image: -o-linear-gradient(bottom, rgb(255, 250, 224) 0%,
+		rgb(255, 248, 232) 74% );
+	background-image: -moz-linear-gradient(bottom, rgb(255, 250, 224) 0%,
+		rgb(255, 248, 232) 74% );
+	background-image: -webkit-linear-gradient(bottom, rgb(255, 250, 224) 0%,
+		rgb(255, 248, 232) 74% );
+	background-image: -ms-linear-gradient(bottom, rgb(255, 250, 224) 0%,
+		rgb(255, 248, 232) 74% );
+	background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, rgb(255,
+		250, 224) ), color-stop(0.74, rgb(255, 248, 232) ) );
+}
+
+.annotationEditorContents {
+	background-color: white;
+	-moz-border-top-right-radius: 10px;
+	border-top-right-radius: 10px;
+	-moz-border-bottom-right-radius: 10px;
+	border-bottom-right-radius: 10px;
+	padding: 10px;
+	border: solid;
+	border-width: 1px 1px 1px 0px;
+	border-color: #777;
+}
+
+div#annotationEditorTitle {
+	font-weight: bold;
+	font-size: 14px;
+	margin-bottom: 10px;
+	margin-left: 0px;
+}
+
+div#annotationEditor fieldset {
+	padding-top: 0px;
+	padding-bottom: 0px;
+	padding-left: 0px; margin : 0px 0px 0px 0px;
+	border: none;
+	margin: 0px 0px 0px 0px;
+}
+
+div#annotationEditor textarea {
+	width: 350px;
+	height: 140px;
+	margin-top: 5px;
+}
+
+div#annotationEditor>button {
+	margin-top: 5px;
+	margin-left: 0px;
+}
+
+div#annotationEditor fieldset>div {
+	display: block;
+	padding-bottom: 10px;
+}
+
+div#annotationEditor fieldset>div>label,div#annotationEditor fieldset>div>div
+	{
+	display: block;
+}
+
+div#annotationEditor label {
+	width: 100px;
+	font-size: 12px;
+	padding-right: 5px;
+	text-align: left;
 }

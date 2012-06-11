@@ -163,6 +163,10 @@ module.exports = exports = function(conf) {
 					callback(error, null);
 					return;
 				} else {
+					if (data == "" || data == null) {
+						callback("No data provided", null);
+						return;
+					}
 					var parsed = wikitext.readWikiText(data);
 					var result = {
 						text : [ {

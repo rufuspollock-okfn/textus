@@ -3,12 +3,45 @@ div#textList {
 	position: absolute;
 	top: 80px;
 	bottom: 20px;
-	left: 20px;
-	right: 20px;
+	left: 10px;
+	right: 10px;
 }
 
 div#textList>div {
-	margin-bottom: 6px;
+	padding: 10px 10px 15px 20px;
+	margin-bottom: 8px;
+	background-image: linear-gradient(bottom, rgb(255, 250, 224) 0%,
+		rgb(255, 248, 232) 74% );
+	background-image: -o-linear-gradient(bottom, rgb(255, 250, 224) 0%,
+		rgb(255, 248, 232) 74% );
+	background-image: -moz-linear-gradient(bottom, rgb(255, 250, 224) 0%,
+		rgb(255, 248, 232) 74% );
+	background-image: -webkit-linear-gradient(bottom, rgb(255, 250, 224) 0%,
+		rgb(255, 248, 232) 74% );
+	background-image: -ms-linear-gradient(bottom, rgb(255, 250, 224) 0%,
+		rgb(255, 248, 232) 74% );
+	background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, rgb(255,
+		250, 224) ), color-stop(0.74, rgb(255, 248, 232) ) );
+	-moz-border-radius: 10px;
+	border-radius: 10px;
+	-moz-box-shadow: 0 0 4px #aaa;
+	-webkit-box-shadow: 0 0 4px #aaa;
+	box-shadow: 0 0 4px #aaa;
+}
+
+div#textList>div:hover {
+	background-image: linear-gradient(bottom, rgb(250, 210, 118) 0%,
+		rgb(242, 216, 155) 74% );
+	background-image: -o-linear-gradient(bottom, rgb(250, 210, 118) 0%,
+		rgb(242, 216, 155) 74% );
+	background-image: -moz-linear-gradient(bottom, rgb(250, 210, 118) 0%,
+		rgb(242, 216, 155) 74% );
+	background-image: -webkit-linear-gradient(bottom, rgb(250, 210, 118) 0%,
+		rgb(242, 216, 155) 74% );
+	background-image: -ms-linear-gradient(bottom, rgb(250, 210, 118) 0%,
+		rgb(242, 216, 155) 74% );
+	background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, rgb(250,
+		210, 118) ), color-stop(0.74, rgb(242, 216, 155) ) );
 }
 
 div#textList>div>div {

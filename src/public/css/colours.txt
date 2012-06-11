@@ -1,0 +1,54 @@
+/* Pale blue gradient fill */
+
+background-image: linear-gradient(bottom, rgb(164,195,227) 24%, rgb(186,219,255) 85%);
+background-image: -o-linear-gradient(bottom, rgb(164,195,227) 24%, rgb(186,219,255) 85%);
+background-image: -moz-linear-gradient(bottom, rgb(164,195,227) 24%, rgb(186,219,255) 85%);
+background-image: -webkit-linear-gradient(bottom, rgb(164,195,227) 24%, rgb(186,219,255) 85%);
+background-image: -ms-linear-gradient(bottom, rgb(164,195,227) 24%, rgb(186,219,255) 85%);
+background-image: -webkit-gradient(
+	linear,
+	left bottom,
+	left top,
+	color-stop(0.24, rgb(164,195,227)),
+	color-stop(0.85, rgb(186,219,255)));
+
+/* Sand gradient fill */
+
+background-image: linear-gradient(bottom, rgb(248, 227, 172) 24%, rgb(255, 244, 219) 85%);
+background-image: -o-linear-gradient(bottom, rgb(248, 227, 172) 24%, rgb(255, 244, 219) 85%);
+background-image: -moz-linear-gradient(bottom, rgb(248, 227, 172) 24%, rgb(255, 244, 219) 85%);
+background-image: -webkit-linear-gradient(bottom, rgb(248, 227, 172) 24%, rgb(255, 244, 219) 85%);
+background-image: -ms-linear-gradient(bottom, rgb(248, 227, 172) 24%, rgb(255, 244, 219) 85%);
+background-image: -webkit-gradient(
+	linear, 
+	left bottom, 
+	left top, 
+	color-stop(0.24, rgb(248, 227, 172)), 
+	color-stop(0.85, rgb(255, 244, 219)));
+
+
+/* Lilac gradient fill */
+
+background-image: linear-gradient(bottom, rgb(173, 162, 224) 24%, rgb(208, 200, 250) 85%);
+background-image: -o-linear-gradient(bottom, rgb(173, 162, 224) 24%, rgb(208, 200, 250) 85%);
+background-image: -moz-linear-gradient(bottom, rgb(173, 162, 224) 24%, rgb(208, 200, 250) 85%);
+background-image: -webkit-linear-gradient(bottom, rgb(173, 162, 224) 24%, rgb(208, 200, 250) 85%);
+background-image: -ms-linear-gradient(bottom, rgb(173, 162, 224) 24%, rgb(208, 200, 250) 85%);
+background-image: -webkit-gradient(
+	linear, 
+	left bottom, 
+	left top, 
+	color-stop(0.24, rgb(173, 162, 224)), 
+	color-stop(0.85, rgb(208, 200, 250)));
+		
+Primary colour (desat blue)
+5C68A6	565E86	293679	8691CD	969ECD
+
+Secondary colour A (lilac)
+6B5DA8	605787	392A7A	9486CE	A196CE
+
+Secondary colour B (deep turqoise)
+54789E	4F6780	264C73	7FA3C8	8FABC8
+
+Comp colour (sand)
+F3CF78	C4AD74	B18E36	F8DC96	F8E2AC
