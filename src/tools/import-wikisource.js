@@ -1,9 +1,12 @@
 var fs = require('fs');
-var args = require('optimist').usage('Usage: $0 --title TITLE [--file-only]').alias('t', 'title').alias('f',
-		'file-only').describe('t', 'The title of a work in the English WikiSource wiki.').describe('f',
-		'If defined the import will simply write the file and not access the data store').demand([ 't' ]).argv;
+var args = require('optimist').usage('Usage: $0 --title TITLE [--file-only]').describe('title', 'The title of a work in the English WikiSource wiki.').describe('file-only',
+		'If defined the import will simply write the file and not access the data store').demand([ 'title' ]).argv;
 var importer = require('../js/import/wikisource.js')(args);
-var ds = require('../js/datastore/dataStore-elastic.js')(args);
+
+//Textus configuration
+var conf = require('../js/textusConfiguration.js').conf();
+// Backend datastore, requires configuration
+var ds = require('../js/datastore/dataStore-elastic.js')(conf);
 
 var title = args.title;
 
