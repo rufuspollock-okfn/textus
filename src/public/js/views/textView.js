@@ -81,7 +81,7 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textView.
 				regions[annotation.id] = {
 					x : annotation.anchor.x,
 					y : annotation.anchor.y,
-					colour : (annotation.colour ? annotation.colour : "rgba(0,0,0,0.2)")
+					colour : (annotation.dynamic.colour ? annotation.dynamic.colour : "rgba(0,0,0,0.2)")
 				};
 			}
 		});
@@ -198,8 +198,8 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textView.
 			 * red if colour isn't available.
 			 */
 			var annotation = regions[r.id];
-			if (annotation.colour) {
-				ctx.fillStyle = annotation.colour;
+			if (annotation.dynamic.colour) {
+				ctx.fillStyle = annotation.dynamic.colour;
 			} else {
 				ctx.fillStyle = "rgba(255,0,0,0.1)";
 			}

@@ -4,24 +4,43 @@
  */
 module.exports = exports = function(login) {
 
+	/**
+	 * Private function to handle the asynchronous user fetch and application of painter functions.
+	 */
 	var _augmentAnnotations = function(annotations, newAnnotations, painters, callback) {
 		var annotation = annotations.pop();
 		if (annotation) {
 			if (annotation.user) {
 				login.getUser(annotation.user, function(user) {
-					painters.forEach(function(painter) {
-						painter(annotation, user);
-					});
+					_paint(painters, annotation, user);
 					newAnnotations.push(annotation);
 					_augmentAnnotations(annotations, newAnnotations, painters, callback);
 				});
 			} else {
+				_paint(painters, annotation, null);
 				newAnnotations.push(annotation);
 				_augmentAnnotations(annotations, newAnnotations, painters, callback);
 			}
 		} else {
 			callback(newAnnotations);
 		}
+	};
+
+	/**
+	 * Apply the painters to the annotation, the user may be null if there is no user or the user
+	 * cannot be looked up in the data store. Modifies the annotation object by creating or adding
+	 * to the annotation.dynamic property.
+	 */
+	var _paint = function(painters, annotation, user) {
+		if (!annotation.dynamic) {
+			annotation.dynamic = {};
+		}
+		painters.forEach(function(painter) {
+			var newProps = painter(annotation, user);
+			for ( var name in newProps) {
+				annotation.dynamic[name] = newProps[name];
+			}
+		});
 	};
 
 	return {
@@ -56,10 +75,15 @@ module.exports = exports = function(login) {
 			 * (user.prefs.colour.[red|green|blue])
 			 */
 			colourByUser : function(annotation, user) {
-				if (user) {
-					annotation.colour = "rgba(" + user.prefs.colour.red + "," + user.prefs.colour.green + ","
-							+ user.prefs.colour.blue + ",0.2)";
-				}
+				// Use the user colour, or white if none specified.
+				var c = user ? user.prefs.colour : {
+					red : 255,
+					green : 255,
+					blue : 255
+				};
+				return {
+					colour : "rgba(" + c.red + "," + c.green + "," + c.blue + ",0.2)"
+				};
 			}
 
 		}
