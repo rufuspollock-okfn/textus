@@ -6,6 +6,23 @@ define([ 'jquery', 'underscore', 'backbone', 'text!templates/listTextsView.html'
 		},
 		render : function() {
 			$(this.el).html(layoutTemplate);
+			$('#facetText').facetview({
+				search_url : '/api/texts-es?',
+				search_index : 'elasticsearch',
+				facets : [ {
+					'field' : 'publisher.exact',
+					'size' : 100,
+					'order' : 'term',
+					'display' : 'publisher'
+				}, {
+					'field' : 'author.name.exact',
+					'display' : 'author'
+				}, {
+					'field' : 'year.exact',
+					'display' : 'year'
+				} ],
+			});
+
 		},
 		/**
 		 * Called with an array of { textid:STRING, offset:INT, description:STRING, name:STRING }

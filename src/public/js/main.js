@@ -9,9 +9,24 @@ require.config({
 		text : 'libs/require-text-1.0.7',
 		order : 'libs/require-order-1.0.7',
 		templates : '../templates',
-		form : 'libs/backbone-forms-0.9.0-amd'
+		form : 'libs/backbone-forms-0.9.0-amd',
+		bootstrap : 'libs/bootstrap-2.0.4',
+		jqueryui : 'libs/jquery-ui-1.8.21.custom.min',
+		jquerylinkify : 'libs/jquery.linkify.1.0.0.min',
+		jqueryfacetview : 'libs/jquery.facetview'
+	},
+	shim : {
+
 	}
 });
+
+/**
+ * Force load of jquery plugins
+ */
+require([ 'order!jquery', 'order!bootstrap', 'order!jqueryui', 'order!jquerylinkify', 'order!jqueryfacetview' ],
+		function($) {
+			//
+		});
 
 require([ 'router' ], function(Router) {
 	Router.initialize();

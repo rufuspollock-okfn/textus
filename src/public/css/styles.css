@@ -12,3 +12,14 @@
 @import url('editSemanticAnnotationView.css');
 /* Upload new text */
 @import url('textUploadView.css');
+
+/* Bootstrap styles */
+@import url('bootstrap/bootstrap.css');
+@import url('bootstrap/bootstrap-responsive.css');
+
+/* jQueryUI styles */
+@import url('ui-lightness/jquery-ui-1.8.21.custom.css');
+
+/* FacetView styles */
+@import url('facetview/style.css');
+@import url('facetview/facetview.css');

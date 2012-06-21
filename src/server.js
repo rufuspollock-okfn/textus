@@ -18,6 +18,7 @@ var app = function() {
 	_app.use(express.session({
 		secret : "my secret..."
 	}));
+	_app.enable("jsonp callback");
 	_app.configure(function() {
 		_app.use(express.bodyParser());
 		_app.use(_app.router);
@@ -76,6 +77,19 @@ app.post("/api/texts", login.checkLogin, function(req, res) {
 			res.redirect('/#texts');
 		}
 	});
+});
+
+app.get("/api/texts-es", function(req, res) {
+	var esQuery = JSON.parse(req.query.source);
+	datastore.queryTexts(esQuery, function(err, data) {
+		if (err) {
+			console.log(err);
+			res.send(err, 404);
+		} else {
+			res.json(data);
+		}
+	});
+	console.log(esQuery);
 });
 
 /**

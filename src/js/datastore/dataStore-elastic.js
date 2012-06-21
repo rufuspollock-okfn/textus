@@ -316,6 +316,22 @@ module.exports = exports = function(conf) {
 				}
 			});
 		},
+		
+		queryTexts : function(query, callback) {
+			query.filter = {
+					"type" : {
+						"value" : "structure"
+					}
+				};
+			client.search(query, function(err, results, res) {
+				if (err) {
+					callback(err, null);
+				} else {
+					console.log(res);
+					callback(null, res);
+				}
+			});
+		},
 
 		/**
 		 * Retrieves text along with the associated typographical and semantic annotations which
