@@ -31,6 +31,14 @@ background-image: -webkit-gradient(
 	margin-left: 140px;
 }
 
+
+.user-registration .form-horizontal .controls {
+  *display: inline-block;
+  *padding-left: 20px;
+  margin-left: 20px;
+  *margin-left: 0;
+}
+
 .user-registration fieldset>div {
 	display: block;
 	padding-bottom: 10px;

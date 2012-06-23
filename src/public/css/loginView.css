@@ -11,8 +11,26 @@
 	display: inline-block;
 }
 
+.login-wrapper .input-xlarge {
+	width : 150px;
+}
+.login-wrapper .control-group {
+	height: 28px;
+}
+
+.login-wrapper>form>fieldset input {
+	padding-bottom: 2px;
+	margin-bottom: 2px;
+	width: 140px;
+}
+
+.login-wrapper>form {
+	margin-bottom: 0px;
+}
+
 .login-wrapper>form>fieldset {
 	border: none;
+	margin-right: 10px;
 	padding-bottom: 0px;
 	margin-bottom: 0px;
 }
@@ -30,16 +48,17 @@
 
 .login-wrapper>.login-links {
 	display: block;
-	padding-left: 120px;
+	padding-left: 162px;
 	height: 10px;
 	margin-top: -5px;
 }
 
 .logged-in>.login-links {
+	position: relative;
 	display: block;
 	padding-left: 0px;
 	height: 10px;
-	margin-top: -5px;
+	margin-top: 5px;
 }
 
 .login-links>a {
@@ -53,15 +72,19 @@
 }
 
 .logged-in {
-	margin-top: 34px;
+	margin-top: 24px;
 	height: 25px;
+}
+
+.logged-in #logoutButton {
+	margin-left: 30px;
 }
 
 .logged-in>* {
 	display: inline-block;
 }
 
-.logged-in>.label {
+.logged-in>.textus-label {
 	font-size: 12px;
 	margin-right: 3px;
 }

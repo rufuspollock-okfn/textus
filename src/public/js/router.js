@@ -1,9 +1,9 @@
 // Router, loads appropriate pages based on target URL
 define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activities/readTextActivity',
 		'activities/listTextsActivity', 'views/loginView', 'form', 'activities/textUploadActivity',
-		'activities/registerUserActivity', 'activities/userPrefsActivity' ], function($, _, Backbone, AppActivity,
+		'activities/registerUserActivity', 'activities/userPrefsActivity', 'activities/reviewTextUploadActivity' ], function($, _, Backbone, AppActivity,
 		ReadTextActivity, ListTextsActivity, LoginView, Form, TextUploadActivity, RegisterUserActivity,
-		UserPrefsActivity) {
+		UserPrefsActivity, ReviewTextUploadActivity) {
 
 	/**
 	 * Extend a close() operation to all views to help remove potential zombie listeners and
@@ -98,6 +98,7 @@ define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activiti
 			'upload' : 'uploadText',
 			'user-options' : 'userPrefs',
 			'register' : 'register',
+			'review' : 'review',
 			'*actions' : 'defaultActions'
 		},
 
@@ -125,6 +126,10 @@ define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activiti
 
 		register : function() {
 			startActivity(new RegisterUserActivity(models), null);
+		},
+
+		review : function() {
+			startActivity(new ReviewTextUploadActivity(models), null);
 		},
 
 		defaultActions : function() {
@@ -205,12 +210,84 @@ define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activiti
 
 	return {
 		initialize : function() {
-			var templates = {
-				form : '<form class="bbf-form">{{fieldsets}}</form>',
-				fieldset : '<fieldset>{{legend}}{{fields}}</fieldset>',
-				field : '<div><label for="{{id}}">{{title}}</label><div class="editor">{{editor}}</div></div>'
-			};
-			Form.helpers.setTemplates(templates);
+			// TWITTER BOOTSTRAP TEMPLATES
+			// Requires Bootstrap 2.x
+			Form
+					.setTemplates(
+							{
+
+								// HTML
+								form : '\
+	      <form class="form-horizontal">{{fieldsets}}</form>\
+	    ',
+
+								fieldset : '\
+	      <fieldset>\
+	        <legend>{{legend}}</legend>\
+	        {{fields}}\
+	      </fieldset>\
+	    ',
+
+								field : '\
+	      <div class="control-group">\
+	        <label class="control-label" for="{{id}}">{{title}}</label>\
+	        <div class="controls">\
+	          <div class="input-xlarge">{{editor}}</div>\
+	          <div class="help-block">{{help}}</div>\
+	        </div>\
+	      </div>\
+	    ',
+
+								nestedField : '\
+	      <div>\
+	        <div title="{{title}}" class="input-xlarge">{{editor}}</div>\
+	        <div class="help-block">{{help}}</div>\
+	      </div>\
+	    ',
+
+								list : '\
+	      <div class="bbf-list">\
+	        <ul class="unstyled clearfix">{{items}}</ul>\
+	        <button class="bbf-add" data-action="add">Add</div>\
+	      </div>\
+	    ',
+
+								listItem : '\
+	      <li class="clearfix">\
+	        <div class="pull-left">{{editor}}</div>\
+	        <button class="bbf-del" data-action="remove">x</button>\
+	      </li>\
+	    ',
+
+								date : '\
+	      <div class="bbf-date">\
+	        <select data-type="date" class="bbf-date">{{dates}}</select>\
+	        <select data-type="month" class="bbf-month">{{months}}</select>\
+	        <select data-type="year" class="bbf-year">{{years}}</select>\
+	      </div>\
+	    ',
+
+								dateTime : '\
+	      <div class="bbf-datetime">\
+	        <p>{{date}}</p>\
+	        <p>\
+	          <select data-type="hour" style="width: 4em">{{hours}}</select>\
+	          :\
+	          <select data-type="min" style="width: 4em">{{mins}}</select>\
+	        </p>\
+	      </div>\
+	    ',
+
+								'list.Modal' : '\
+	      <div class="bbf-list-modal">\
+	        {{summary}}\
+	      </div>\
+	    '
+							}, {
+
+								// CLASSNAMES
+								error : 'error' // Set on the field tag when validation fails
+							});
 			var loginView = new LoginView({
 				presenter : {
 

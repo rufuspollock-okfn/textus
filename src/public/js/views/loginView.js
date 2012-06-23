@@ -20,7 +20,7 @@ define(
 											$l.empty();
 											if (user.loggedin) {
 												var $i = $("<div class='logged-in'/>");
-												$i.append("<div class='label'>User :</div><div class='user-name'>"
+												$i.append("<div class='textus-label'>User :</div><div class='user-name'>"
 														+ user.details.id + "</div>");
 												$i.append("<button id='logoutButton'>Log Out</button>");
 

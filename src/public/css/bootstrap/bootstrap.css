@@ -1461,16 +1461,16 @@ select:focus:required:invalid:focus {
 }
 
 .control-group {
-  margin-bottom: 9px;
+  margin-bottom: 2px;
 }
 
 legend + .control-group {
-  margin-top: 18px;
+  margin-top: 4px;
   -webkit-margin-top-collapse: separate;
 }
 
 .form-horizontal .control-group {
-  margin-bottom: 18px;
+  margin-bottom: 4px;
   *zoom: 1;
 }
 

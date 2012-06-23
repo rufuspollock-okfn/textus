@@ -16,6 +16,7 @@
 /* Bootstrap styles */
 @import url('bootstrap/bootstrap.css');
 @import url('bootstrap/bootstrap-responsive.css');
+@import url('forms-bootstrap.css');
 
 /* jQueryUI styles */
 @import url('ui-lightness/jquery-ui-1.8.21.custom.css');

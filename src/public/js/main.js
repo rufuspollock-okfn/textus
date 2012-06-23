@@ -9,7 +9,9 @@ require.config({
 		text : 'libs/require-text-1.0.7',
 		order : 'libs/require-order-1.0.7',
 		templates : '../templates',
-		form : 'libs/backbone-forms-0.9.0-amd',
+		form : 'libs/backbone-forms-0.10.0.amd',
+		formlisteditor : 'libs/backbone-forms-list-0.10.0',
+		backbonebootstrapmodal : 'libs/backbone.bootstrap-modal',
 		bootstrap : 'libs/bootstrap-2.0.4',
 		jqueryui : 'libs/jquery-ui-1.8.21.custom.min',
 		jquerylinkify : 'libs/jquery.linkify.1.0.0.min',
@@ -23,11 +25,11 @@ require.config({
 /**
  * Force load of jquery plugins
  */
-require([ 'order!jquery', 'order!bootstrap', 'order!jqueryui', 'order!jquerylinkify', 'order!jqueryfacetview' ],
-		function($) {
-			//
-		});
+require([ 'order!jquery', 'order!bootstrap', 'order!jqueryui', 'order!jquerylinkify', 'order!jqueryfacetview',
+		'order!form', 'order!formlisteditor', 'order!backbonebootstrapmodal' ], function($) {
+	//
+});
 
-require([ 'router' ], function(Router) {
+require([ 'router', 'form' ], function(Router, Form) {
 	Router.initialize();
 });

@@ -7,7 +7,6 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textUploadView' ],
 		this.pageTitle = "Text Upload";
 		
 		this.start = function() {
-			console.log("App actitivity started");
 			var view = new TextUploadView({
 				loginModel : models.loginModel
 			});

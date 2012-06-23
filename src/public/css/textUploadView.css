@@ -23,7 +23,7 @@ form#uploadForm>div.row {
 	margin-bottom: 10px;
 }
 
-form#uploadForm>div.row>div.label {
+form#uploadForm>div.row>div.textus-label {
 	display: inline-block;
 	width: 100px;
 	text-align: right;
