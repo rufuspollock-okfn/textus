@@ -1,27 +1,4 @@
 button:hover {
-	background-image: linear-gradient(bottom, rgb(250, 210, 118) 0%,
-		rgb(242, 216, 155) 74% );
-	background-image: -o-linear-gradient(bottom, rgb(250, 210, 118) 0%,
-		rgb(242, 216, 155) 74% );
-	background-image: -moz-linear-gradient(bottom, rgb(250, 210, 118) 0%,
-		rgb(242, 216, 155) 74% );
-	background-image: -webkit-linear-gradient(bottom, rgb(250, 210, 118) 0%,
-		rgb(242, 216, 155) 74% );
-	background-image: -ms-linear-gradient(bottom, rgb(250, 210, 118) 0%,
-		rgb(242, 216, 155) 74% );
-	background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, rgb(250,
-		210, 118) ), color-stop(0.74, rgb(242, 216, 155) ) );
-}
-
-button {
-	background-color: #F8DC96;
-	border: none;
-	padding: 5px 10px 5px 10px;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
-	-moz-box-shadow: 0 0 3px #666;
-	-webkit-box-shadow: 0 0 3px #666;
-	box-shadow: 0 0 3px #666;
 	background-image: linear-gradient(bottom, rgb(250, 226, 170) 0%,
 		rgb(245, 232, 201) 74% );
 	background-image: -o-linear-gradient(bottom, rgb(250, 226, 170) 0%,
@@ -34,6 +11,31 @@ button {
 		rgb(245, 232, 201) 74% );
 	background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, rgb(250,
 		226, 170) ), color-stop(0.74, rgb(245, 232, 201) ) );
+}
+
+button {
+	background-color: #F8DC96;
+	border: none;
+	padding: 5px 10px 5px 10px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	-moz-box-shadow: 0 0 3px #666;
+	-webkit-box-shadow: 0 0 3px #666;
+	box-shadow: 0 0 3px #666;
+	background-image: linear-gradient(bottom, rgb(255, 250, 224) 0%,
+		rgb(255, 248, 232) 74% );
+	background-image: -o-linear-gradient(bottom, rgb(255, 250, 224) 0%,
+		rgb(255, 248, 232) 74% );
+	background-image: -moz-linear-gradient(bottom, rgb(255, 250, 224) 0%,
+		rgb(255, 248, 232) 74% );
+	background-image: -webkit-linear-gradient(bottom, rgb(255, 250, 224) 0%,
+		rgb(255, 248, 232) 74% );
+	background-image: -ms-linear-gradient(bottom, rgb(255, 250, 224) 0%,
+		rgb(255, 248, 232) 74% );
+	background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, rgb(255,
+		250, 224) ), color-stop(0.74, rgb(255, 248, 232) ) );
+	background-image: linear-gradient(bottom, rgb(255, 250, 224) 0%,
+		rgb(255, 248, 232) 74% );
 }
 
 * {
@@ -59,6 +61,10 @@ a:link,a:visited {
 
 .main a:hover {
 	color: #7FA3C8
+}
+
+.main .btn-group a:hover, .main .btn-group a:link, .main .btn-group a:visited {
+	color: #555;
 }
 
 a:hover {
