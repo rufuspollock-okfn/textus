@@ -24,3 +24,22 @@
 /* FacetView styles */
 @import url('facetview/style.css');
 @import url('facetview/facetview.css');
+
+#reviewContentDiv #facetview {
+	position: absolute;
+	top: 50px;
+	padding: 20px;
+	bottom: 0px;
+	left: 0px;
+	right: 0px;
+}
+#reviewContentDiv {
+	padding: 10px;
+	overflow-y: auto;
+	position: absolute;
+	top: 0px;
+	bottom: 0px;
+	right: 0px;
+	left: 0px;
+	
+}

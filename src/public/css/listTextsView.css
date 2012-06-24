@@ -59,3 +59,7 @@ div#textList,div#textListSummary,div.main div.summary {
 	padding: 20px;
 	padding-right: 50px;
 }
+
+#facetText #facetview {
+	padding: 10px;
+}

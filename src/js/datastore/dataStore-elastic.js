@@ -18,6 +18,12 @@ module.exports = exports = function(conf) {
 	}();
 
 	/**
+	 * Create the 'textus' index if it doesn't already exist
+	 */
+	client.createIndex('textus');
+	client.createIndex('textus-users');
+
+	/**
 	 * Defines the maximum size of text chunk stored in the datastore in characters.
 	 */
 	var textChunkSize = 1000;
@@ -232,7 +238,7 @@ module.exports = exports = function(conf) {
 		 * As with create, but will not fail if the user already exists
 		 */
 		createOrUpdateUser : function(user, callback) {
-			cliend.index("textus-users", "user", user, {
+			client.index("textus-users", "user", user, {
 				id : user.id,
 				refresh : true,
 				create : false
@@ -312,15 +318,14 @@ module.exports = exports = function(conf) {
 		 * Exposes an ElasticSearch endpoint which can be used to query for bibliographic
 		 * information associated with texts held in this datastore. Modifies the query in-flight to
 		 * add a filter to restrict results to BibJSON blocks with the textus.role set to 'text'.
-		 * 
-		 * @todo - prevent the above being a lie...
 		 */
 		queryTexts : function(query, callback) {
 			query.filter = {
 				"type" : {
-					"value" : "structure"
+					"value" : "bibjson"
 				}
 			};
+			console.log("Query : \n\n\n", query, "\n\n\n");
 			client.search(query, function(err, results, res) {
 				if (err) {
 					callback(err, null);
