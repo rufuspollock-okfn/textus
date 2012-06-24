@@ -93,7 +93,7 @@ define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activiti
 
 		routes : {
 			// Routes for pages go here
-			'text/:textid/:offset' : 'text',
+			'text/:textId/:offset' : 'text',
 			'texts' : 'texts',
 			'upload' : 'uploadText',
 			'user-options' : 'userPrefs',
@@ -110,7 +110,7 @@ define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activiti
 		// Location for reading texts
 		text : function(textId, offset) {
 			startActivity(new ReadTextActivity(models), {
-				textid : textId,
+				textId : textId,
 				offset : parseInt(offset),
 				router : appRouter
 			});

@@ -8,9 +8,9 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView', 'views/
 		 * Called when populating the model, retrieves a single extent of text along with its
 		 * typographical and semantic annotations.
 		 */
-		var retrieveText = function(textid, offset, length, callback) {
+		var retrieveText = function(textId, offset, length, callback) {
 			console.log("Retrieving " + length + " characters of text from " + offset);
-			$.getJSON("api/text/" + textid + "/" + offset + "/" + (offset + length), function(data) {
+			$.getJSON("api/text/" + textId + "/" + offset + "/" + (offset + length), function(data) {
 				callback(data);
 			});
 		};
@@ -25,7 +25,7 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView', 'views/
 		/**
 		 * Updates models.textModel with the newly retrieved text and annotations.
 		 * 
-		 * @param textid
+		 * @param textId
 		 *            The ID of the text to retrieve
 		 * @param offset
 		 *            The character offset to start pulling text
@@ -41,7 +41,7 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView', 'views/
 		 *            annotations. Accepts HTML as its single argument and returns the pixel height
 		 *            of the result.
 		 */
-		var updateTextAsync = function(textid, offset, forwards, height, measure) {
+		var updateTextAsync = function(textId, offset, forwards, height, measure) {
 
 			var textBoundaryReached = false;
 
@@ -55,7 +55,7 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView', 'views/
 					trim(struct);
 				} else {
 					if (forwards) {
-						retrieveText(textid, struct.offset + struct.text.length, textChunkSize, function(data) {
+						retrieveText(textId, struct.offset + struct.text.length, textChunkSize, function(data) {
 							if (data.text.length < textChunkSize) {
 								textBoundaryReached = true;
 							}
@@ -81,10 +81,10 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView', 'views/
 						var newOffset = Math.max(0, struct.offset - textChunkSize);
 						var sizeToFetch = struct.offset - newOffset;
 						if (newOffset == 0) {
-							updateTextAsync(textid, 0, true, height, measure);
+							updateTextAsync(textId, 0, true, height, measure);
 							return;
 						} else {
-							retrieveText(textid, newOffset, sizeToFetch, function(data) {
+							retrieveText(textId, newOffset, sizeToFetch, function(data) {
 								if (struct.text == "") {
 									struct.typography = data.typography;
 									struct.semantics = data.semantics;
@@ -166,7 +166,7 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView', 'views/
 						 * Reached the end of the text, re-do by running backwards from the end to
 						 * fill the page
 						 */
-						updateTextAsync(textid, t.offset, false, height, measure);
+						updateTextAsync(textId, t.offset, false, height, measure);
 					} else {
 						/*
 						 * Got a sensible location, update the textModel and textLocationModel with
@@ -229,7 +229,7 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView', 'views/
 			 */
 			models.textLocationModel.set({
 				offset : location.offset,
-				textId : location.textid
+				textId : location.textId
 			});
 
 			// Create a new textView
@@ -353,7 +353,7 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView', 'views/
 			 */
 			var t = models.textLocationModel;
 			t.bind("change offset", function() {
-				location.router.navigate("text/" + location.textid + "/" + t.get("offset"));
+				location.router.navigate("text/" + location.textId + "/" + t.get("offset"));
 			});
 
 			/*

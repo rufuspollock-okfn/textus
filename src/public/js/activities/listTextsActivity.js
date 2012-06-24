@@ -3,7 +3,7 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/listTextsView' ], 
 
 	/**
 	 * API call to retrieve a list of texts, find their top level structure nodes and return structs
-	 * of the form { textid:STRING, offset:INT, description:STRING, name:STRING } for each structure
+	 * of the form { textId:STRING, offset:INT, description:STRING, name:STRING } for each structure
 	 * node at depth 0. Where there are no structure nodes for a particular text the description and
 	 * name will reflect this and an entry will be created for index 0 in the text. The callback
 	 * function will be called with the resultant list.
@@ -13,12 +13,12 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/listTextsView' ], 
 			var texts = [];
 			data.forEach(function(text) {
 				var foundStructure = false;
-				var textId = text.textid;
+				var textId = text.textId;
 				text.structure.forEach(function(node) {
 					if (node.depth == 0) {
 						foundStructure = true;
 						texts.push({
-							textid : textId,
+							textId : textId,
 							offset : node.start,
 							name : node.name,
 							description : node.description
@@ -27,7 +27,7 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/listTextsView' ], 
 				});
 				if (!foundStructure) {
 					texts.push({
-						textid : textId,
+						textId : textId,
 						offset : 0,
 						name : "Unknown",
 						description : "No description for text ID " + textId

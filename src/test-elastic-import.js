@@ -12,7 +12,7 @@ console.log("Loaded test data.");
 });
 ds.getTextStructures(function(err, data) {
 	data.forEach(function(hit) {
-		console.log("Text ID : " + hit.textid);
+		console.log("Text ID : " + hit.textId);
 		console.log(hit.structure);
 	});
 });

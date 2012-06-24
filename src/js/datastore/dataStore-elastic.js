@@ -1,109 +1,141 @@
 /**
  * ElasticSearch based implementation of the data store.
  */
-
-var textChunkSize = 1000;
-
-var fs = require('fs');
-var wikitext = require("../import/wikitext-parser.js");
-
-var buildRangeQuery = function(textId, start, end) {
-	return {
-		"query" : {
-			"bool" : {
-				"must" : [ {
-					"text" : {
-						"textid" : textId
-					}
-				}, {
-					"range" : {
-						"start" : {
-							"lt" : end
-						}
-					}
-				}, {
-					"range" : {
-						"end" : {
-							"gte" : start
-						}
-					}
-				} ]
-			}
-		},
-		"size" : 10000
-	};
-};
-
-/**
- * Accepts blocks of input text ordered by sequence and emits an array of {offset, text} where the
- * text parts are split on spaces and are at most maxSize characters long.
- */
-var createTextChunks = function(maxSize, data) {
-	/* Sort by sequence, extract text parts and join together */
-	var text = data.text.sort(function(a, b) {
-		return a.sequence - b.sequence;
-	}).map(function(struct) {
-		return struct.text;
-	}).join("");
-	var result = [];
-	var offset = 0;
-	while (text != "") {
-		var length = text.lastIndexOf(" ", maxSize);
-		if (length == -1) {
-			length = text.length;
-		} else if (length == 0) {
-			result.push({
-				text : text,
-				offset : offset
-			});
-			text = "";
-		} else {
-			result.push({
-				text : text.substring(0, length),
-				offset : offset
-			});
-			text = text.substring(length);
-			offset += length;
-		}
-
-	}
-	console.log("Chunked text - " + result.length + " parts.");
-	return result;
-};
-
-/**
- * Accept a start and end offset and a set of text chunks which guarantee to cover the specified
- * range, and return {text:STRING, start:INT, end:INT} for that range.
- */
-var joinTextChunksAndTrim = function(start, end, chunks) {
-	if (chunks.length == 0) {
-		return {
-			text : "",
-			start : 0,
-			end : 0
-		};
-	}
-	chunks.sort(function(a, b) {
-		return a.start - b.start;
-	});
-	return {
-		text : chunks.map(function(chunk) {
-			return chunk.text;
-		}).join("").substr(start - chunks[0].start, end - start),
-		start : start,
-		end : end
-	};
-};
-
 module.exports = exports = function(conf) {
 
-	var elastical = require('elastical');
-	var client = new elastical.Client(conf.es.host, {
-		port : conf.es.port,
-		protocol : conf.es.protocol,
-		timeout : conf.es.timeout
-	});
+	/**
+	 * Create a new ElasticSearch client using the Elastical API
+	 */
+	var client = function() {
+		var elastical = require('elastical');
+		var client = new elastical.Client(conf.es.host, {
+			port : conf.es.port,
+			protocol : conf.es.protocol,
+			timeout : conf.es.timeout
+		});
+		client.del = client['delete'];
+		return client;
+	}();
 
+	/**
+	 * Defines the maximum size of text chunk stored in the datastore in characters.
+	 */
+	var textChunkSize = 1000;
+
+	/**
+	 * Query object to extract entities between the specified start and end points and associated
+	 * with the given textId
+	 */
+	var buildRangeQuery = function(textId, start, end) {
+		return {
+			"query" : {
+				"bool" : {
+					"must" : [ {
+						"text" : {
+							"textId" : textId
+						}
+					}, {
+						"range" : {
+							"start" : {
+								"lt" : end
+							}
+						}
+					}, {
+						"range" : {
+							"end" : {
+								"gte" : start
+							}
+						}
+					} ]
+				}
+			},
+			"size" : 10000
+		};
+	};
+
+	/**
+	 * Accepts blocks of input text ordered by sequence and emits an array of {offset, text} where
+	 * the text parts are split on spaces and are at most maxSize characters long.
+	 */
+	var createTextChunks = function(maxSize, data) {
+		/* Sort by sequence, extract text parts and join together */
+		var text = data.text.sort(function(a, b) {
+			return a.sequence - b.sequence;
+		}).map(function(struct) {
+			return struct.text;
+		}).join("");
+		var result = [];
+		var offset = 0;
+		while (text != "") {
+			var length = text.lastIndexOf(" ", maxSize);
+			if (length == -1) {
+				length = text.length;
+			} else if (length == 0) {
+				result.push({
+					text : text,
+					offset : offset
+				});
+				text = "";
+			} else {
+				result.push({
+					text : text.substring(0, length),
+					offset : offset
+				});
+				text = text.substring(length);
+				offset += length;
+			}
+
+		}
+		console.log("Chunked text - " + result.length + " parts.");
+		return result;
+	};
+
+	/**
+	 * Accept a start and end offset and a set of text chunks which guarantee to cover the specified
+	 * range, and return {text:STRING, start:INT, end:INT} for that range.
+	 * 
+	 * @param start
+	 *            the desired index of the first character in the returned result
+	 * @param end
+	 *            the desired index of the character one beyond the returned result's end
+	 * @param chunks
+	 *            a collection of objects of the form {text:string, start:int, end:int} which may be
+	 *            unordered but must define a contiguous range of text (this is currently not
+	 *            tested)
+	 */
+	var joinTextChunksAndTrim = function(start, end, chunks) {
+		if (chunks.length == 0) {
+			return {
+				text : "",
+				start : 0,
+				end : 0
+			};
+		}
+		chunks.sort(function(a, b) {
+			return a.start - b.start;
+		});
+		return {
+			text : chunks.map(function(chunk) {
+				return chunk.text;
+			}).join("").substr(start - chunks[0].start, end - start),
+			start : start,
+			end : end
+		};
+	};
+
+	/**
+	 * Method to index each item in a collection, using recursion to index the items sequentially.
+	 * 
+	 * @param index
+	 *            the ElasticSearch index into which objects will be inserted
+	 * @param type
+	 *            the type under which the objects are indexed
+	 * @param list
+	 *            a list of objects to index
+	 * @param callback
+	 *            function(err) called on completion of list indexing, passed the error if something
+	 *            went wrong or null otherwise.
+	 */
 	var indexArray = function(index, type, list, callback) {
 		var item = list.shift();
 		if (item) {
@@ -121,6 +153,17 @@ module.exports = exports = function(conf) {
 		}
 	};
 
+	/**
+	 * Convenience method to index multiple collections using the indexArray function.
+	 * 
+	 * @param index
+	 *            the ElasticSearch index
+	 * @param lists
+	 *            a list of {type, list} where the type property is the type passed to the
+	 *            indexArray function and the list is the list of objects to index.
+	 * @param function(err)
+	 *            called on completion with the error (if a failure) or null if success.
+	 */
 	var indexArrays = function(index, lists, callback) {
 		var wrap = lists.shift();
 		if (wrap) {
@@ -139,62 +182,10 @@ module.exports = exports = function(conf) {
 		}
 	};
 
+	/**
+	 * The datastore API
+	 */
 	var datastore = {
-
-		/**
-		 * Load data from the specified file path, interpreting it as wikitext markup.
-		 * 
-		 * @param path
-		 *            the file path of the file to import
-		 * @param title
-		 *            the title to assign the file as the top level structural annotation
-		 * @param description
-		 *            the description for the top level annotation
-		 * @param callback
-		 *            a callback, called with (err, result) where the result is the textID of the
-		 *            new text, and err is null unless something went wrong.
-		 * @returns
-		 */
-		loadFromWikiTextFile : function(path, title, description, callback) {
-			fs.readFile(path, 'utf8', function(error, data) {
-				// File read into 'data' as a string
-				if (error) {
-					console.log(path);
-					callback(error, null);
-					return;
-				} else {
-					if (data == "" || data == null) {
-						callback("No data provided", null);
-						return;
-					}
-					var parsed = wikitext.readWikiText(data);
-					var result = {
-						text : [ {
-							text : parsed.text,
-							sequence : 0
-						} ],
-						typography : parsed.typography,
-						semantics : [],
-						structure : [ {
-							type : "textus:document",
-							start : 0,
-							depth : 0,
-							description : description,
-							name : title
-						} ]
-					};
-					datastore.importData(result, function(err, textId) {
-						if (err) {
-							console.log("Import to data store failed : " + err);
-							callback(err, null);
-						} else {
-							console.log("Imported text with text ID : " + textId);
-							callback(null, textId);
-						}
-					});
-				}
-			});
-		},
 
 		/**
 		 * Retrieve a user record by user ID, typically an email address
@@ -258,7 +249,7 @@ module.exports = exports = function(conf) {
 		 * Delete the specified user record
 		 */
 		deleteUser : function(userId, callback) {
-			client.delete("textus-users", "user", userId, function(err, result) {
+			client.del("textus-users", "user", userId, function(err, result) {
 				if (err) {
 					callback(err, null);
 				} else {
@@ -288,7 +279,7 @@ module.exports = exports = function(conf) {
 		},
 
 		/**
-		 * Returns all text structure records in the database in the form { textid : STRING,
+		 * Returns all text structure records in the database in the form { textId : STRING,
 		 * structure : [] } via the callback(error, data).
 		 */
 		getTextStructures : function(callback) {
@@ -309,20 +300,27 @@ module.exports = exports = function(conf) {
 				} else {
 					callback(null, results.hits.map(function(hit) {
 						return {
-							textid : hit._id,
+							textId : hit._id,
 							structure : hit._source.structure
 						};
 					}));
 				}
 			});
 		},
-		
+
+		/**
+		 * Exposes an ElasticSearch endpoint which can be used to query for bibliographic
+		 * information associated with texts held in this datastore. Modifies the query in-flight to
+		 * add a filter to restrict results to BibJSON blocks with the textus.role set to 'text'.
+		 * 
+		 * @todo - prevent the above being a lie...
+		 */
 		queryTexts : function(query, callback) {
 			query.filter = {
-					"type" : {
-						"value" : "structure"
-					}
-				};
+				"type" : {
+					"value" : "structure"
+				}
+			};
 			client.search(query, function(err, results, res) {
 				if (err) {
 					callback(err, null);
@@ -338,7 +336,7 @@ module.exports = exports = function(conf) {
 		 * overlap at least partially with the specified range.
 		 * 
 		 * @param textId
-		 *            the TextID of the text
+		 *            the textId of the text
 		 * @param start
 		 *            character offset within the text, this will be the first character in the
 		 *            result
@@ -347,11 +345,10 @@ module.exports = exports = function(conf) {
 		 *            end of the result, so the result is a string of end-start length
 		 * @param callback
 		 *            a callback function callback(err, data) called with the data from the
-		 *            elasticsearch query massaged into the form { textid : STRING, text : STRING,
+		 *            elasticsearch query massaged into the form { textId : STRING, text : STRING,
 		 *            typography : [], semantics : [], start : INT, end : INT }, and the err value
 		 *            set to any error (or null if no error) from the underlying elasticsearch
 		 *            instance.
-		 * @returns
 		 */
 		fetchText : function(textId, start, end, callback) {
 			client.search(buildRangeQuery(textId, start, end), function(err, results, res) {
@@ -377,14 +374,15 @@ module.exports = exports = function(conf) {
 						}
 					});
 					callback(error, {
-						textid : textId,
-						text : joinTextChunksAndTrim(start, end, textChunks).text,
-						typography : typography,
-						semantics : semantics,
-						start : start,
-						end : end
+						'textId' : textId,
+						'text' : joinTextChunksAndTrim(start, end, textChunks).text,
+						'typography' : typography,
+						'semantics' : semantics,
+						'start' : start,
+						'end' : end
 					});
 				}
+				;
 			});
 		},
 
@@ -396,7 +394,7 @@ module.exports = exports = function(conf) {
 		 *            text : [ { text : STRING, sequence : INT } ... ], semantics : [], typography :
 		 *            [], structure : [] }
 		 * @param callback
-		 *            a function of type function(error, textID)
+		 *            a function of type function(error, textId)
 		 * @returns immediately, asynchronous function.
 		 */
 		importData : function(data, callback) {
@@ -407,12 +405,12 @@ module.exports = exports = function(conf) {
 			}, function(err, res) {
 				if (!err) {
 					var textId = res._id;
-					console.log("Registered structure, textID set to " + textId);
+					console.log("Registered structure, textId set to " + textId);
 					var dataToIndex = [ {
 						type : "text",
 						list : createTextChunks(textChunkSize, data).map(function(chunk) {
 							return {
-								textid : textId,
+								textId : textId,
 								text : chunk.text,
 								start : chunk.offset,
 								end : chunk.offset + chunk.text.length
@@ -421,13 +419,13 @@ module.exports = exports = function(conf) {
 					}, {
 						type : "semantics",
 						list : data.semantics.map(function(annotation) {
-							annotation.textid = textId;
+							annotation.textId = textId;
 							return annotation;
 						})
 					}, {
 						type : "typography",
 						list : data.typography.map(function(annotation) {
-							annotation.textid = textId;
+							annotation.textId = textId;
 							return annotation;
 						})
 					} ];
@@ -437,6 +435,20 @@ module.exports = exports = function(conf) {
 				} else {
 					callback(err, null);
 				}
+			});
+		},
+
+		/**
+		 * Stash the supplied set of bibliographic references.
+		 * 
+		 * @param refs
+		 *            a list of bibJSON objects to store
+		 * @param callback
+		 *            function(err) called with null for success, an error message otherwise.
+		 */
+		storeBibliographicReferences : function(refs, callback) {
+			indexArray("textus", "bibjson", refs, function(err) {
+				callback(err);
 			});
 		}
 	};

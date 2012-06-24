@@ -6,6 +6,10 @@ var datastore = require('./js/datastore/dataStore-elastic.js')(conf);
 var login = require('./js/login.js')(datastore);
 // Annotation painter, requires login helper
 var painter = require('./js/annotationPainter.js')(login);
+// FileSystem API
+var fs = require('fs');
+// File parsers
+var parsers = require('./js/import/parsers.js');
 
 /**
  * Configure the HTTP server with the body parser used to handle file uploads.
@@ -35,8 +39,8 @@ var app = function() {
 /**
  * GET requests for text and annotation data
  */
-app.get("/api/text/:textid/:start/:end", function(req, res) {
-	datastore.fetchText(req.params.textid, parseInt(req.params.start), parseInt(req.params.end), function(err, data) {
+app.get("/api/text/:textId/:start/:end", function(req, res) {
+	datastore.fetchText(req.params.textId, parseInt(req.params.start), parseInt(req.params.end), function(err, data) {
 		if (err) {
 			console.log(err);
 		} else {
@@ -66,30 +70,139 @@ app.get("/api/texts", function(req, res) {
 });
 
 /**
- * POST to /api/texts to create a new text through a file upload
+ * POST to /api/texts to upload a text into the session ready for review. Redirects to /#review
+ * activity on the client which can then use the /api/review GET method to return the parsed data
+ * and any error messages.
  */
-app.post("/api/texts", login.checkLogin, function(req, res) {
-	datastore.loadFromWikiTextFile(req.files.text.path, req.body.title, req.body.description, function(err, textId) {
-		if (!err) {
-			res.redirect('/#text/' + textId + '/0');
+app.post("/api/upload", login.checkLogin, function(req, res) {
+	/* Carry parsed data or error message */
+	var message = {
+		data : null,
+		error : null
+	};
+	/*
+	 * Redirect to the /#review location after uploads, storing the message in the session before
+	 * doing so
+	 */
+	var redirect = function() {
+		res.session.upload = message;
+		res.redirect('/#review');
+	};
+	if (req.body.format == null) {
+		message.error = "No format specified when uploading data";
+		redirect();
+	} else {
+		/* Locate an appropriate parser for this message format */
+		var parser = parsers[req.body.format];
+		if (parser === null) {
+			message.error = "Can't locate a parser for format " + req.body.format;
+			redirect();
 		} else {
-			console.log(err);
-			res.redirect('/#texts');
+			if (req.files.text === null) {
+				message.error = "No file uploaded!";
+				redirect();
+			} else {
+				/* Read the file */
+				fs.readFile(req.files.text.path, 'utf8', function(error, data) {
+					if (error) {
+						message.error = "Unable to get uploaded file text from path " + req.files.text.path;
+						redirect();
+					} else {
+						if (data === "" || data === null) {
+							message.error = "No data in file";
+							redirect();
+						} else {
+							/*
+							 * Have data, use the parser to interpret it and create the data object,
+							 * storing it in the 'upload' property of the session.
+							 */
+							message.data = parser(data);
+							/* Redirect to the review page */
+							redirect();
+						}
+					}
+				});
+			}
 		}
-	});
+	}
 });
 
+/**
+ * Retrieves a previously stored parsed upload, returned as JSON of the form { data :
+ * <parsed-data-object | null>, error : string | null }. If the error property is non-null the
+ * client should display the error message in some fashion.
+ */
+app.get("/api/upload/review", login.checkLogin, function(req, res) {
+	var message = res.session.upload;
+	if (message === null) {
+		message = {
+			data : null,
+			error : "No upload session in progress"
+		};
+	}
+	res.json(message);
+});
+
+/**
+ * Act on the review, accepts JSON body with { accept : boolean, data : Object, refs : [ { bibjson :
+ * Object, index : int } ... ] }. If accept is 'true' then the data is sent to the data store for
+ * storage. Once a text ID has been allocated any bibJSON objects submitted are augmented with the
+ * textus specific metadata and sent to the data store for storage. The response message is of the
+ * form { textId : string, error : string } where one of textId or error will be null. The client
+ * may use this message to jump directly to the reader UI for the uploaded text. If 'accept' is set
+ * to false this simply removes the file data from the session object and sends a blank response
+ * message.
+ */
+app.post("/api/upload/review", login.checkLogin, function(req, res) {
+	if (req.body.accept) {
+		var data = res.session.upload;
+		if (!data) {
+			res.json({
+				textId : null,
+				error : "No upload in progress"
+			});
+		} else {
+			datastore.importData(data, function(err, textId) {
+				if (err) {
+					res.json({
+						textId : null,
+						error : err
+					});
+				} else {
+					/*
+					 * Have the Text ID, augment the bibliographic references (if any) with the
+					 * textus-specific metadata and send them to be stored
+					 */
+					var refsToStore = req.body.refs.map(function(ref) {
+						ref.textus = {
+							role : 'text',
+							textId : textId,
+							userId : req.session.user
+						};
+					});
+				}
+			});
+		}
+	} else {
+		delete res.session.upload;
+		res.json("Okay");
+	}
+});
+
+/**
+ * Expose the elasticSearch query endpoint from the datasource
+ */
 app.get("/api/texts-es", function(req, res) {
 	var esQuery = JSON.parse(req.query.source);
 	datastore.queryTexts(esQuery, function(err, data) {
 		if (err) {
-			console.log(err);
-			res.send(err, 404);
+			console.log("Unable to query ES index for texts ", esQuery, err);
+			res.send(err, 500);
 		} else {
+			console.log("Queried server for texts", esQuery, data);
 			res.json(data);
 		}
 	});
-	console.log(esQuery);
 });
 
 /**
@@ -121,7 +234,7 @@ app.post("/api/semantics", login.checkLogin, function(req, res) {
 		payload : req.body.payload,
 		start : parseInt(req.body.start),
 		end : parseInt(req.body.end),
-		textid : req.body.textId
+		textId : req.body.textId
 	};
 	datastore.createSemanticAnnotation(annotation, function(err, response) {
 		if (err) {
