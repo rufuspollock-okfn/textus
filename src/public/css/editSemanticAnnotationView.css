@@ -54,7 +54,8 @@ div#annotationEditorTitle {
 div#annotationEditor fieldset {
 	padding-top: 0px;
 	padding-bottom: 0px;
-	padding-left: 0px; margin : 0px 0px 0px 0px;
+	padding-left: 0px;
+	margin: 0px 0px 0px 0px;
 	border: none;
 	margin: 0px 0px 0px 0px;
 }
@@ -63,6 +64,12 @@ div#annotationEditor textarea {
 	width: 350px;
 	height: 140px;
 	margin-top: 5px;
+	margin-right: 0px;
+	display: block;
+}
+
+div#annotationEditor .input-xlarge {
+	width: 100%;
 }
 
 div#annotationEditor>button {
@@ -85,4 +92,10 @@ div#annotationEditor label {
 	font-size: 12px;
 	padding-right: 5px;
 	text-align: left;
+}
+
+div#annotationEditor .control-group>* {
+	display: block;
+	margin-left: 0px;
+	position: relative;
 }
