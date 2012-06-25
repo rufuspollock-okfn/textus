@@ -257,10 +257,9 @@ app.post("/api/semantics", login.checkLogin, function(req, res) {
 		} else {
 			annotation.id = response._id;
 			login.getUser(annotation.user, function(user) {
-				if (user) {
-					painter.painters.colourByUser(annotation, user);
-				}
-				res.json(annotation);
+				painter.augmentAnnotations([ annotation ], [ painter.painters.colourByUser ], function(newSemantics) {
+					res.json(newSemantics[0]);
+				});
 			});
 		}
 	});
