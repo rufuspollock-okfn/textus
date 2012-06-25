@@ -325,12 +325,10 @@ module.exports = exports = function(conf) {
 					"value" : "bibjson"
 				}
 			};
-			console.log("Query : \n\n\n", query, "\n\n\n");
 			client.search(query, function(err, results, res) {
 				if (err) {
 					callback(err, null);
 				} else {
-					console.log(res);
 					callback(null, res);
 				}
 			});
@@ -453,6 +451,9 @@ module.exports = exports = function(conf) {
 		 */
 		storeBibliographicReferences : function(refs, callback) {
 			indexArray("textus", "bibjson", refs, function(err) {
+				if (err) {
+					console.log(err);
+				}
 				callback(err);
 			});
 		}

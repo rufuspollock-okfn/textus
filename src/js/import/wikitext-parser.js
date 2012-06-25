@@ -1,7 +1,7 @@
 /**
  * Parse the given wikiText into the correct object structure for import.
  */
-exports.readWikiText = function(wikiText) {
+exports.parse = function(wikiText) {
 
 	textParts = [];
 	typography = [];
@@ -23,10 +23,10 @@ exports.readWikiText = function(wikiText) {
 	});
 
 	return {
-		text : {
+		text : [ {
 			text : textParts.join(""),
 			sequence : 0
-		},
+		} ],
 		typography : typography,
 		semantics : []
 	};

@@ -85,7 +85,7 @@ app.post("/api/upload", login.checkLogin, function(req, res) {
 	 * doing so
 	 */
 	var redirect = function() {
-		res.session.upload = message;
+		req.session.upload = message;
 		res.redirect('/#review');
 	};
 	if (req.body.format == null) {
@@ -116,7 +116,7 @@ app.post("/api/upload", login.checkLogin, function(req, res) {
 							 * Have data, use the parser to interpret it and create the data object,
 							 * storing it in the 'upload' property of the session.
 							 */
-							message.data = parser(data);
+							message.data = parser.parse(data);
 							/* Redirect to the review page */
 							redirect();
 						}
@@ -133,7 +133,7 @@ app.post("/api/upload", login.checkLogin, function(req, res) {
  * client should display the error message in some fashion.
  */
 app.get("/api/upload/review", login.checkLogin, function(req, res) {
-	var message = res.session.upload;
+	var message = req.session.upload;
 	if (message === null) {
 		message = {
 			data : null,
@@ -144,24 +144,25 @@ app.get("/api/upload/review", login.checkLogin, function(req, res) {
 });
 
 /**
- * Act on the review, accepts JSON body with { accept : boolean, data : Object, refs : [ { bibjson :
- * Object, index : int } ... ] }. If accept is 'true' then the data is sent to the data store for
- * storage. Once a text ID has been allocated any bibJSON objects submitted are augmented with the
- * textus specific metadata and sent to the data store for storage. The response message is of the
- * form { textId : string, error : string } where one of textId or error will be null. The client
- * may use this message to jump directly to the reader UI for the uploaded text. If 'accept' is set
- * to false this simply removes the file data from the session object and sends a blank response
- * message.
+ * Act on the review, accepts JSON body with { accept : boolean, refs : [ { bibjson : Object, index :
+ * int } ... ] }. If accept is 'true' then the data is sent to the data store for storage. Once a
+ * text ID has been allocated any bibJSON objects submitted are augmented with the textus specific
+ * metadata and sent to the data store for storage. The response message is of the form { textId :
+ * string, error : string } where one of textId or error will be null. The client may use this
+ * message to jump directly to the reader UI for the uploaded text. If 'accept' is set to false this
+ * simply removes the file data from the session object and sends a blank response message.
  */
 app.post("/api/upload/review", login.checkLogin, function(req, res) {
-	if (req.body.accept) {
-		var data = res.session.upload;
+	if (req.body.accept === 'true') {
+		var data = req.session.upload.data;
 		if (!data) {
 			res.json({
 				textId : null,
 				error : "No upload in progress"
 			});
 		} else {
+			/* Add the user ID to the data object */
+			data.user = req.session.user;
 			datastore.importData(data, function(err, textId) {
 				if (err) {
 					res.json({
@@ -179,12 +180,27 @@ app.post("/api/upload/review", login.checkLogin, function(req, res) {
 							textId : textId,
 							userId : req.session.user
 						};
+						return ref;
+					});
+					datastore.storeBibliographicReferences(refsToStore, function(err) {
+						if (err) {
+							res.json({
+								textId : null,
+								error : err
+							});
+						} else {
+							delete req.session.upload;
+							res.json({
+								textId : textId,
+								error : null
+							});
+						}
 					});
 				}
 			});
 		}
 	} else {
-		delete res.session.upload;
+		delete req.session.upload;
 		res.json("Okay");
 	}
 });
@@ -199,7 +215,6 @@ app.get("/api/texts-es", function(req, res) {
 			console.log("Unable to query ES index for texts ", esQuery, err);
 			res.send(err, 500);
 		} else {
-			console.log("Queried server for texts", esQuery, data);
 			res.json(data);
 		}
 	});

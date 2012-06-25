@@ -24,8 +24,7 @@ define([ 'jquery', 'underscore', 'backbone', 'text!templates/editBibJsonView.htm
 	};
 
 	var personToString = function(person) {
-		return person.lastname + ', ' + person.firstname + ' [' + person.id + '] (' + person.alternate + ') - '
-				+ person.name;
+		return person.lastname + ', ' + person.firstname;
 	};
 
 	/**
@@ -36,10 +35,15 @@ define([ 'jquery', 'underscore', 'backbone', 'text!templates/editBibJsonView.htm
 	 * actually display it.
 	 */
 	var BibJsonModel = Backbone.Model.extend({
+		defaults : {
+			title : 'Untitled Text',
+			year : '2012',
+			author : [{name : '', alternate : '', firstname : 'firstname', lastname : 'lastname', id : ''}]
+		},
 		schema : {
 			type : {
 				type : 'Select',
-				options : [ 'article', 'book', 'booklet', 'conference', 'inbook', 'incollection', 'inproceedings',
+				options : [ '','article', 'book', 'booklet', 'conference', 'inbook', 'incollection', 'inproceedings',
 						'manual', 'mastersthesis', 'misc', 'phdthesis', 'proceedings', 'techreport', 'unpublished' ]
 			},
 			title : {
@@ -108,7 +112,19 @@ define([ 'jquery', 'underscore', 'backbone', 'text!templates/editBibJsonView.htm
 		}
 	});
 
-	var bibJsonModel = new BibJsonModel();
+	var trimBibJson = function(bib) {
+		var result = {};
+		$.each(bib, function(name, value) {
+			if ($.isArray(value) && value.length === 0) {
+				// Don't use this value
+			} else if (typeof value === 'string' && value === '') {
+				// Don't use this one either
+			} else {
+				result[name] = value;
+			}
+		});
+		return result;
+	};
 
 	return Backbone.View.extend({
 
@@ -117,6 +133,7 @@ define([ 'jquery', 'underscore', 'backbone', 'text!templates/editBibJsonView.htm
 		},
 
 		render : function() {
+			var bibJsonModel = new BibJsonModel();
 			$(this.el).html(template);
 			/* Create and insert BibJSON editor */
 			var bibJsonForm = new Form({
@@ -131,7 +148,8 @@ define([ 'jquery', 'underscore', 'backbone', 'text!templates/editBibJsonView.htm
 				if ($('#facetTab', this.el).children().length == 0) {
 					/* Create and insert facet browser */
 					$('#facetTab', this.el).facetview({
-						search_url : '/api/texts-es?',
+						// search_url : '/api/texts-es?',
+						search_url : 'http://bibsoup.net/query?',
 						search_index : 'elasticsearch',
 						facets : [ {
 							'field' : 'year.exact',
@@ -147,7 +165,10 @@ define([ 'jquery', 'underscore', 'backbone', 'text!templates/editBibJsonView.htm
 					});
 				}
 			});
-
+			this.getBibJson = function() {
+				bibJsonForm.commit();
+				return trimBibJson(bibJsonModel.attributes);
+			};
 			return this;
 		}
 	});

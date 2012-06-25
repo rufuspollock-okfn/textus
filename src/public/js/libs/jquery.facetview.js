@@ -719,7 +719,7 @@ console.log();
             $.each(data.records, function(index, value) {
                 // write them out to the results div
                 $('#facetview_results').append( buildrecord(index) );
-                $('#facetview_results tr:last-child').linkify()
+                //$('#facetview_results tr:last-child').linkify()
             });
             $('.facetview_viewrecord').bind('click',viewrecord)
         }

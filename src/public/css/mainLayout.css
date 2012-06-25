@@ -55,7 +55,7 @@ a:link,a:visited {
 	text-decoration: none;
 }
 
-.main a:link, .main a:visited {
+.main a:link,.main a:visited {
 	color: #264C73
 }
 
@@ -63,7 +63,8 @@ a:link,a:visited {
 	color: #7FA3C8
 }
 
-.main .btn-group a:hover, .main .btn-group a:link, .main .btn-group a:visited {
+.main .btn-group a:hover,.main .btn-group a:link,.main .btn-group a:visited
+	{
 	color: #555;
 }
 
@@ -108,7 +109,7 @@ h3,h4,h5,h6 {
 	line-height: 20px;
 }
 
-html,body, .textus-body {
+html,body,.textus-body {
 	padding-top: 0px;
 	background-color: #999;
 	margin: 0px;
@@ -152,6 +153,11 @@ html,body, .textus-body {
 	width: 100%;
 	height: 85px;
 	padding-bottom: 0px;
+	-moz-box-shadow: 0 0 10px #444;
+	-webkit-box-shadow: 0 0 10px #444;
+	box-shadow: 0px 0px 10px #444;
+	
+	z-index: 10;
 }
 
 /* Contains the links in the header below the title */
@@ -224,9 +230,6 @@ html,body, .textus-body {
 	margin: 0px;
 	height: 100%;
 	background-color: white;
-	-moz-box-shadow: inset 0 0 10px #444;
-	-webkit-box-shadow: inset 0 0 10px #444;
-	box-shadow: inset 0 0 10px #444;
 }
 
 .main-wrapper {
@@ -257,6 +260,9 @@ html,body, .textus-body {
 		rgb(235, 245, 255) 85% );
 	background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0.24, rgb(201
 		, 213, 224) ), color-stop(0.85, rgb(235, 245, 255) ) );
+	-moz-box-shadow: 0 0 10px #444;
+	-webkit-box-shadow: 0 0 10px #444;
+	box-shadow: 0px 0px 10px #444;
 }
 
 .footer-wrapper {

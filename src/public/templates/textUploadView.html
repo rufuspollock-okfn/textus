@@ -3,16 +3,9 @@
 		plain text with wiki markup. Enter a description and short name, pick
 		a file from your local disk and click the 'upload' button...</p>
 </div>
-<form id="uploadForm" action="/api/texts" method="post"
+<form id="uploadForm" action="/api/upload" method="post"
 	data-remote="true" enctype="multipart/form-data">
-	<div class="row">
-		<div class="textus-label">Title</div>
-		<input type="text" name="title" />
-	</div>
-	<div class="row">
-		<div class="textus-label">Description</div>
-		<textarea name="description" />
-	</div>
+	<input type="hidden" name="format" value="wikitext" />
 	<div class="row">
 		<div class="textus-label">Text file</div>
 		<input type="file" name="text" />

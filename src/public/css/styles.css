@@ -15,7 +15,9 @@
 
 /* Bootstrap styles */
 @import url('bootstrap/bootstrap.css');
+
 @import url('bootstrap/bootstrap-responsive.css');
+
 @import url('forms-bootstrap.css');
 
 /* jQueryUI styles */
@@ -23,23 +25,30 @@
 
 /* FacetView styles */
 @import url('facetview/style.css');
+
 @import url('facetview/facetview.css');
 
-#reviewContentDiv #facetview {
+#reviewTabContent #facetview {
 	position: absolute;
-	top: 50px;
+	top: 100px;
 	padding: 20px;
 	bottom: 0px;
 	left: 0px;
 	right: 0px;
 }
-#reviewContentDiv {
+
+#reviewTabContent {
 	padding: 10px;
-	overflow-y: auto;
 	position: absolute;
-	top: 0px;
+	top: 40px;
 	bottom: 0px;
 	right: 0px;
 	left: 0px;
-	
+}
+
+#reviewTabButtons {
+	padding: 10px 0px 10px 0px;
+}
+#reviewTabButtons>Button {
+	margin-right: 20px;
 }
