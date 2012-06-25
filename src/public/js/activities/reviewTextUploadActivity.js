@@ -26,6 +26,7 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/reviewTextUploadVi
 					refs : [ ref ]
 				}, function(data) {
 					console.log(data);
+					window.location.href="#texts";
 				});
 			});
 			$('#rejectReviewButton').click(function(e) {
