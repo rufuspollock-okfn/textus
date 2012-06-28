@@ -1,12 +1,4 @@
-/pom.xml
-*jar
-/lib
-/classes
-/native
-/.lein-failures
-/checkouts
-/.lein-deps-sum
-/.settings
 .project
-/local-support
 /todo.txt
+/.env
+/node_modules
