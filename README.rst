@@ -14,8 +14,8 @@ Quick getting started guide, this is the version on beta.openphilosophy.org
 + Configure and run an ElasticSearch server, making note of the connection protocol, port and host.
 + In a shell:
 	* git clone git://github.com/okfn/textus.git
-	* cd textus/src
+	* cd textus
 	* npm install
-	* node server.js --help
-+ Call 'node server.js' with appropriate options (see the message returned from the help option)
+	* node src/server.js --help
++ Call 'node src/server.js' with appropriate options (see the message returned from the help option)
 + Point your web browser at localhost on whatever port you've configured for Textus (defaults to 8080 if not specified).
