@@ -17,8 +17,12 @@ var ds = require('../js/datastore/dataStore-elastic.js')(conf);
 
 var importData = JSON.parse(fs.readFileSync(args.file, 'utf8'));
 
-if (!importData.structure) { importData.structure = []; }
-if (!importData.semantics) { importData.semantics = []; }
+if (!importData.structure) {
+	importData.structure = [];
+}
+if (!importData.semantics) {
+	importData.semantics = [];
+}
 
 ds.importData(importData, function(err, textId) {
 	if (err) {
@@ -36,7 +40,7 @@ ds.importData(importData, function(err, textId) {
 			if (err) {
 				console.log("Unable to store references", err);
 			} else {
-				console.log("Success");
+				console.log("Success - created text '" + textId + "'");
 			}
 		});
 	}
