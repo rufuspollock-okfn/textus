@@ -342,9 +342,7 @@ module.exports = exports = function(conf) {
 				}
 			};
 			query.index = textusIndex;
-			client.search(query, {
-				index : textusIndex
-			}, function(err, results, res) {
+			client.search(query, function(err, results, res) {
 				if (err) {
 					callback(err, null);
 				} else {
