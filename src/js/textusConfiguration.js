@@ -21,20 +21,33 @@ module.exports = exports = {
 	 */
 	conf : function() {
 
-		var argParser = require('optimist').usage('Usage: $0 [options]').alias('p', 'port').describe('p',
-				'Textus HTTP server port, if applicable.').alias('e', 'esHost').describe('e', 'ElasticSearch host.')
-				.alias('r', 'esProtocol').describe('r', 'ElasticSearch protocol [http|https].').alias('t', 'esPort')
-				.describe('t', 'ElasticSearch port number.').default({
-					p : 8080,
-					t : 9200,
-					r : 'http',
-					e : '127.0.0.1'
-				});
+		var argParser = require('optimist')
+			.usage('Usage: $0 [options]')
+				.alias('p', 'port')
+					.describe('p', 'Textus HTTP server port, if applicable.')
+				.alias('e', 'esHost')
+					.describe('e', 'ElasticSearch host.')
+				.alias('r', 'esProtocol')
+					.describe('r', 'ElasticSearch protocol [http|https].')
+				.alias('t', 'esPort')
+					.describe('t', 'ElasticSearch port number.')
+				.alias('i', 'esIndex')
+					.describe('i', 'ElasticSearch index name.')
+			.default({
+				p: 8080,
+				t: 9200,
+				r: 'http',
+				e: '127.0.0.1',
+				i: 'textus'
+			});
+
 		var args = argParser.argv;
+
 		if (args.help) {
 			console.log(argParser.help());
 			process.exit(0);
 		}
+
 		if (args.port) {
 			config.textus.port = parseInt(args.port);
 		}
