@@ -15,7 +15,11 @@ var conf = require('../js/textusConfiguration.js').conf();
 // Backend datastore, requires configuration
 var ds = require('../js/datastore/dataStore-elastic.js')(conf);
 
-var importData = fs.readFileSync(args.filename, 'utf8');
+var importData = JSON.parse(fs.readFileSync(args.file, 'utf8'));
+
+if (!importData.structure) { importData.structure = []; }
+if (!importData.semantics) { importData.semantics = []; }
+
 ds.importData(importData, function(err, textId) {
 	if (err) {
 		console.log("Error!", err);
