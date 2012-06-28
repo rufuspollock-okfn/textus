@@ -1,0 +1,45 @@
+.shkspr-tag-h2 {
+  font-weight: bold;
+  font-size: 2.2em;
+  display: block;
+}
+
+.shkspr-act-title {
+  font-weight: bold;
+  font-size: 1.8em;
+  display: block;
+  margin-top: 1.8em;
+}
+
+.shkspr-scene-title {
+  font-size: 1.6em;
+  display: block;
+  margin-top: 1.6em;
+}
+
+.shkspr-speech-speaker {
+  text-align: right;
+  display: block;
+  width: 8em;
+  top: 0;
+  left: 0;
+  font-weight: bold;
+}
+ 
+.shkspr-speech-body {
+  display: block;
+  position: relative;
+  left: 9em;
+  margin-right: 9em;
+  top: -18px;
+}
+
+.shkspr-stagedir {
+  margin: 1em 0;
+  display: block;
+  font-style: italic;  
+}
+
+.shkspr-stagedir-inline {
+  font-style: italic;  
+}

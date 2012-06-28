@@ -28,6 +28,10 @@
 
 @import url('facetview/facetview.css');
 
+/* HACK: OpenShakespeare styles */
+@import url('shakespeare.css');
+
+
 #reviewTabContent #facetview {
 	position: absolute;
 	top: 100px;
