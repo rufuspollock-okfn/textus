@@ -78,8 +78,8 @@ module.exports = exports = function(login) {
 				// Use the user colour, or white if none specified.
 				var c = user ? user.prefs.colour : {
 					red : 255,
-					green : 255,
-					blue : 255
+					green : 0,
+					blue : 0
 				};
 				return {
 					colour : "rgba(" + c.red + "," + c.green + "," + c.blue + ",0.2)"
