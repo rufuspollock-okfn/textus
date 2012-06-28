@@ -1,3 +1,5 @@
+var url = require('url');
+
 var config = {
 	textus : {
 		port : 8080,
@@ -42,14 +44,14 @@ module.exports = exports = {
 			});
 
 		var args = argParser.argv;
-
+		
 		if (args.help) {
 			console.log(argParser.help());
 			process.exit(0);
 		}
-
+		
 		if (args.port) {
-			config.textus.port = parseInt(args.port);
+			config.textus.port = parseInt(args.port, 10);
 		}
 		if (args.esHost) {
 			config.es.host = args.esHost;
@@ -58,7 +60,25 @@ module.exports = exports = {
 			config.es.protocol = args.esProtocol;
 		}
 		if (args.esPort) {
-			config.es.port = parseInt(args.esPort);
+			config.es.port = parseInt(args.esPort, 10);
+		}
+		if (args.esIndex) {
+			config.es.index = args.esIndex;
+		}
+
+		// Heroku configuration: override config with contents of env variables if
+		// they exist.
+
+		if (process.env.PORT) {
+			config.textus.port = parseInt(process.env.PORT, 10);
+		}
+
+		if (process.env.BONSAI_INDEX_URL) {
+			esUrl = url.parse(process.env.BONSAI_INDEX_URL);
+			config.es.protocol = esUrl.protocol.slice(0, -1);
+			config.es.host = esUrl.hostname;
+			config.es.port = (typeof esUrl.port !== 'undefined' && esUrl.port !== null) ? parseInt(esUrl.port, 10) : 80;
+			config.es.index = esUrl.pathname.slice(1);
 		}
 
 		return config;
