@@ -8,7 +8,8 @@
     "optimist": "~0.3.4",
     "connect": "~2.3.4",
     "password-hash": "~1.2.1",
-    "crypto": "~0.0.3"
+    "crypto": "~0.0.3",
+    "mailgun": "~0.4.2"
   },
   "engines": {
     "node": "~0.6.0",

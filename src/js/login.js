@@ -1,11 +1,12 @@
 var hash = require('password-hash');
 var crypto = require('crypto');
+var Mailgun = require('mailgun').Mailgun;
 
 /**
  * Generate a random secret token.
  */
 var randomSecret = function() {
-	return crypto.randomBytes(48).toString('hex');
+	return crypto.randomBytes(12).toString('hex');
 };
 
 /**
@@ -21,14 +22,77 @@ var loginSecrets = {};
 var userCache = {};
 
 /**
+ * Default user preferences, currently creates a random colour property.
+ */
+var defaultPrefs = function() {
+	var rCol = function() {
+		return Math.floor(Math.random() * 256);
+	};
+	return {
+		colour : {
+			red : rCol(),
+			green : rCol(),
+			blue : rCol()
+		}
+	};
+};
+
+/**
+ * Generate a new user response object. This is the object passed to all callback functions in this
+ * API
+ * 
+ * @param user
+ *            the user record corresponding to the newly logged-in, created or updated user
+ * @param success
+ *            boolean, true if the call succeeded, false otherwise
+ * @param message
+ *            may be the empty string (or null, which is translated to the empty string),
+ *            description of failure or success. If the success property is false this must be
+ *            specified.
+ */
+var buildCallback = function(user, success, message) {
+	if (message === null) {
+		message = "";
+	}
+	return {
+		success : success,
+		user : user,
+		message : message
+	};
+};
+
+/**
+ * Send a confirmation email for the specified user, using settings in the supplied textus
+ * configuration object.
+ */
+var sendConfirmationEmail = function(user, conf, callback) {
+	var mg = new Mailgun(conf.mailgun.key);
+	var confirmUrl = conf.textus.base + "password/" + encodeURIComponent(user.id) + "/"
+			+ encodeURIComponent(user.confirmationKey);
+	var text = "Dear textus user,\n\nSomeone (hopefully you) has requested a new password or a "
+			+ "password reset for a textus server. If this wasn't you please ignore this message, "
+			+ "otherwise click (or cut and paste) the following link to proceed :\n\n " + confirmUrl;
+
+	mg.sendText(conf.mailgun.from, [ user.id ], "Create a new TEXTUS password", text, function(err) {
+		if (err) {
+			callback(buildCallback(null, false, "Unable to send confirmation email for '" + user.id + "' : " + err));
+		} else {
+			callback(buildCallback(user, true, "Sent confirmation email for '" + user.id + "'."));
+		}
+	});
+};
+
+/**
  * Export the public API for this module. The datastore to use is passed in as an argument when
  * requiring the module and is used to store and retrieve non-volatile per-user information.
  */
-module.exports = exports = function(datastore) {
+module.exports = exports = function(datastore, conf) {
 
 	return {
 
 		/**
+		 * Used in the express.js handler chain on methods which require a logged in user.
+		 * <p>
 		 * Check whether the current session is valid based on the session.user and session.userKey
 		 * properties, either passing control to the next function in the handler chain if okay or
 		 * responding with a non-authorised response if not.
@@ -68,7 +132,7 @@ module.exports = exports = function(datastore) {
 			if (user && userKey && loginSecrets[user] && loginSecrets[user] == userKey) {
 				this.getUser(user, callback);
 			} else {
-				callback(null);
+				callback(buildCallback(null, false, "No user logged in"));
 			}
 		},
 
@@ -77,34 +141,111 @@ module.exports = exports = function(datastore) {
 		 * 
 		 * @param email
 		 *            the email address, used as a unique user identifier
-		 * @param password
-		 *            the password to use, will be stored as a hash
 		 * @param callback
 		 *            called with either null if the creation failed or the new user record
 		 */
-		createUser : function(email, password, callback) {
-			var rCol = function() {
-				return Math.floor(Math.random() * 256);
-			};
+		createUser : function(email, callback) {
+			/*
+			 * Create a new user object, including a randomly assigned strong password. This is
+			 * never intended to be used to log in, instead the user will be sent an email then
+			 * redirected to a confirmation page where he or she can enter a new password.
+			 */
 			var user = {
 				id : email,
-				password : hash.generate(password),
-				prefs : {
-					colour : {
-						red : rCol(),
-						green : rCol(),
-						blue : rCol()
-					}
-				}
-			// colour : "rgba(" + rCol() + "," + rCol() + "," + rCol() + ",0.2)"
+				password : hash.generate(randomSecret()),
+				prefs : defaultPrefs(),
+				confirmationKey : randomSecret(),
+				confirmed : false
 			};
 			datastore.createUser(user, function(err, newUser) {
 				if (err) {
 					console.log(err);
-					callback(null);
+					callback(buildCallback(null, false, "Unable to create user : " + err));
 				} else {
 					userCache[user.id] = user;
-					callback(newUser);
+					callback(buildCallback(newUser, true, "New user created with id : '" + email + "'."));
+				}
+			});
+		},
+
+		/**
+		 * Set the password for a particular user, the user record must have the confirmation key
+		 * defined and this must be equal to the confirmation key specified in this call's
+		 * arguments.
+		 * 
+		 * @param email
+		 *            the email address of the user to update
+		 * @param confirmationKey
+		 *            a confirmation key which must be equal to that in the user record for this
+		 *            email address
+		 * @param newPassword
+		 *            the new password to store
+		 * @param callback
+		 */
+		createUserPassword : function(email, confirmationKey, newPassword, callback) {
+			/*
+			 * Retrieve the user record for this email, check that the status and confirmation key
+			 * match
+			 */
+			getUser(email, function(result) {
+				if (result.success) {
+					if (!result.user.confirmed && result.user.confirmationKey
+							&& result.user.confirmationKey == confirmationKey) {
+						result.user.confirmed = true;
+						delete result.user.confirmationKey;
+						result.user.password = hash.generate(newPassword);
+						datastore
+								.createOrUpdateUser(result.user,
+										function(err, result) {
+											if (err) {
+												callback(buildCallback(null, false, "Error when updating user '"
+														+ email + "' : " + err));
+											} else {
+												userCache[user.id] = user;
+												callback(buildCallback(user, true, "Updated user record for '" + email
+														+ "'."));
+											}
+										});
+					} else {
+						callback(buildCallback(null, false, "User with id '" + email
+								+ "' is not in the correct state for password creation, "
+								+ "either is already confirmed or confirmation key doesn't match!"));
+					}
+				} else {
+					/*
+					 * If failed then pass the result object containing the failure message back to
+					 * the original callback function
+					 */
+					callback(result);
+				}
+			});
+		},
+
+		/**
+		 * Request a password reset, triggering a change of confirmation status to false,
+		 * randomizing the stored password and generating a random confirmation key. A confirmation
+		 * email is then generated and sent to the appropriate address.
+		 * 
+		 * @param email
+		 * @param callback
+		 * @returns
+		 */
+		requestPasswordReset : function(email, callback) {
+			this.getUser(email, function(result) {
+				if (result.success) {
+					result.user.password = hash.generate(randomSecret());
+					result.user.confirmationKey = randomSecret();
+					result.user.confirmed = false;
+					datastore.createOrUpdateUser(result.user, function(err, user) {
+						if (err) {
+							callback(buildCallback(null, false, "Error when updating user '" + email + "' : " + err));
+						} else {
+							userCache[user.id] = user;
+							sendConfirmationEmail(user, conf, callback);
+						}
+					});
+				} else {
+					callback(result);
 				}
 			});
 		},
@@ -124,27 +265,31 @@ module.exports = exports = function(datastore) {
 				datastore.getUser(req.body.id, function(err, result) {
 					if (err || result == null) {
 						/* No user found with that id */
-						console.log("No user with id " + req.body.id);
-						callback(null);
+						callback(buildCallback(null, false, "User '" + req.body.id + "' not recognized."));
 					} else {
 						userCache[result.id] = result;
-						/* Check whether the password is correct */
-						console.log(result);
-						if (hash.verify(req.body.password, result.password)) {
-							/* Password verified */
-							req.session.user = result.id;
-							req.session.userKey = randomSecret();
-							loginSecrets[req.session.user] = req.session.userKey;
-							callback(result);
+						/* Check that the user is confirmed before checking the password */
+						if (result.confirmed) {
+							/* Check whether the password is correct */
+							if (hash.verify(req.body.password, result.password)) {
+								/* Password verified */
+								req.session.user = result.id;
+								req.session.userKey = randomSecret();
+								loginSecrets[req.session.user] = req.session.userKey;
+								callback(callback.buildCallback(result, true, "Logged in as '" + req.body.id + "'."));
+							} else {
+								/* Password incorrect */
+								callback(buildCallback(null, false, "User with id '" + req.body.id
+										+ "' found but password doesn't match"));
+							}
 						} else {
-							/* Password incorrect */
-							console.log("User with id '" + req.body.id + "' found but password doesn't match");
-							callback(null);
+							callback(buildCallback(null, false, "Can't log into a user account '" + req.body.id
+									+ "' which isn't confirmed."));
 						}
 					}
 				});
 			} else {
-				callback(null);
+				callback(buildCallback(null, false, "HTTP request didn't specify a userID and password!"));
 			}
 		},
 
@@ -162,19 +307,21 @@ module.exports = exports = function(datastore) {
 		updateUserPrefs : function(id, prefs, callback) {
 			this.getUser(id, function(user) {
 				if (user == null) {
-					callback(null);
-				}
-				for (prop in prefs) {
-					user.prefs[prop] = prefs[prop];
-				}
-				datastore.createOrUpdateUser(user, function(err, result) {
-					if (err) {
-						callback(null);
-					} else {
-						userCache[user.id] = user;
-						callback(user);
+					callback(buildCallback(null, false, "No user specified for prefs update!"));
+
+				} else {
+					for (prop in prefs) {
+						user.prefs[prop] = prefs[prop];
 					}
-				});
+					datastore.createOrUpdateUser(user, function(err, result) {
+						if (err) {
+							callback(buildCallback(null, false, "Error when updating user '" + id + "' : " + err));
+						} else {
+							userCache[user.id] = user;
+							callback(buildCallback(user, true, "Updated user record for '" + id + "'."));
+						}
+					});
+				}
 			});
 		},
 
@@ -188,14 +335,14 @@ module.exports = exports = function(datastore) {
 		 */
 		getUser : function(id, callback) {
 			if (userCache[id]) {
-				callback(userCache[id]);
+				callback(buildCallback(userCache[id], true, "Retrieved user '" + id + "' from cache."));
 			} else {
 				datastore.getUser(id, function(err, result) {
 					if (err) {
-						callback(null);
+						callback(buildCallback(null, false, "Failed to retrieve user '" + id + "' : " + err));
 					} else {
 						userCache[result.id] = result;
-						callback(result);
+						callback(buildCallback(result, true, "Retrieved user '" + id + "'."));
 					}
 				});
 			}

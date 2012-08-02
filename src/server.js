@@ -3,13 +3,15 @@ var conf = require('./js/textusConfiguration.js').conf();
 // Backend datastore, requires configuration
 var datastore = require('./js/datastore/dataStore-elastic.js')(conf);
 // Login and user helper, requires datastore
-var login = require('./js/login.js')(datastore);
+var login = require('./js/login.js')(datastore, conf);
 // Annotation painter, requires login helper
 var painter = require('./js/annotationPainter.js')(login);
 // FileSystem API
 var fs = require('fs');
 // File parsers
 var parsers = require('./js/import/parsers.js');
+// URL handling support
+var url = require('url');
 
 /**
  * Configure the HTTP server with the body parser used to handle file uploads.
@@ -225,15 +227,18 @@ app.get("/api/texts-es", function(req, res) {
  * is no logged in user.
  */
 app.get("/api/user", function(req, res) {
-	login.getCurrentUser(req, function(user) {
-		if (user == null) {
+	login.getCurrentUser(req, function(result) {
+		if (result.success) {
 			res.json({
-				loggedin : false
+				loggedin : true,
+				details : {
+					id : result.user.id,
+					prefs : result.user.prefs
+				}
 			});
 		} else {
 			res.json({
-				loggedin : true,
-				details : user
+				loggedin : false
 			});
 		}
 	});
@@ -270,15 +275,18 @@ app.post("/api/semantics", login.checkLogin, function(req, res) {
  */
 app.post("/api/login", function(req, res) {
 	login.login(req, function(result) {
-		if (result == null) {
+		if (result.success) {
 			res.json({
-				okay : false,
-				user : null
+				okay : true,
+				user : {
+					id : result.user.id,
+					prefs : result.user.prefs
+				}
 			});
 		} else {
 			res.json({
-				okay : true,
-				user : result
+				okay : false,
+				user : null
 			});
 		}
 	});
@@ -288,17 +296,38 @@ app.post("/api/login", function(req, res) {
  * POST to create a new user
  */
 app.post("/api/users", function(req, res) {
-	login.createUser(req.body.id, req.body.password, function(newUser) {
-		if (newUser == null) {
+	login.createUser(req.body.id, function(result) {
+		if (result.success == false) {
 			res.json({
 				okay : false
 			});
 		} else {
 			res.json({
 				okay : true,
-				user : newUser
+				user : result.user
 			});
 		}
+	});
+});
+
+/**
+ * POST to request verification of a new user password, sending a confirmation email with a link to
+ * the password reset page
+ */
+app.get("/api/sendmail/:email", function(req, res) {
+	if (!conf.textus.base) {
+		var protocol = "http";
+		if (req.header('X-Forwarded-Protocol') == "https") {
+			protocol = "https";
+		}
+		if (conf.textus.port == 80) {
+			conf.textus.base = protocol + "://" + req.header("host") + "/";
+		} else {
+			conf.textus.base = protocol + "://" + req.header("host") + ":" + conf.textus.port + "/";
+		}
+	}
+	login.requestPasswordReset(decodeURIComponent(req.params.email), function(response) {
+		res.json(response);
 	});
 });
 
