@@ -67,7 +67,7 @@ var buildCallback = function(user, success, message) {
  */
 var sendConfirmationEmail = function(user, conf, callback) {
 	var mg = new Mailgun(conf.mailgun.key);
-	var confirmUrl = conf.textus.base + "password/" + encodeURIComponent(user.id) + "/"
+	var confirmUrl = conf.textus.base + "#password/" + encodeURIComponent(user.id) + "/"
 			+ encodeURIComponent(user.confirmationKey);
 	var text = "Dear textus user,\n\nSomeone (hopefully you) has requested a new password or a "
 			+ "password reset for a textus server. If this wasn't you please ignore this message, "
