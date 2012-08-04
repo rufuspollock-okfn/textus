@@ -1,5 +1,4 @@
-define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/listTextsView' ], function($, _, Backbone, textus,
-		ListTextsView) {
+define([ 'textus', 'views/listTextsView' ], function(textus, ListTextsView) {
 
 	/**
 	 * API call to retrieve a list of texts, find their top level structure nodes and return structs
@@ -47,9 +46,9 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/listTextsView' ], 
 		this.start = function() {
 			var view = new ListTextsView();
 			view.render();
-//			retrieveTextList(function(data) {
-//				view.setTextsList(data);
-//			});
+			// retrieveTextList(function(data) {
+			// view.setTextsList(data);
+			// });
 		};
 
 		this.stop = function(callback) {

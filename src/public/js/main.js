@@ -5,20 +5,8 @@ require.config({
 	 * is glitchy
 	 */
 	paths : {
-		jquery : 'libs/jquery-1.7.1',
-		underscore : 'libs/underscore-1.3.1-amd',
-		json : 'libs/json2',
-		backbone : 'libs/backbone-0.9.1-amd',
-		text : 'libs/require-text-1.0.7',
-		order : 'libs/require-order-1.0.7',
-		templates : '../templates',
-		form : 'libs/backbone-forms-0.10.0.amd',
-		formlisteditor : 'libs/backbone-forms-list-0.10.0',
-		backbonebootstrapmodal : 'libs/backbone.bootstrap-modal',
-		bootstrap : 'libs/bootstrap-2.0.4',
-		jqueryui : 'libs/jquery-ui-1.8.21.custom.min',
-		jquerylinkify : 'libs/jquery.linkify.1.0.0.min',
-		jqueryfacetview : 'libs/jquery.facetview'
+		text : 'scripts/require.text-2.0.1',
+		templates : '../templates'
 	},
 	shim : {
 
@@ -36,12 +24,9 @@ var _listenersToUnbind = null;
 // one if applicable. If the previous activity vetoes shutdown
 // nothing happens.
 
-require([ 'order!jquery', 'order!bootstrap', 'order!jqueryui', 'order!jquerylinkify', 'order!jqueryfacetview',
-		'order!form', 'order!formlisteditor', 'order!backbonebootstrapmodal' ], function($) {
-	/* Causes initialisation of AMD based jQuery plugins */
-});
+Form = Backbone.Form;
 
-require([ 'router', 'form', 'backbone' ], function(Router, Form, Backbone) {
+require([ 'router' ], function(Router) {
 	/* Configure the Form layout to use bootstrap CSS */
 	Form.setTemplates({
 		form : '<form class="form-horizontal">{{fieldsets}}</form>',
@@ -120,10 +105,10 @@ require([ 'router', 'form', 'backbone' ], function(Router, Form, Backbone) {
 			_currentActivity = activity;
 			_currentFragment = Backbone.history.fragment;
 			if (activity.pageTitle) {
-				$('#headerTitle').html(activity.pageTitle);
+				$('#main-title').html(activity.pageTitle);
 				window.document.title = "Textus - " + activity.pageTitle;
 			} else {
-				$('#headerTitle').html("No title");
+				$('#main-title').html("No title");
 				window.document.title = "Textus Beta";
 			}
 			if (location != null) {

@@ -1,6 +1,6 @@
 define(
-		[ 'jquery', 'underscore', 'backbone', 'form' ],
-		function($, _, Backbone, Form) {
+		[],
+		function() {
 
 			return Backbone.View
 					.extend({

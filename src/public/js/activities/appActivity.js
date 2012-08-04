@@ -1,4 +1,4 @@
-define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/appView' ], function($, _, Backbone, textus, AppView) {
+define(['textus', 'views/appView' ], function(textus, AppView) {
 	return function(models) {
 
 		this.name = "AppActivity";

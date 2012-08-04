@@ -1,67 +1,65 @@
 // Router, loads appropriate pages based on target URL
-define([ 'jquery', 'underscore', 'backbone', 'activities/appActivity', 'activities/readTextActivity',
-		'activities/listTextsActivity', 'views/loginView', 'form', 'activities/textUploadActivity',
-		'activities/registerUserActivity', 'activities/userPrefsActivity', 'activities/reviewTextUploadActivity',
-		'activities/createPasswordActivity', 'models' ], function($, _, Backbone, AppActivity, ReadTextActivity,
-		ListTextsActivity, LoginView, Form, TextUploadActivity, RegisterUserActivity, UserPrefsActivity,
+define([ 'activities/appActivity', 'activities/readTextActivity', 'activities/listTextsActivity', 'views/loginView',
+		'activities/textUploadActivity', 'activities/registerUserActivity', 'activities/userPrefsActivity',
+		'activities/reviewTextUploadActivity', 'activities/createPasswordActivity', 'models' ], function(AppActivity,
+		ReadTextActivity, ListTextsActivity, LoginView, TextUploadActivity, RegisterUserActivity, UserPrefsActivity,
 		ReviewTextUploadActivity, CreatePasswordActivity, models) {
 
 	/**
 	 * Router defined here, add client-side routes here to handle additional pages and manage
 	 * history sensibly.
 	 */
-	var appRouter = new (Backbone.Router
-			.extend({
+	var appRouter = new (Backbone.Router.extend({
 
-				routes : {
-					'text/:textId/:offset' : 'text',
-					'texts' : 'texts',
-					'upload' : 'uploadText',
-					'user-options' : 'userPrefs',
-					'register' : 'register',
-					'review' : 'review',
-					'password/:userId/:confirmKey' : 'password',
-					'*actions' : 'defaultActions'
-				},
+		routes : {
+			'text/:textId/:offset' : 'text',
+			'texts' : 'texts',
+			'upload' : 'uploadText',
+			'user-options' : 'userPrefs',
+			'register' : 'register',
+			'review' : 'review',
+			'password/:userId/:confirmKey' : 'password',
+			'*actions' : 'defaultActions'
+		},
 
-				texts : function() {
-					this.startActivity(new ListTextsActivity(models));
-				},
+		texts : function() {
+			this.startActivity(new ListTextsActivity(models));
+		},
 
-				text : function(textId, offset) {
-					this.startActivity(new ReadTextActivity(models), {
-						textId : textId,
-						offset : parseInt(offset),
-						router : appRouter
-					});
-				},
+		text : function(textId, offset) {
+			this.startActivity(new ReadTextActivity(models), {
+				textId : textId,
+				offset : parseInt(offset),
+				router : appRouter
+			});
+		},
 
-				password : function(userId, confirmKey) {
-					this.startActivity(new CreatePasswordActivity(models, decodeURIComponent(userId),
-							decodeURIComponent(confirmKey)));
-				},
+		password : function(userId, confirmKey) {
+			this.startActivity(new CreatePasswordActivity(models, decodeURIComponent(userId),
+					decodeURIComponent(confirmKey)));
+		},
 
-				uploadText : function() {
-					this.startActivity(new TextUploadActivity(models), null);
-				},
+		uploadText : function() {
+			this.startActivity(new TextUploadActivity(models), null);
+		},
 
-				userPrefs : function() {
-					this.startActivity(new UserPrefsActivity(models), null);
-				},
+		userPrefs : function() {
+			this.startActivity(new UserPrefsActivity(models), null);
+		},
 
-				register : function() {
-					this.startActivity(new RegisterUserActivity(models), null);
-				},
+		register : function() {
+			this.startActivity(new RegisterUserActivity(models), null);
+		},
 
-				review : function() {
-					this.startActivity(new ReviewTextUploadActivity(models), null);
-				},
+		review : function() {
+			this.startActivity(new ReviewTextUploadActivity(models), null);
+		},
 
-				defaultActions : function() {
-					this.startActivity(new AppActivity(models), null);
-				}
+		defaultActions : function() {
+			this.startActivity(new AppActivity(models), null);
+		}
 
-			}));
+	}));
 
 	/* Set up the overall page infrastructure */
 	var loginView = new LoginView({

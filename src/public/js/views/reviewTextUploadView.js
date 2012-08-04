@@ -1,5 +1,5 @@
-define([ 'jquery', 'underscore', 'backbone', 'form', 'text!templates/reviewTextUploadView.html',
-		'views/editBibJsonView', 'textus' ], function($, _, Backbone, Form, template, EditBibJsonView, textus) {
+define([ 'text!templates/reviewTextUploadView.html', 'views/editBibJsonView', 'textus' ], function(template,
+		EditBibJsonView, textus) {
 
 	return Backbone.View.extend({
 

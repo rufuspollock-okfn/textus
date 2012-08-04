@@ -1,5 +1,4 @@
-define([ 'jquery', 'underscore', 'backbone', 'text!templates/appView.html', 'form' ], function($, _, Backbone,
-		layoutTemplate, Form) {
+define([ 'text!templates/appView.html' ], function(layoutTemplate) {
 
 	return Backbone.View.extend({
 

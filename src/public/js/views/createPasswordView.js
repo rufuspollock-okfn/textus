@@ -1,5 +1,4 @@
-define([ 'jquery', 'underscore', 'backbone', 'text!templates/createPasswordView.html', 'form' ], function($, _, Backbone,
-		layoutTemplate, Form) {
+define([ 'text!templates/createPasswordView.html' ], function(layoutTemplate) {
 
 	return Backbone.View.extend({
 

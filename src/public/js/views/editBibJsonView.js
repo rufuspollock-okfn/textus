@@ -2,8 +2,7 @@
  * Backbone View used when acquiring a bibJSON object, whether through manual entry or search over a
  * BibServer or BibServers
  */
-define([ 'jquery', 'underscore', 'backbone', 'text!templates/editBibJsonView.html', 'form' ], function($, _, Backbone,
-		template, Form) {
+define([ 'text!templates/editBibJsonView.html' ], function(template) {
 
 	var personSchema = {
 		name : {
@@ -38,12 +37,18 @@ define([ 'jquery', 'underscore', 'backbone', 'text!templates/editBibJsonView.htm
 		defaults : {
 			title : 'Untitled Text',
 			year : '2012',
-			author : [{name : '', alternate : '', firstname : 'firstname', lastname : 'lastname', id : ''}]
+			author : [ {
+				name : '',
+				alternate : '',
+				firstname : 'firstname',
+				lastname : 'lastname',
+				id : ''
+			} ]
 		},
 		schema : {
 			type : {
 				type : 'Select',
-				options : [ '','article', 'book', 'booklet', 'conference', 'inbook', 'incollection', 'inproceedings',
+				options : [ '', 'article', 'book', 'booklet', 'conference', 'inbook', 'incollection', 'inproceedings',
 						'manual', 'mastersthesis', 'misc', 'phdthesis', 'proceedings', 'techreport', 'unpublished' ]
 			},
 			title : {

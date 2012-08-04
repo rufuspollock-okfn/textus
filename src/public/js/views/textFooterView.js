@@ -1,5 +1,4 @@
-define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textFooterView.html' ], function($, _, Backbone,
-		textus, layout) {
+define([ 'textus', 'text!templates/textFooterView.html' ], function(textus, layout) {
 
 	return Backbone.View.extend({
 

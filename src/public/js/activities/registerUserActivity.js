@@ -1,4 +1,4 @@
-define([ 'jquery', 'underscore', 'backbone', 'views/registerUserView' ], function($, _, Backbone, RegisterUserView) {
+define([ 'views/registerUserView' ], function(RegisterUserView) {
 
 	return function(models) {
 

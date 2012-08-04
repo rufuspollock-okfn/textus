@@ -1,5 +1,4 @@
-define([ 'jquery', 'underscore', 'backbone', 'form', 'text!templates/userPrefsView.html' ], function($, _, Backbone,
-		Form, template) {
+define([ 'text!templates/userPrefsView.html' ], function(template) {
 
 	return Backbone.View.extend({
 

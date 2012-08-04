@@ -1,11 +1,10 @@
-define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textUploadView' ], function($, _, Backbone, textus,
-		TextUploadView) {
+define([ 'textus', 'views/textUploadView' ], function(textus, TextUploadView) {
 	return function(models) {
 
 		this.name = "TextUploadActivity";
 
 		this.pageTitle = "Text Upload";
-		
+
 		this.start = function() {
 			var view = new TextUploadView({
 				loginModel : models.loginModel

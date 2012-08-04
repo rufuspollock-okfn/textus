@@ -1,5 +1,4 @@
-define([ 'jquery', 'underscore', 'backbone', 'text!templates/listTextsView.html' ], function($, _, Backbone,
-		layoutTemplate) {
+define([ 'text!templates/listTextsView.html' ], function(layoutTemplate) {
 	return Backbone.View.extend({
 
 		el : '.main',

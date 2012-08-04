@@ -1,9 +1,9 @@
-define([ 'jquery', 'underscore', 'backbone', 'views/userPrefsView' ], function($, _, Backbone, UserPrefsView) {
+define([ 'views/userPrefsView' ], function(UserPrefsView) {
 
 	return function(models) {
 
 		this.name = "UserPrefsActivity";
-		
+
 		this.pageTitle = "Preferences";
 
 		this.start = function() {

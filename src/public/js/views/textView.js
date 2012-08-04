@@ -1,8 +1,7 @@
 // Defines TextView
 
-define([ 'jquery', 'underscore', 'backbone', 'textus', 'text!templates/textView.html',
-		'text!templates/annotations/comment.html', 'text!templates/annotations/bibjson.html' ], function($, _,
-		Backbone, textus, layout, annotationComment, annotationBibjson) {
+define([ 'textus', 'text!templates/textView.html', 'text!templates/annotations/comment.html',
+		'text!templates/annotations/bibjson.html' ], function(textus, layout, annotationComment, annotationBibjson) {
 
 	/**
 	 * Get the offset of the target in the container's coordinate space.

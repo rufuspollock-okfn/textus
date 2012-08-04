@@ -1,58 +1,18 @@
-/* Controls header, main panel and footer positioning rules */
-@import url('mainLayout.css');
-/* Login panel */
-@import url('loginView.css');
-/* List of all texts */
-@import url('listTextsView.css');
-/* New user registration */
-@import url('registerUserView.css');
-/* Text reader UI */
 @import url('textView.css');
-/* Edit / create semantic annotation UI */
-@import url('editSemanticAnnotationView.css');
-/* Upload new text */
-@import url('textUploadView.css');
 
-/* Bootstrap styles */
 @import url('bootstrap/bootstrap.css');
-
-/*@import url('bootstrap/bootstrap-responsive.css');*/
 
 @import url('forms-bootstrap.css');
 
-/* jQueryUI styles */
 @import url('ui-lightness/jquery-ui-1.8.21.custom.css');
-
-/* FacetView styles */
-@import url('facetview/style.css');
 
 @import url('facetview/facetview.css');
 
-/* HACK: OpenShakespeare styles */
 @import url('shakespeare.css');
 
-
-#reviewTabContent #facetview {
-	position: absolute;
-	top: 100px;
-	padding: 20px;
-	bottom: 0px;
-	left: 0px;
-	right: 0px;
-}
-
-#reviewTabContent {
+.textus-content {
+	margin-top: 50px;
+	background-color: white;
 	padding: 10px;
-	position: absolute;
-	top: 40px;
-	bottom: 0px;
-	right: 0px;
-	left: 0px;
-}
-
-#reviewTabButtons {
-	padding: 10px 0px 10px 0px;
-}
-#reviewTabButtons>Button {
-	margin-right: 20px;
+	height: 100%;
 }

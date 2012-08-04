@@ -1,5 +1,4 @@
-define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/reviewTextUploadView' ], function($, _, Backbone, textus,
-		ReviewTextUploadView) {
+define([ 'textus', 'views/reviewTextUploadView' ], function(textus, ReviewTextUploadView) {
 	return function(models) {
 
 		this.name = "ReviewTextUploadActivity";
@@ -26,7 +25,7 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/reviewTextUploadVi
 					refs : [ ref ]
 				}, function(data) {
 					console.log(data);
-					window.location.href="#texts";
+					window.location.href = "#texts";
 				});
 			});
 			$('#rejectReviewButton').click(function(e) {

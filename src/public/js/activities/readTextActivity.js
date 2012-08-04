@@ -1,6 +1,5 @@
-define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView', 'views/textFooterView',
-		'views/editSemanticAnnotationView' ], function($, _, Backbone, textus, TextView, TextFooterView,
-		EditSemanticAnnotationView) {
+define([ 'textus', 'views/textView', 'views/textFooterView', 'views/editSemanticAnnotationView' ], function(textus,
+		TextView, TextFooterView, EditSemanticAnnotationView) {
 
 	return function(models) {
 
@@ -199,7 +198,7 @@ define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/textView', 'views/
 		};
 
 		this.name = "ReadTextActivity";
-		
+
 		this.pageTitle = "Reading...";
 
 		var viewsToDestroy = null;

@@ -1,6 +1,5 @@
-define([ 'jquery', 'underscore', 'backbone', 'form',
-		'text!templates/textUploadView.html', 'text!templates/textUploadViewAnon.html' ], function($, _, Backbone, Form,
-		template, templateAnon) {
+define([ 'text!templates/textUploadView.html', 'text!templates/textUploadViewAnon.html' ], function(template,
+		templateAnon) {
 
 	return Backbone.View.extend({
 

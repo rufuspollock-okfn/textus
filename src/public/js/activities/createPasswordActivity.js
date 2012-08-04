@@ -1,4 +1,4 @@
-define([ 'jquery', 'underscore', 'backbone', 'textus', 'views/createPasswordView' ], function($, _, Backbone, textus, View) {
+define(['textus', 'views/createPasswordView' ], function(textus, View) {
 	return function(models, userId, confirmationKey) {
 
 		this.name = "CreatePasswordActivity";

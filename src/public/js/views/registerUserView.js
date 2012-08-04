@@ -1,5 +1,4 @@
-define([ 'jquery', 'underscore', 'backbone', 'form', 'text!templates/registerUserView.html' ], function($, _, Backbone,
-		Form, template) {
+define([ 'text!templates/registerUserView.html' ], function(template) {
 
 	var detailsSchema = {
 		"name" : {

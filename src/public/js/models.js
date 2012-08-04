@@ -1,4 +1,4 @@
-define([ 'jquery', 'underscore', 'backbone', 'form' ], function($, _, Backbone, Form) {
+define([], function() {
 	return {
 		/*
 		 * Hold the current logged in user record, used to determine whether certain UI components
