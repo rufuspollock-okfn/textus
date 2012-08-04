@@ -11,8 +11,7 @@
 @import url('shakespeare.css');
 
 .textus-content {
-	margin-top: 50px;
+	margin-top: 40px;
 	background-color: white;
-	padding: 10px;
-	height: 100%;
+	padding: 14px;
 }

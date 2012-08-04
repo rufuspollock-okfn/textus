@@ -118,9 +118,16 @@ define([ 'activities/appActivity', 'activities/readTextActivity', 'activities/li
 
 	return {
 		initialize : function() {
-			loginView.render();
+
 			models.loginModel.bind("change", function() {
-				loginView.render();
+				console.log(models.loginModel.get("user"));
+				if (models.loginModel.get("loggedIn")) {
+					$('#main-account-options').show();
+					$('#main-login').hide();
+				} else {
+					$('#main-account-options').hide();
+					$('#main-login').show();
+				}
 			});
 			Backbone.history.start();
 		}

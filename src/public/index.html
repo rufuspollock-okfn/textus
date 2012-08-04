@@ -20,23 +20,28 @@
 	<div class="navbar navbar-fixed-top">
 		<div class="navbar-inner">
 			<div class="container">
-				<a class="brand" id="main-title" href="#">Textus</a>
+				<a class="brand" id="main-title-old">Textus</a>
 				<ul class="nav" id="main-nav">
-					<li><a href="#texts">All Texts</a></li>
-					<li><a href="#upload">Upload Text</a></li>
+					<li id="AppActivity"><a href="#">Home</a></li>
+					<li id="ListTextsActivity"><a href="#texts">All Texts</a></li>
+					<li id="TextUploadActivity"><a href="#upload">Upload Text</a></li>
 				</ul>
-				<div id="main-account-options" class="btn-group pull-right">
-					<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-						Action <span class="caret"></span>
-					</a>
+				<div id="main-account-options" style="display: none"
+					class="btn-group pull-right">
+					<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span
+						id="main-username">User</span> <span class="caret"></span> </a>
 					<ul class="dropdown-menu">
-						<li><a href="#user">User Preferences</a></li>
+						<li><a href="#user"><i class="icon-user"></i> User
+								Preferences</a></li>
 						<li class="divider"></li>
 						<li><a href="#logout" id="main-logout-button"><i
-								class="icon-user"></i> Logout</a>
+								class="icon-remove"></i> Logout</a>
 					</ul>
 				</div>
-				<a class="btn pull-right" href="#login" id="main-login-button">Login/Register</a>
+				<ul id="main-login" style="display: none" class="nav pull-right">
+					<li><a class="pull-right" href="#login" id="main-login-button">Login
+							/ Register</a></li>
+				</ul>
 			</div>
 		</div>
 	</div>

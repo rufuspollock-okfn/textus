@@ -26,7 +26,7 @@ var _listenersToUnbind = null;
 
 Form = Backbone.Form;
 
-require([ 'router' ], function(Router) {
+require([ 'router', 'models' ], function(Router, models) {
 	/* Configure the Form layout to use bootstrap CSS */
 	Form.setTemplates({
 		form : '<form class="form-horizontal">{{fieldsets}}</form>',
@@ -102,22 +102,39 @@ require([ 'router' ], function(Router) {
 			});
 		}
 		if (_currentActivity == null) {
-			_currentActivity = activity;
-			_currentFragment = Backbone.history.fragment;
-			if (activity.pageTitle) {
-				$('#main-title').html(activity.pageTitle);
-				window.document.title = "Textus - " + activity.pageTitle;
-			} else {
-				$('#main-title').html("No title");
-				window.document.title = "Textus Beta";
-			}
-			if (location != null) {
-				console.log("Starting activity '" + activityName + "' with location '" + location + "'");
-				_listenersToUnbind = activity.start(location);
-			} else {
-				console.log("Starting activity '" + activityName + "' with no location.");
-				_listenersToUnbind = activity.start();
-			}
+			$.getJSON("api/user", function(data) {
+				if (data.loggedin) {
+					models.loginModel.set({
+						loggedIn : data.loggedin,
+						user : data.user,
+						init : true
+					});
+				} else {
+					models.loginModel.set({
+						loggedIn : false,
+						user : null,
+						init : true
+					});
+				}
+				$('#main-nav').children().removeClass('active');
+				$('#main-nav li#'+activity.name).addClass('active');
+				_currentActivity = activity;
+				_currentFragment = Backbone.history.fragment;
+				if (activity.pageTitle) {
+					$('#main-title').html(activity.pageTitle);
+					window.document.title = "Textus - " + activity.pageTitle;
+				} else {
+					$('#main-title').html("No title");
+					window.document.title = "Textus Beta";
+				}
+				if (location != null) {
+					console.log("Starting activity '" + activityName + "' with location '" + location + "'");
+					_listenersToUnbind = activity.start(location);
+				} else {
+					console.log("Starting activity '" + activityName + "' with no location.");
+					_listenersToUnbind = activity.start();
+				}
+			});
 		}
 	};
 

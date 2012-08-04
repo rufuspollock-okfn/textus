@@ -7,7 +7,8 @@ define([], function() {
 		loginModel : new (Backbone.Model.extend({
 			defaults : {
 				user : null,
-				loggedIn : false
+				loggedIn : false,
+				init : false
 			}
 		})),
 		textModel : new (Backbone.Model.extend({
