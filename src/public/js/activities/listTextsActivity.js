@@ -37,7 +37,7 @@ define([ 'textus', 'views/listTextsView' ], function(textus, ListTextsView) {
 		});
 	};
 
-	return function(models) {
+	return function() {
 
 		this.name = "ListTextsActivity";
 

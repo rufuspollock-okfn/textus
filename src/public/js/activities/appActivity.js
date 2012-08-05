@@ -1,5 +1,5 @@
 define(['textus', 'views/appView' ], function(textus, AppView) {
-	return function(models) {
+	return function() {
 
 		this.name = "AppActivity";
 		

@@ -1,5 +1,5 @@
-define([ 'textus', 'views/textUploadView' ], function(textus, TextUploadView) {
-	return function(models) {
+define([ 'textus', 'views/textUploadView', 'models' ], function(textus, TextUploadView, models) {
+	return function() {
 
 		this.name = "TextUploadActivity";
 

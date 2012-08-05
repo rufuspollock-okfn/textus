@@ -26,7 +26,7 @@ var _listenersToUnbind = null;
 
 Form = Backbone.Form;
 
-require([ 'router', 'models' ], function(Router, models) {
+require([ 'router', 'models', 'loginClient' ], function(Router, models, loginClient) {
 	/* Configure the Form layout to use bootstrap CSS */
 	Form.setTemplates({
 		form : '<form class="form-horizontal">{{fieldsets}}</form>',
@@ -102,44 +102,52 @@ require([ 'router', 'models' ], function(Router, models) {
 			});
 		}
 		if (_currentActivity == null) {
-			$.getJSON("api/user", function(data) {
-				if (data.loggedin) {
-					models.loginModel.set({
-						loggedIn : data.loggedin,
-						user : data.user,
-						init : true
-					});
-				} else {
-					models.loginModel.set({
-						loggedIn : false,
-						user : null,
-						init : true
-					});
-				}
-				$('#main-nav').children().removeClass('active');
-				$('#main-nav li#'+activity.name).addClass('active');
-				_currentActivity = activity;
-				_currentFragment = Backbone.history.fragment;
-				if (activity.pageTitle) {
-					$('#main-title').html(activity.pageTitle);
-					window.document.title = "Textus - " + activity.pageTitle;
-				} else {
-					$('#main-title').html("No title");
-					window.document.title = "Textus Beta";
-				}
-				if (location != null) {
-					console.log("Starting activity '" + activityName + "' with location '" + location + "'");
-					_listenersToUnbind = activity.start(location);
-				} else {
-					console.log("Starting activity '" + activityName + "' with no location.");
-					_listenersToUnbind = activity.start();
-				}
-			});
+			$('#main-nav').children().removeClass('active');
+			$('#main-nav li#' + activity.name).addClass('active');
+			_currentActivity = activity;
+			_currentFragment = Backbone.history.fragment;
+			if (activity.pageTitle) {
+				$('#main-title').html(activity.pageTitle);
+				window.document.title = "Textus - " + activity.pageTitle;
+			} else {
+				$('#main-title').html("No title");
+				window.document.title = "Textus Beta";
+			}
+			if (location != null) {
+				console.log("Starting activity '" + activityName + "' with location '" + location + "'");
+				_listenersToUnbind = activity.start(location);
+			} else {
+				console.log("Starting activity '" + activityName + "' with no location.");
+				_listenersToUnbind = activity.start();
+			}
+			loginClient.getCurrentUser();
 		}
 	};
 
 	/* Extend a startActivity function to Backbone.Router */
 	Backbone.Router.prototype.startActivity = startActivity;
+
+	/* Bind the appropriate events for the login buttons */
+	models.loginModel.bind("change", function() {
+		if (models.loginModel.get("loggedIn")) {
+			$('#main-account-options').show();
+			$('#main-login').hide();
+			$('.textus-require-login').show();
+		} else {
+			$('#main-account-options').hide();
+			$('#main-login').show();
+			$('.textus-require-login').hide();
+		}
+	});
+	$('#main-login-button').click(function() {
+		var encodedRedirect = encodeURIComponent(window.location.hash);
+		if (encodedRedirect == "") {
+			encodedRedirect = "%23";
+		}
+		window.location.replace("/#login/" + encodedRedirect);
+		return false;
+	});
+
 	/* Initialise the router, starting the application */
 	Router.initialize();
 });

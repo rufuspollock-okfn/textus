@@ -1,5 +1,5 @@
 define(['textus', 'views/createPasswordView' ], function(textus, View) {
-	return function(models, userId, confirmationKey) {
+	return function(userId, confirmationKey) {
 
 		this.name = "CreatePasswordActivity";
 		

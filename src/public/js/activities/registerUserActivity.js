@@ -1,6 +1,6 @@
-define([ 'views/registerUserView' ], function(RegisterUserView) {
+define([ 'views/registerUserView', 'models' ], function(RegisterUserView, models) {
 
-	return function(models) {
+	return function() {
 
 		this.name = "RegisterUserActivity";
 

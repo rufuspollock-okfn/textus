@@ -223,28 +223,6 @@ app.get("/api/texts-es", function(req, res) {
 });
 
 /**
- * GET request for current user, returns {login:BOOLEAN, user:STRING}, where user is absent if there
- * is no logged in user.
- */
-app.get("/api/user", function(req, res) {
-	login.getCurrentUser(req, function(result) {
-		if (result.success) {
-			res.json({
-				loggedin : true,
-				details : {
-					id : result.user.id,
-					prefs : result.user.prefs
-				}
-			});
-		} else {
-			res.json({
-				loggedin : false
-			});
-		}
-	});
-});
-
-/**
  * POST to create new semantic annotation
  */
 app.post("/api/semantics", login.checkLogin, function(req, res) {
@@ -270,74 +248,7 @@ app.post("/api/semantics", login.checkLogin, function(req, res) {
 	});
 });
 
-/**
- * POST to log into the server
- */
-app.post("/api/login", function(req, res) {
-	login.login(req, function(result) {
-		if (result.success) {
-			res.json({
-				okay : true,
-				user : {
-					id : result.user.id,
-					prefs : result.user.prefs
-				}
-			});
-		} else {
-			res.json({
-				okay : false,
-				user : null
-			});
-		}
-	});
-});
-
-/**
- * POST to create a new user
- */
-app.post("/api/users", function(req, res) {
-	login.createUser(req.body.id, function(result) {
-		if (result.success == false) {
-			res.json({
-				okay : false
-			});
-		} else {
-			res.json({
-				okay : true,
-				user : result.user
-			});
-		}
-	});
-});
-
-/**
- * POST to request verification of a new user password, sending a confirmation email with a link to
- * the password reset page
- */
-app.get("/api/sendmail/:email", function(req, res) {
-	if (!conf.textus.base) {
-		var protocol = "http";
-		if (req.header('X-Forwarded-Protocol') == "https") {
-			protocol = "https";
-		}
-		if (conf.textus.port == 80) {
-			conf.textus.base = protocol + "://" + req.header("host") + "/";
-		} else {
-			conf.textus.base = protocol + "://" + req.header("host") + ":" + conf.textus.port + "/";
-		}
-	}
-	login.requestPasswordReset(decodeURIComponent(req.params.email), function(response) {
-		res.json(response);
-	});
-});
-
-/**
- * POST to log out of any current active session
- */
-app.post("/api/logout", function(req, res) {
-	login.logout(req);
-	res.json("Okay");
-});
+login.addRoutes(app, "/api/");
 
 app.listen(conf.textus.port);
 console.log("Textus listening on port " + conf.textus.port);

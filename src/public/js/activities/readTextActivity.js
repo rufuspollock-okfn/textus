@@ -1,7 +1,7 @@
-define([ 'textus', 'views/textView', 'views/textFooterView', 'views/editSemanticAnnotationView' ], function(textus,
-		TextView, TextFooterView, EditSemanticAnnotationView) {
+define([ 'textus', 'views/textView', 'views/textFooterView', 'views/editSemanticAnnotationView', 'models' ], function(
+		textus, TextView, TextFooterView, EditSemanticAnnotationView, models) {
 
-	return function(models) {
+	return function() {
 
 		/**
 		 * Called when populating the model, retrieves a single extent of text along with its

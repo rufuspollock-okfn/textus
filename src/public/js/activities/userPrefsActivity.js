@@ -1,6 +1,6 @@
-define([ 'views/userPrefsView' ], function(UserPrefsView) {
+define([ 'views/userPrefsView', 'models' ], function(UserPrefsView, models) {
 
-	return function(models) {
+	return function() {
 
 		this.name = "UserPrefsActivity";
 

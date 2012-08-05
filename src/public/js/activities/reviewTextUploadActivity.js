@@ -1,5 +1,5 @@
 define([ 'textus', 'views/reviewTextUploadView' ], function(textus, ReviewTextUploadView) {
-	return function(models) {
+	return function() {
 
 		this.name = "ReviewTextUploadActivity";
 

@@ -38,6 +38,34 @@ var defaultPrefs = function() {
 };
 
 /**
+ * Build a new object with the publicly interesting subset of the user properties, specifically the
+ * ID, confirmation status and preferences. The password is not exposed outside of this module.
+ */
+var sanitizeUser = function(user) {
+	if (user === null) {
+		return null;
+	} else {
+		return {
+			id : user.id,
+			confirmed : user.confirmed,
+			prefs : user.prefs
+		};
+	}
+};
+
+/**
+ * Convenience method to pass through a callback response from the API to the routes added by the
+ * addRoutes function
+ */
+var sanitizeCallback = function(response) {
+	return {
+		success : response.success,
+		user : sanitizeUser(response.user),
+		message : response.message
+	};
+};
+
+/**
  * Generate a new user response object. This is the object passed to all callback functions in this
  * API
  * 
@@ -88,7 +116,7 @@ var sendConfirmationEmail = function(user, conf, callback) {
  */
 module.exports = exports = function(datastore, conf) {
 
-	return {
+	var loginService = {
 
 		/**
 		 * Used in the express.js handler chain on methods which require a logged in user.
@@ -257,10 +285,9 @@ module.exports = exports = function(datastore, conf) {
 		 * 
 		 * @param req
 		 *            the HTTP request object
-		 * @param callback
-		 *            a function called with either the user record (success) or null (failure)
 		 */
 		login : function(req, callback) {
+			loginService.logout(req);
 			if (req.body.id && req.body.password) {
 				datastore.getUser(req.body.id, function(err, result) {
 					if (err || result == null) {
@@ -301,14 +328,11 @@ module.exports = exports = function(datastore, conf) {
 		 * @param prefs
 		 *            new prefs content to be merged with the existing preferences, overwriting any
 		 *            existing keys
-		 * @param callback
-		 *            called with the new user record, or null if the update failed for some reason
 		 */
 		updateUserPrefs : function(id, prefs, callback) {
 			this.getUser(id, function(user) {
 				if (user == null) {
 					callback(buildCallback(null, false, "No user specified for prefs update!"));
-
 				} else {
 					for (prop in prefs) {
 						user.prefs[prop] = prefs[prop];
@@ -361,7 +385,96 @@ module.exports = exports = function(datastore, conf) {
 				delete req.session.user;
 				delete req.session.userKey;
 			}
-		}
+		},
 
+		/**
+		 * Add login related routes to the web application
+		 * 
+		 * @param app
+		 *            an application created in express.js to which login utility routes should be
+		 *            added.
+		 * @param prefix
+		 *            the path used as a prefix for all login related functionality, i.e.
+		 *            '/api/login/'
+		 */
+		addRoutes : function(app, prefix) {
+
+			if (prefix === null) {
+				prefix = "/api";
+			}
+
+			if (prefix[prefix.length - 1] != "/") {
+				prefix = prefix + "/";
+			}
+
+			/**
+			 * POST to log into the server
+			 */
+			app.post(prefix + "login", function(req, res) {
+				loginService.login(req, function(result) {
+					res.json(sanitizeCallback(result));
+				});
+			});
+
+			/**
+			 * POST to create a new user, specifying the ID as a body parameter
+			 * {id='someone@somewhere'}
+			 */
+			app.post(prefix + "login/users", function(req, res) {
+				loginService.createUser(req.body.id, function(result) {
+					res.json(sanitizeCallback(result));
+				});
+			});
+
+			/**
+			 * GET to request verification of a new user password, sending a confirmation email with
+			 * a link to the password reset page
+			 */
+			app.get(prefix + "login/users/:email/reset", function(req, res) {
+				if (!conf.textus.base) {
+					var protocol = "http";
+					if (req.header('X-Forwarded-Protocol') == "https") {
+						protocol = "https";
+					}
+					if (conf.textus.port == 80) {
+						conf.textus.base = protocol + "://" + req.header("host") + "/";
+					} else {
+						conf.textus.base = protocol + "://" + req.header("host") + ":" + conf.textus.port + "/";
+					}
+				}
+				loginService.requestPasswordReset(decodeURIComponent(req.params.email), function(response) {
+					res.json(sanitizeCallback(response));
+				});
+			});
+
+			/**
+			 * POST to log out of any current active session
+			 */
+			app.post(prefix + "login/logout", function(req, res) {
+				loginService.logout(req);
+				res.json(buildCallback(null, true, "Logged Out"));
+			});
+
+			/**
+			 * GET request for current user, returns {login:BOOLEAN, user:STRING}, where user is
+			 * absent if there is no logged in user.
+			 */
+			app.get(prefix + "login/user", function(req, res) {
+				loginService.getCurrentUser(req, function(result) {
+					res.json(sanitizeCallback(result));
+				});
+			});
+
+			app.post(prefix + "login/users/:id/password", function(req, res) {
+				var id = decodeURIComponent(req.params.id);
+				loginService.createUserPassword(id, req.body.confirmationKey, req.body.newPassword, function(response) {
+					callback(sanitizeCallback(response));
+				});
+			});
+
+		}
 	};
+
+	return loginService;
+
 };
