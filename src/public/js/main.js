@@ -130,6 +130,8 @@ require([ 'router', 'models', 'loginClient' ], function(Router, models, loginCli
 	/* Bind the appropriate events for the login buttons */
 	models.loginModel.bind("change", function() {
 		if (models.loginModel.get("loggedIn")) {
+			var user = models.loginModel.get("user");
+			$('#main-username').html(user.id);
 			$('#main-account-options').show();
 			$('#main-login').hide();
 			$('.textus-require-login').show();
@@ -145,6 +147,11 @@ require([ 'router', 'models', 'loginClient' ], function(Router, models, loginCli
 			encodedRedirect = "%23";
 		}
 		window.location.replace("/#login/" + encodedRedirect);
+		return false;
+	});
+	$('#main-logout-button').click(function() {
+		loginClient.logout();
+		window.location.replace("/#");
 		return false;
 	});
 

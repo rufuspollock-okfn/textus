@@ -17,7 +17,7 @@ define([ 'activities/appActivity', 'activities/readTextActivity', 'activities/li
 			'texts' : 'texts',
 			'login/:redirectTo' : 'login',
 			'upload' : 'uploadText',
-			'user-options' : 'userPrefs',
+			'account' : 'userPrefs',
 			'register' : 'register',
 			'review' : 'review',
 			'password/:userId/:confirmKey' : 'password',
@@ -45,23 +45,23 @@ define([ 'activities/appActivity', 'activities/readTextActivity', 'activities/li
 		},
 
 		uploadText : function() {
-			this.startActivity(new TextUploadActivity(), null);
+			this.startActivity(new TextUploadActivity());
 		},
 
 		userPrefs : function() {
-			this.startActivity(new UserPrefsActivity(), null);
+			this.startActivity(new UserPrefsActivity());
 		},
 
 		register : function() {
-			this.startActivity(new RegisterUserActivity(), null);
+			this.startActivity(new RegisterUserActivity());
 		},
 
 		review : function() {
-			this.startActivity(new ReviewTextUploadActivity(), null);
+			this.startActivity(new ReviewTextUploadActivity());
 		},
 
 		defaultActions : function() {
-			this.startActivity(new AppActivity(), null);
+			this.startActivity(new AppActivity());
 		}
 
 	}));

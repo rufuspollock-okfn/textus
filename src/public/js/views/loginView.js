@@ -10,8 +10,26 @@ define([ 'text!templates/loginView.html' ], function(layoutTemplate) {
 
 		render : function() {
 			$(this.el).html(layoutTemplate);
+		},
+
+		getValue : function() {
+			return {
+				email : $('#email').val(),
+				password : $('#password').val()
+			};
+		},
+
+		showMessage : function(response) {
+			$('#messages').html(
+					'<div class="alert alert-block ' + (response.success ? 'alert-success' : 'alert-error')
+							+ '"><a class="close" data-dismiss="alert" href="#">x</a>' + response.message + '</div>');
+			$(".alert").alert();
+		},
+		
+		clearMessage : function() {
+			$('#messages').empty();
 		}
 
 	});
-
+	
 });

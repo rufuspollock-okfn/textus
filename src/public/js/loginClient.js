@@ -6,6 +6,10 @@ define([ 'models' ], function(models) {
 
 	var prefix = "api/";
 
+	var noEmailMessage = "No email address provided.";
+
+	var noPasswordMessage = "No password provided.";
+
 	var loginClient = {
 
 		/**
@@ -38,6 +42,14 @@ define([ 'models' ], function(models) {
 		 * sending of the confirmation email.
 		 */
 		createUser : function(id, callback) {
+			if (id === null || id == "") {
+				callback({
+					success : false,
+					user : null,
+					message : "Please enter an email address for the new user."
+				});
+				return;
+			}
 			$.post(prefix + "login/users", {
 				id : id
 			}, function(response) {
@@ -53,8 +65,24 @@ define([ 'models' ], function(models) {
 		 * Attempt to log in with the supplied user ID and password
 		 */
 		login : function(id, password, callback) {
+			if (id === null || id == "") {
+				callback({
+					success : false,
+					user : null,
+					message : noEmailMessage
+				});
+				return;
+			}
+			if (password === null || password == "") {
+				callback({
+					success : false,
+					user : null,
+					message : noPasswordMessage
+				});
+				return;
+			}
 			$.post(prefix + "login", {
-				id : user,
+				id : id,
 				password : password
 			}, function(response) {
 				if (response.success) {
@@ -85,10 +113,36 @@ define([ 'models' ], function(models) {
 		 *            the confirmation key specified in the password creation request
 		 * @param newPassword
 		 *            the new password
+		 * @param newPassword2
+		 *            a second confirmation copy of the password
 		 * @param callback
 		 *            called with the response from the server
 		 */
-		createPassword : function(id, confirmationKey, newPassword, callback) {
+		createPassword : function(id, confirmationKey, newPassword, newPassword2, callback) {
+			if (id === null || id == "") {
+				callback({
+					success : false,
+					user : null,
+					message : noEmailMessage
+				});
+				return;
+			}
+			if (newPassword === null || newPassword == "") {
+				callback({
+					success : false,
+					user : null,
+					message : noPasswordMessage
+				});
+				return;
+			}
+			if (newPassword != newPassword2) {
+				callback({
+					success : false,
+					user : null,
+					message : "Passwords must be identical, please check and try again."
+				});
+				return;
+			}
 			$.post(prefix + "login/users/" + encodeURIComponent(id) + "/password", {
 				confirmationKey : confirmationKey,
 				newPassword : newPassword
@@ -105,6 +159,14 @@ define([ 'models' ], function(models) {
 		 * Reset the password for the specified ID, triggering a confirmation email.
 		 */
 		resetPassword : function(id, callback) {
+			if (id === null || id == "") {
+				callback({
+					success : false,
+					user : null,
+					message : noEmailMessage
+				});
+				return;
+			}
 			$.getJSON(prefix + "login/users/" + encodeURIComponent(id) + "/reset", function(response) {
 				callback(response);
 			});

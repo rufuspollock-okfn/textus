@@ -100,7 +100,6 @@ var sendConfirmationEmail = function(user, conf, callback) {
 	var text = "Dear textus user,\n\nSomeone (hopefully you) has requested a new password or a "
 			+ "password reset for a textus server. If this wasn't you please ignore this message, "
 			+ "otherwise click (or cut and paste) the following link to proceed :\n\n " + confirmUrl;
-
 	mg.sendText(conf.mailgun.from, [ user.id ], "Create a new TEXTUS password", text, function(err) {
 		if (err) {
 			callback(buildCallback(null, false, "Unable to send confirmation email for '" + user.id + "' : " + err));
@@ -188,7 +187,12 @@ module.exports = exports = function(datastore, conf) {
 			datastore.createUser(user, function(err, newUser) {
 				if (err) {
 					console.log(err);
-					callback(buildCallback(null, false, "Unable to create user : " + err));
+					if (err.indexOf("DocumentAlreadyExistsException") > -1) {
+						callback.buildCallback(null, false, "User '" + email
+								+ "' already exists in this textus instance.");
+					} else {
+						callback(buildCallback(null, false, "Unable to create user : " + err));
+					}
 				} else {
 					userCache[user.id] = user;
 					callback(buildCallback(newUser, true, "New user created with id : '" + email + "'."));
@@ -215,7 +219,7 @@ module.exports = exports = function(datastore, conf) {
 			 * Retrieve the user record for this email, check that the status and confirmation key
 			 * match
 			 */
-			getUser(email, function(result) {
+			this.getUser(email, function(result) {
 				if (result.success) {
 					if (!result.user.confirmed && result.user.confirmationKey
 							&& result.user.confirmationKey == confirmationKey) {
@@ -224,7 +228,7 @@ module.exports = exports = function(datastore, conf) {
 						result.user.password = hash.generate(newPassword);
 						datastore
 								.createOrUpdateUser(result.user,
-										function(err, result) {
+										function(err, user) {
 											if (err) {
 												callback(buildCallback(null, false, "Error when updating user '"
 														+ email + "' : " + err));
@@ -303,7 +307,7 @@ module.exports = exports = function(datastore, conf) {
 								req.session.user = result.id;
 								req.session.userKey = randomSecret();
 								loginSecrets[req.session.user] = req.session.userKey;
-								callback(callback.buildCallback(result, true, "Logged in as '" + req.body.id + "'."));
+								callback(buildCallback(result, true, "Logged in as '" + req.body.id + "'."));
 							} else {
 								/* Password incorrect */
 								callback(buildCallback(null, false, "User with id '" + req.body.id
@@ -436,11 +440,7 @@ module.exports = exports = function(datastore, conf) {
 					if (req.header('X-Forwarded-Protocol') == "https") {
 						protocol = "https";
 					}
-					if (conf.textus.port == 80) {
-						conf.textus.base = protocol + "://" + req.header("host") + "/";
-					} else {
-						conf.textus.base = protocol + "://" + req.header("host") + ":" + conf.textus.port + "/";
-					}
+					conf.textus.base = protocol + "://" + req.header("host") + "/";
 				}
 				loginService.requestPasswordReset(decodeURIComponent(req.params.email), function(response) {
 					res.json(sanitizeCallback(response));
@@ -468,7 +468,7 @@ module.exports = exports = function(datastore, conf) {
 			app.post(prefix + "login/users/:id/password", function(req, res) {
 				var id = decodeURIComponent(req.params.id);
 				loginService.createUserPassword(id, req.body.confirmationKey, req.body.newPassword, function(response) {
-					callback(sanitizeCallback(response));
+					res.json(sanitizeCallback(response));
 				});
 			});
 

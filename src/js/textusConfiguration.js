@@ -82,9 +82,11 @@ module.exports = exports = {
 		// they exist.
 		if (process.env.TEXTUS_BASE_URL) {
 			config.textus.base = process.env.TEXTUS_BASE_URL;
+			console.log("INFO - textus base URL explicitly set to '" + config.textus.base + "'");
 		}
 		if (process.env.MAILGUN_API_KEY) {
 			config.mailgun.key = process.env.MAILGUN_API_KEY;
+			console.log("INFO - mailgun API key set from MAILGUN_API_KEY", config.mailgun.key);
 		}
 		if (process.env.PORT) {
 			config.textus.port = parseInt(process.env.PORT, 10);
@@ -95,6 +97,20 @@ module.exports = exports = {
 			config.es.host = esUrl.hostname;
 			config.es.port = (typeof esUrl.port !== 'undefined' && esUrl.port !== null) ? parseInt(esUrl.port, 10) : 80;
 			config.es.index = esUrl.pathname.slice(1);
+			console.log("INFO - elasticsearch properties set from BONSAI_INDEX_URL.", config.es);
+		} else {
+			console.log("INFO - elasticsearch properties set", config.es);
+		}
+
+		if (config.mailgun.key === null) {
+			console.log("WARNING - no mailgun API key set, email functionality will be unavailable. "
+					+ "To fix this set the MAILGUN_API_KEY environment variable appropriately, "
+					+ "or specify with --mailgunKey on the command line.");
+		}
+
+		if (config.textus.base === null) {
+			console.log("INFO - textus base URL not explicitly set, will be inferred "
+					+ "from first request to password reset location.");
 		}
 
 		return config;
