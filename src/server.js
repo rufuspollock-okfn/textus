@@ -248,7 +248,7 @@ app.post("/api/semantics", login.checkLogin, function(req, res) {
 	});
 });
 
-login.addRoutes(app, "/api/");
+login.addRoutes(app, "api/");
 
 app.listen(conf.textus.port);
 console.log("Textus listening on port " + conf.textus.port);

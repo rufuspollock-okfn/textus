@@ -38,4 +38,27 @@
 			</div>
 		</fieldset>
 	</form>
+	<hr />
+	<h2>Log In With Google</h2>
+	<p>As an alternative you can use an existing Google account to log
+		in. If you have previously registered on this server with a google ID
+		this will not create a duplicate account for that ID so is perfectly
+		safe, if you haven't registered that particular ID this process will
+		do all that for you - we don't need to send a confirmation email as
+		Google will have already verified your email address.</p>
+
+
+	<form class="form-horizontal" method="get"
+		action="/api/login/openid/authenticate">
+		<input type="hidden" value="https://www.google.com/accounts/o8/id"
+			class="span3" placeholder="openID" name="openid_identifier"
+			id="openid_identifier" />
+		<div class="control-group">
+
+			<div class="controls">
+				<input type="submit" class="btn btn-success"
+					value="Login with Google" />
+			</div>
+		</div>
+	</form>
 </div>

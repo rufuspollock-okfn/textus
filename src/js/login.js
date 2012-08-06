@@ -1,6 +1,7 @@
 var hash = require('password-hash');
 var crypto = require('crypto');
 var Mailgun = require('mailgun').Mailgun;
+var openid = require('openid');
 
 /**
  * Generate a random secret token.
@@ -317,11 +318,83 @@ module.exports = exports = function(datastore, conf) {
 							callback(buildCallback(null, false, "Can't log into a user account '" + req.body.id
 									+ "' which isn't confirmed."));
 						}
+
 					}
 				});
 			} else {
 				callback(buildCallback(null, false, "HTTP request didn't specify a userID and password!"));
 			}
+		},
+
+		/**
+		 * Called when we have a verified OpenID login. This call should fetch the user with the
+		 * appropriate email, creating one if necessary. If there is no openID identifier associated
+		 * with that user it should assign it and proceed, otherwise it should verify that they
+		 * match. If they do match then we have a successful login.
+		 * 
+		 * @param claimedIdentifier
+		 * @param id
+		 * @param callback
+		 */
+		loginWithOpenID : function(req, claimedIdentifier, id, callback) {
+			loginService.getOrCreateUser(id, function(response) {
+				if (response.success) {
+					if (response.user.openid) {
+						if (response.user.openid == claimedIdentifier) {
+							/* Login success */
+							req.session.user = response.user.id;
+							req.session.userKey = randomSecret();
+							loginSecrets[req.session.user] = req.session.userKey;
+							callback(buildCallback(response.user, true, "Logged in via OpenID as " + id));
+							return;
+						} else {
+							/* Login failure */
+							callback(buildCallback(null, false, "OpenID claimed identifier doesn't match!"));
+							return;
+						}
+					} else {
+						/*
+						 * User doesn't have an openID claimed identifier, set it, store it and log
+						 * in
+						 */
+						response.user.openid = claimedIdentifier;
+						datastore.createOrUpdateUser(response.user, function(err, user) {
+							if (err) {
+								callback(buildCallback(null, false,
+										"Unable to store OpenID claimed identifier for user account " + id));
+								return;
+							} else {
+								req.session.user = user.id;
+								req.session.userKey = randomSecret();
+								loginSecrets[req.session.user] = req.session.userKey;
+								callback(buildCallback(user, true, "Logged in via OpenID as " + id));
+								return;
+							}
+						});
+					}
+				} else {
+					callback(response);
+				}
+			});
+		},
+
+		/**
+		 * Convenience method to get or create the specified user.
+		 * 
+		 * @param id
+		 *            the email address of the new or previously existing user
+		 */
+		getOrCreateUser : function(id, callback) {
+			loginService.getUser(id, function(response) {
+				if (response.success) {
+					callback(response);
+				} else {
+					loginService.createUser(id, function(response) {
+						callback(response);
+					});
+				}
+			});
+
 		},
 
 		/**
@@ -404,17 +477,44 @@ module.exports = exports = function(datastore, conf) {
 		addRoutes : function(app, prefix) {
 
 			if (prefix === null) {
-				prefix = "/api";
+				prefix = "api";
 			}
 
 			if (prefix[prefix.length - 1] != "/") {
 				prefix = prefix + "/";
 			}
 
+			var ensureTextusBase = function(req) {
+				if (!conf.textus.base) {
+					var protocol = "http";
+					if (req.header('X-Forwarded-Protocol') == "https") {
+						protocol = "https";
+					}
+					conf.textus.base = protocol + "://" + req.header("host") + "/";
+					console.log("Computed textus base url : " + conf.textus.base);
+				}
+				if (conf.textus.base[conf.textus.base.length - 1] != "/") {
+					conf.textus.base = conf.textus.base + "/";
+				}
+			};
+
+			var relyingParty = null;
+			var getRelyingParty = function(req) {
+				if (relyingParty === null) {
+					ensureTextusBase(req);
+					relyingParty = new openid.RelyingParty(conf.textus.base + prefix + "login/openid/verify", null,
+							false, false, [ new openid.UserInterface(), new openid.AttributeExchange({
+								"http://axschema.org/contact/email" : "required"
+							}) ]);
+					console.log("Created openId relying party", relyingParty);
+				}
+				return relyingParty;
+			};
+
 			/**
 			 * POST to log into the server
 			 */
-			app.post(prefix + "login", function(req, res) {
+			app.post("/" + prefix + "login", function(req, res) {
 				loginService.login(req, function(result) {
 					res.json(sanitizeCallback(result));
 				});
@@ -424,7 +524,7 @@ module.exports = exports = function(datastore, conf) {
 			 * POST to create a new user, specifying the ID as a body parameter
 			 * {id='someone@somewhere'}
 			 */
-			app.post(prefix + "login/users", function(req, res) {
+			app.post("/" + prefix + "login/users", function(req, res) {
 				loginService.createUser(req.body.id, function(result) {
 					res.json(sanitizeCallback(result));
 				});
@@ -434,14 +534,8 @@ module.exports = exports = function(datastore, conf) {
 			 * GET to request verification of a new user password, sending a confirmation email with
 			 * a link to the password reset page
 			 */
-			app.get(prefix + "login/users/:email/reset", function(req, res) {
-				if (!conf.textus.base) {
-					var protocol = "http";
-					if (req.header('X-Forwarded-Protocol') == "https") {
-						protocol = "https";
-					}
-					conf.textus.base = protocol + "://" + req.header("host") + "/";
-				}
+			app.get("/" + prefix + "login/users/:email/reset", function(req, res) {
+				ensureTextusBase(req);
 				loginService.requestPasswordReset(decodeURIComponent(req.params.email), function(response) {
 					res.json(sanitizeCallback(response));
 				});
@@ -450,7 +544,7 @@ module.exports = exports = function(datastore, conf) {
 			/**
 			 * POST to log out of any current active session
 			 */
-			app.post(prefix + "login/logout", function(req, res) {
+			app.post("/" + prefix + "login/logout", function(req, res) {
 				loginService.logout(req);
 				res.json(buildCallback(null, true, "Logged Out"));
 			});
@@ -459,16 +553,47 @@ module.exports = exports = function(datastore, conf) {
 			 * GET request for current user, returns {login:BOOLEAN, user:STRING}, where user is
 			 * absent if there is no logged in user.
 			 */
-			app.get(prefix + "login/user", function(req, res) {
+			app.get("/" + prefix + "login/user", function(req, res) {
 				loginService.getCurrentUser(req, function(result) {
 					res.json(sanitizeCallback(result));
 				});
 			});
 
-			app.post(prefix + "login/users/:id/password", function(req, res) {
+			/**
+			 * POST to create a new password for the specified user, supplying the confirmation key
+			 * sent in the email.
+			 */
+			app.post("/" + prefix + "login/users/:id/password", function(req, res) {
 				var id = decodeURIComponent(req.params.id);
 				loginService.createUserPassword(id, req.body.confirmationKey, req.body.newPassword, function(response) {
 					res.json(sanitizeCallback(response));
+				});
+			});
+
+			/**
+			 * OpenID authentication method
+			 */
+			app.get("/" + prefix + "login/openid/authenticate", function(req, res) {
+				var identifier = req.query.openid_identifier;
+				getRelyingParty(req).authenticate(identifier, false, function(error, authUrl) {
+					if (!error && authUrl) {
+						res.redirect(authUrl);
+					} else {
+						res.redirect(conf.textus.base);
+					}
+				});
+			});
+
+			/**
+			 * OpenID verify method
+			 */
+			app.get("/" + prefix + "login/openid/verify", function(req, res) {
+				getRelyingParty(req).verifyAssertion(req, function(error, result) {
+					if (!error && result.authenticated && result.email != null) {
+						loginService.loginWithOpenID(req, result.claimedIdentifier, result.email, function(response) {
+							res.redirect(conf.textus.base);
+						});
+					}
 				});
 			});
 

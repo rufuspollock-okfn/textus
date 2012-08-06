@@ -168,7 +168,7 @@ define([ 'models' ], function(models) {
 		 * @returns the image URL for the current user, set this as the src attribute on an image
 		 */
 		gravatarURL : function(size) {
-			return 'http://www.gravatar.com/avatar/' + md5(models.loginModel.get("user").id) + '.jpg?d=identicon?s='
+			return 'http://www.gravatar.com/avatar/' + md5(models.loginModel.get("user").id) + '?d=identicon&s='
 					+ size;
 		}
 
