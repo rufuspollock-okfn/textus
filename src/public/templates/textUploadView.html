@@ -1,15 +1,26 @@
-<div class="summary">
-	<p>Use the form below to upload a text from your computer.</p>
+<div>
+	<h2>Upload Text</h2>
+	<p>Use this page to upload a new text into this textus server from
+		your computer. You will have an opportunity to check that textus has
+		correctly parsed the file's syntax before it becomes visible.</p>
+	<hr />
+	<form class="form-horizontal" id="uploadForm" action="/api/upload"
+		method="post" data-remote="true" enctype="multipart/form-data">
+		<fieldset>
+			<div class="control-group">
+				<label class="control-label" for="file">File to upload</label>
+				<div class="controls">
+					<input type="file" name="text" id="file" />
+					<p class="help-block">Select a file in plain text or wiki
+						markup format to upload.</p>
+				</div>
+			</div>
+			<div class="control-group">
+				<div class="controls">
+					<button class="btn btn-success">Upload</button>
+				</div>
+			</div>
+		</fieldset>
+
+	</form>
 </div>
-<form id="uploadForm" action="/api/upload" method="post"
-	data-remote="true" enctype="multipart/form-data">
-	<input type="hidden" name="format" value="wikitext" />
-	<div class="row">
-		<div class="textus-label">Text file</div>
-		<input type="file" name="text" />
-	</div>
-	<div class="row">
-		<div class="textus-label"></div>
-		<button>Upload</button>
-	</div>
-</form>

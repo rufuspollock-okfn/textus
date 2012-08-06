@@ -113,14 +113,16 @@ require([ 'router', 'models', 'loginClient' ], function(Router, models, loginCli
 				$('#main-title').html("No title");
 				window.document.title = "Textus Beta";
 			}
-			if (location != null) {
-				console.log("Starting activity '" + activityName + "' with location '" + location + "'");
-				_listenersToUnbind = activity.start(location);
-			} else {
-				console.log("Starting activity '" + activityName + "' with no location.");
-				_listenersToUnbind = activity.start();
-			}
-			loginClient.getCurrentUser();
+
+			loginClient.getCurrentUser(function() {
+				if (location != null) {
+					console.log("Starting activity '" + activityName + "' with location '" + location + "'");
+					_listenersToUnbind = activity.start(location);
+				} else {
+					console.log("Starting activity '" + activityName + "' with no location.");
+					_listenersToUnbind = activity.start();
+				}
+			});
 		}
 	};
 

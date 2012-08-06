@@ -1,10 +1,9 @@
 // Router, loads appropriate pages based on target URL
 define([ 'activities/appActivity', 'activities/readTextActivity', 'activities/listTextsActivity', 'views/loginView',
-		'activities/textUploadActivity', 'activities/registerUserActivity', 'activities/userPrefsActivity',
-		'activities/reviewTextUploadActivity', 'activities/createPasswordActivity', 'activities/loginActivity',
-		'models' ], function(AppActivity, ReadTextActivity, ListTextsActivity, LoginView, TextUploadActivity,
-		RegisterUserActivity, UserPrefsActivity, ReviewTextUploadActivity, CreatePasswordActivity, LoginActivity,
-		models) {
+		'activities/textUploadActivity', 'activities/userPrefsActivity', 'activities/reviewTextUploadActivity',
+		'activities/createPasswordActivity', 'activities/loginActivity', 'models' ], function(AppActivity,
+		ReadTextActivity, ListTextsActivity, LoginView, TextUploadActivity, UserPrefsActivity,
+		ReviewTextUploadActivity, CreatePasswordActivity, LoginActivity, models) {
 
 	/**
 	 * Router defined here, add client-side routes here to handle additional pages and manage
