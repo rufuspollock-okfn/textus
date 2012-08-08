@@ -1,21 +1,29 @@
-define([ 'text!templates/reviewTextUploadView.html', 'views/editBibJsonView2', 'textus' ], function(template,
-		EditBibJsonView, textus) {
+define([ 'text!templates/reviewTextUploadView.html', 'views/editBibJsonView2', 'textus' ], function(template, Editor,
+		textus) {
 
 	return Backbone.View.extend({
 
 		intialize : function() {
 			_.bindAll(this);
-
 		},
 
 		render : function() {
-			$(this.el).html(template);
-			var subView = new EditBibJsonView().render();
-			$('#reviewTabBibJsonEditor', this.el).append(subView.el);
-			$('#reviewTab a', this.el).click(function(e) {
+			var content = $(this.el);
+			content.html(template);
+			var subView = new Editor({
+				bibJson : {
+					title : "Title"
+				}
+			});
+			subView.render();
+			console.log(subView);
+			$('#tab2', content).append(subView.el);
+			$('a[data-toggle="tab"]', this.el).click(function(e) {
 				e.preventDefault();
+				console.log("Switching tab to " + $(this).attr("href"));
 				$(this).tab('show');
 			});
+
 			this.getBibJson = function() {
 				return subView.getBibJson();
 			};
@@ -28,8 +36,10 @@ define([ 'text!templates/reviewTextUploadView.html', 'views/editBibJsonView2', '
 			}).map(function(struct) {
 				return struct.text;
 			}).join("");
-			$('#reviewTabText', this.el).html(textus.markupText(text, 0, data.typography, data.semantics));
+			$('#tab1', this.el).html(textus.markupText(text, 0, data.typography, data.semantics));
+
 		}
+
 	});
 
 });

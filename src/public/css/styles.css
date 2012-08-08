@@ -11,9 +11,10 @@
 @import url('shakespeare.css');
 
 .textus-content {
-	margin-top: 40px;
+	position: relative;
 	background-color: white;
-	padding: 14px;
+	min-height: 100%;
+	height: 100%;
 }
 
 .textus-table {
@@ -43,4 +44,21 @@
 
 .textus-form .control-group {
 	margin-bottom: 6px;
+}
+
+body,html {
+	height: 100%;
+}
+
+body {
+	
+}
+
+.main {
+	position: relative;
+	padding: 14px;
+	top: 40px;
+	left: 0px;
+	right: 0px;
+	background-color: white;
 }

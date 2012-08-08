@@ -6,14 +6,15 @@ define([ 'textus', 'views/reviewTextUploadView' ], function(textus, ReviewTextUp
 		this.pageTitle = "Review Text Upload";
 
 		this.start = function() {
-			var view = new ReviewTextUploadView();
+			var view = new ReviewTextUploadView({
+				el : $('.main')
+			});
 			view.render();
-			$('.main').empty();
-			$('.main').append(view.el);
 			$.getJSON("api/upload/review", function(message) {
 				console.log(message);
 				if (message.data) {
 					view.setText(message.data);
+					$('#reviewTab>li>a:first', view.el).tab('show');
 				} else {
 					console.log(message);
 				}
