@@ -204,23 +204,6 @@ define([ 'textus', 'views/textView', 'views/textFooterView', 'views/editSemantic
 		var viewsToDestroy = null;
 
 		this.start = function(location) {
-			$.getJSON("api/user", function(data) {
-				if (data.loggedin) {
-					models.loginModel.set({
-						loggedIn : data.loggedin,
-						user : data.details.user
-					});
-				} else {
-					models.loginModel.set({
-						loggedIn : false,
-						user : null
-					});
-				}
-				start2(location);
-			});
-		};
-
-		var start2 = function(location) {
 
 			/*
 			 * Capture the initial offset and the textId from the URL (in turn derived from the
@@ -231,6 +214,8 @@ define([ 'textus', 'views/textView', 'views/textFooterView', 'views/editSemantic
 				textId : location.textId
 			});
 
+			$('body').append("<div id='textViewDiv'></div>");
+			
 			// Create a new textView
 			var textView = new TextView({
 				textModel : models.textModel,
@@ -267,9 +252,12 @@ define([ 'textus', 'views/textView', 'views/textFooterView', 'views/editSemantic
 					}
 				},
 				textLocationModel : models.textLocationModel,
-				el : $('.main')
+				el : $('#textViewDiv')
 			});
-
+			
+			textView.render();
+			$('body').append(textView.el);
+			$('.textus-content').hide();
 			var footerView = new TextFooterView({
 				presenter : {
 					back : function() {
@@ -369,6 +357,7 @@ define([ 'textus', 'views/textView', 'views/textFooterView', 'views/editSemantic
 		 * cause zombie instances of the text rendered to be left kicking around.
 		 */
 		this.stop = function(callback) {
+			$('.textus-content .pageContainer').remove();
 			// Unbind the change listener on the text selection model
 			models.textSelectionModel.unbind();
 			models.textModel.unbind();
@@ -394,8 +383,8 @@ define([ 'textus', 'views/textView', 'views/textFooterView', 'views/editSemantic
 					view.unbind();
 				});
 			}
-			$(".main-wrapper").append($('<div class="main"/>'));
-			$(".footer-wrapper").append($('<div class="footer"/>'));
+			$('.textus-content').show();
+			//$('body').append("<div class='textus-content container'><div class='main' id='main'></div></div>");
 			callback(true);
 		};
 	};

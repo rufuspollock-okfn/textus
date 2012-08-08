@@ -11,7 +11,8 @@ module.exports = exports = function(login) {
 		var annotation = annotations.pop();
 		if (annotation) {
 			if (annotation.user) {
-				login.getUser(annotation.user, function(user) {
+				login.getUser(annotation.user, function(response) {
+					var user = response.success ? response.user : null;
 					_paint(painters, annotation, user);
 					newAnnotations.push(annotation);
 					_augmentAnnotations(annotations, newAnnotations, painters, callback);

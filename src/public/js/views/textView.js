@@ -140,7 +140,7 @@ define([ 'textus', 'text!templates/textView.html', 'text!templates/annotations/c
 		canvas.get(0).height = height;
 		canvas.get(0).width = width;
 		var ctx = canvas.get(0).getContext("2d");
-		var leftMargin = 20;
+		var leftMargin = 30;
 		var rightMargin = textContainer.width() + leftMargin;
 		/*
 		 * Retrieve a list of all the elements corresponding to semantic annotations, pair them up

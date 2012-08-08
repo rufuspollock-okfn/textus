@@ -18,6 +18,12 @@ define([ 'text!templates/listTextsView.html' ], function(layoutTemplate) {
 					'field' : 'year',
 					'display' : 'year'
 				} ],
+				renderer : function(hit, parent) {
+					parent.append("<div>Title : " + hit.title + "</div>");
+					if (hit.textus && hit.textus.textId) {
+						parent.append("<a class='btn' href='#/text/"+hit.textus.textId+"/0'>Read</a>");
+					}
+				}
 			});
 		}
 

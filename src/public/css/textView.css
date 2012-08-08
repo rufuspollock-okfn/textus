@@ -6,7 +6,7 @@
 	right: 0px;
 	width: 275px;
 	padding: 5px 5px 0px 15px;
-	overflow-y: scroll;
+	overflow-y: auto;
 }
 
 /* Each top level annotation div within the annotation container */
@@ -83,8 +83,11 @@ span.i {
 /* Contains the contents of the reader layout, including the page HTML, */
 /* the annotation container and the canvases */
 .pageContainer {
-	position: relative;
-	height: 100%;
+	position: absolute;
+	top: 40px;
+	bottom: 0px;
+	left: 0px;
+	right: 0px;
 	overflow-y: hidden;
 	overflow-x: hidden;
 }
@@ -94,7 +97,7 @@ span.i {
 	position: absolute;
 	top: 0px;
 	left: 0px;
-	z-index: 1;
+	z-index: 3;
 	pointer-events: none;
 }
 
@@ -106,13 +109,22 @@ span.i {
 	right: 0px;
 	overflow-y: hidden;
 	z-index: 2;
-	-webkit-user-select: text; 
+	-webkit-user-select: text;
 }
 
 .pageTextMeasure,.pageContainer .pageText {
 	position: absolute;
-	padding: 20px 0px 20px 20px;
+	padding: 10px;
+	margin: 20px 300px 20px 20px;
 	margin-right: 300px;
+	margin-right: 300px;
+}
+
+.pageContainer .pageText {
+	background-color: white;
+	-moz-box-shadow: 2px 2px 8px #bbb;
+	-webkit-box-shadow: 2px 2px 8px #bbb;
+	box-shadow: 2px 2px 8px #bbb;
 }
 
 /* Off-page element used to preview the size of the rendered text whilst filling */
