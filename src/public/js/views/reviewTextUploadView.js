@@ -1,4 +1,4 @@
-define([ 'text!templates/reviewTextUploadView.html', 'views/editBibJsonView', 'textus' ], function(template,
+define([ 'text!templates/reviewTextUploadView.html', 'views/editBibJsonView2', 'textus' ], function(template,
 		EditBibJsonView, textus) {
 
 	return Backbone.View.extend({

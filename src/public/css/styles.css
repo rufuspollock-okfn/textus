@@ -15,3 +15,32 @@
 	background-color: white;
 	padding: 14px;
 }
+
+.textus-table {
+	margin-bottom: 0px;
+	background-color: transparent;
+	border-collapse: collapse;
+	border-spacing: 0;
+	display: inline-block;
+	padding-right: 4px;
+}
+
+.textus-table tr td:first-child {
+	padding-left: 0px;
+}
+
+.textus-table tr:first-child td {
+	padding-top: 0px;
+}
+
+.textus-table tr:last-child td {
+	padding-bottom: 0px;
+}
+
+.textus-table tr td {
+	padding: 2px;
+}
+
+.textus-form .control-group {
+	margin-bottom: 6px;
+}
