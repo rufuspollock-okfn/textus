@@ -73,9 +73,72 @@ body {
 	}
 }
 
-@media (min-width: 1200px) {
+@media ( min-width : 1200px) {
 	.main .container {
 		width: 1142px;
+	}
+}
+
+@media ( max-width : 768px) {
+	.navbar .container {
+		width: 100%;
+	}
+	.navbar-inner>.container>a.brand {
+		padding-left: 30px;
+	}
+	.container {
+		width: 100%
+	}
+	.main .container {
+		width: 100%;
+	}
+	.main {
+		width: 100%;
+		padding-left: 0px;
+		padding-right: 0px;
+	}
+	.main>* {
+		padding-left: 10px;
+		padding-right: 10px;
+	}
+	.row {
+		margin-left: 0px;
+	}
+	.span1 {
+		width: 8%;
+	}
+	.span2 {
+		width: 16%;
+	}
+	.span3 {
+		width: 24%;
+	}
+	.span4 {
+		width: 32%;
+	}
+	.span5 {
+		width: 40%;
+	}
+	.span6 {
+		width: 48%;
+	}
+	.span7 {
+		width: 56%;
+	}
+	.span8 {
+		width: 64%;
+	}
+	.span9 {
+		width: 72%;
+	}
+	.span10 {
+		width: 80%;
+	}
+	.span11 {
+		width: 88%;
+	}
+	.span12 {
+		width: 96%;
 	}
 }
 

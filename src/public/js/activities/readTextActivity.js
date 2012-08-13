@@ -1,5 +1,5 @@
-define([ 'textus', 'views/textView', 'views/textFooterView', 'views/editSemanticAnnotationView', 'models' ], function(
-		textus, TextView, TextFooterView, EditSemanticAnnotationView, models) {
+define([ 'textus', 'views/textView', 'views/editSemanticAnnotationView', 'models' ], function(textus, TextView,
+		EditSemanticAnnotationView, models) {
 
 	return function() {
 
@@ -249,6 +249,16 @@ define([ 'textus', 'views/textView', 'views/textFooterView', 'views/editSemantic
 					requestTextFill : function() {
 						updateTextAsync(models.textLocationModel.get("textId"), models.textLocationModel.get("offset"),
 								true, textView.pageHeight(), textView.measure);
+					},
+
+					forward : function() {
+						updateTextAsync(models.textLocationModel.get("textId"), models.textLocationModel.get("offset")
+								+ models.textModel.get("text").length, true, textView.pageHeight(), textView.measure);
+					},
+
+					back : function() {
+						updateTextAsync(models.textLocationModel.get("textId"), models.textLocationModel.get("offset"),
+								false, textView.pageHeight(), textView.measure);
 					}
 				},
 				textLocationModel : models.textLocationModel,
@@ -258,26 +268,11 @@ define([ 'textus', 'views/textView', 'views/textFooterView', 'views/editSemantic
 			textView.render();
 			$('body').append(textView.el);
 			$('.textus-content').hide();
-			var footerView = new TextFooterView({
-				presenter : {
-					back : function() {
-						updateTextAsync(models.textLocationModel.get("textId"), models.textLocationModel.get("offset"),
-								false, textView.pageHeight(), textView.measure);
-						console.log("Back button pressed.");
-					},
-					forward : function() {
-						updateTextAsync(models.textLocationModel.get("textId"), models.textLocationModel.get("offset")
-								+ models.textModel.get("text").length, true, textView.pageHeight(), textView.measure);
-						console.log("Forward button pressed.");
-					}
-				},
-				el : $('.footer')
-			});
 
 			/*
 			 * Store references to the two views to pass to the cleanup function on activity exit.
 			 */
-			viewsToDestroy = [ textView, footerView ];
+			viewsToDestroy = [ textView ];
 
 			/*
 			 * Set up a listener on selection events on the text selection model.

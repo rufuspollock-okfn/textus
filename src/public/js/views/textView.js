@@ -65,7 +65,7 @@ define([ 'textus', 'text!templates/textView.html', 'text!templates/annotations/c
 	 */
 	var renderLinks = function(textContainer, canvas, semantics, annotationContainer) {
 		var width = textContainer.outerWidth(true);
-		var height = textContainer.outerHeight(true);
+		var height = annotationContainer.outerHeight(true);
 		canvas.get(0).height = height;
 		canvas.get(0).width = width;
 		var ctx = canvas.get(0).getContext("2d");
@@ -86,12 +86,20 @@ define([ 'textus', 'text!templates/textView.html', 'text!templates/annotations/c
 		});
 		annotationContainer.children().each(function() {
 			var child = $(this);
+			var margin = 10;
 			var id = child.attr("annotation-id");
 			if (regions[id]) {
 				var coords = relativeCoords(canvas, child);
 				if (coords.y >= (-child.outerHeight()) && coords.y <= height) {
 					var region = regions[id];
 					var anchorY = coords.y + (child.outerHeight() / 2);
+					if (coords.y + margin < region.y && coords.y - margin + (child.outerHeight()) > region.y) {
+						anchorY = region.y;
+					} else if (coords.y - margin + (child.outerHeight()) < region.y) {
+						anchorY = coords.y + child.outerHeight() - margin;
+					} else if (coords.y + margin > region.y) {
+						anchorY = coords.y + margin;
+					}
 					if (anchorY > 0 && anchorY < height) {
 						ctx.strokeStyle = region.colour;
 						ctx.beginPath();
@@ -287,6 +295,14 @@ define([ 'textus', 'text!templates/textView.html', 'text!templates/annotations/c
 				populateAnnotationContainer(model.get("semantics"), annotations);
 				renderCanvas(pageCanvas, pageText, model.get("semantics"));
 				renderLinks(pageText, linkCanvas, model.get("semantics"), annotations);
+			});
+			$('#nextPageButton', this.$el).click(function() {
+				presenter.forward();
+				return false;
+			});
+			$('#previousPageButton', this.$el).click(function() {
+				presenter.back();
+				return false;
 			});
 		},
 
