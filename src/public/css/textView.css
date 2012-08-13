@@ -4,10 +4,15 @@
 	top: 0px;
 	bottom: 90px;
 	right: 0px;
-	width: 275px;
-	padding: 20px 5px 0px 15px;
+	width: 260px;
+	padding: 20px 20px 0px 15px;
 	margin-top: 0px;
 	overflow-y: auto;
+}
+
+.pageContainer ::-webkit-scrollbar {
+	width: 0 !important;
+	height: 0 !important
 }
 
 .pageContainer .pageButtons {
