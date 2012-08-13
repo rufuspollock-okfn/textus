@@ -1,4 +1,9 @@
 define([ 'textus', 'views/reviewTextUploadView' ], function(textus, ReviewTextUploadView) {
+
+	var setReviewSize = function() {
+		$('#tab1').height($(window).height() - $('#tab1').offset().top - 10);
+	};
+
 	return function() {
 
 		this.name = "ReviewTextUploadActivity";
@@ -36,9 +41,12 @@ define([ 'textus', 'views/reviewTextUploadView' ], function(textus, ReviewTextUp
 					window.location.href = "#upload";
 				});
 			});
+			$(window).resize(setReviewSize);
+			setReviewSize();
 		};
 
 		this.stop = function(callback) {
+			$(window).unbind("resize");
 			callback(true);
 		};
 

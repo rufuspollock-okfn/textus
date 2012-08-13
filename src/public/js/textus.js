@@ -2,8 +2,105 @@ define([], function() {
 
 	return {
 
+		/**
+		 * Create and display the modal dialogue.
+		 * 
+		 * @param modal
+		 *            an object containing two functions, firstly one which is called with the
+		 *            parent element for the dialogue and which should populate the dialogue prior
+		 *            to display, and the second which is optional and will be called when the user
+		 *            has clicked outside the dialogue and wishes to close it. The signature of the
+		 *            two functions are :
+		 *            <p>
+		 *            modal.constructor : function(jQueryElement, function()):void - the second
+		 *            function argument is a function which can be called to close the dialogue.
+		 *            <p>
+		 *            modal.beforeClose : function():boolean - a function which will be called
+		 *            immediately before closing the dialogue due to a user click event on the glass
+		 *            pane behind it, returning false from this function vetoes the close event.
+		 *            <p>
+		 *            modal.position : Optional, if specified should be one of
+		 *            [right|left|bottom|top|on] to specify where the modal should be positioned
+		 *            relative to the target element which triggered the opening. If not specified
+		 *            open at the event coordinates.
+		 * @param event
+		 *            used to position the modal dialogue based on the value of modal.position - if
+		 *            not specified the modal is positioned in the centre of the window.
+		 */
+		showModal : function(modal, event) {
+			var glass = $('#modalGlassPane');
+			var modalPad = 4;
+
+			if (glass.is(':visible')) {
+				console.log("Warning - modal panel already visible, can't display again.");
+				return;
+			}
+			glass.empty();
+			glass.append('<div id="modalDialogue" class="textus-modal ui-draggable">'
+					+ '<div class="textus-modal-header"></div>'
+					+ '<div class="textus-modal-contents" id="modalDialogueContents"></div></div>');
+			var dialogue = $('#modalDialogue');
+			var contents = $('#modalDialogueContents');
+			var header = $('.textus-modal-header');
+			dialogue.draggable({
+				handle : header,
+				containment : "window"
+			});
+			var hideGlass = function() {
+				glass.unbind('click');
+				contents.empty();
+				glass.hide();
+			};
+			contents.empty();
+			glass.click(function(event) {
+				if (event.target.id == "modalGlassPane" && (!modal.beforeClose || modal.beforeClose())) {
+					hideGlass();
+				}
+				return false;
+			});
+			contents.empty();
+			modal.constructor(contents, header, hideGlass);
+
+			glass.show();
+			if (event) {
+				var target = $(event.currentTarget);
+				if (!modal.position) {
+					dialogue.css('top', (event.pageY) + 'px');
+					dialogue.css('left', (event.pageX) + 'px');
+				} else if (modal.position == 'right') {
+					dialogue.css('top', target.offset().top + 'px');
+					dialogue.css('left', (target.offset().left + target.outerWidth()) + modalPad + 'px');
+				} else if (modal.position == 'bottom') {
+					dialogue.css('top', (target.offset().top + target.outerHeight()) + modalPad + 'px');
+					dialogue.css('left', target.offset().left + 'px');
+				} else if (modal.position == 'top') {
+					dialogue.css('top', (target.offset().top - modalPad - dialogue.outerHeight()) + 'px');
+					dialogue.css('left', target.offset().left + 'px');
+				} else if (modal.position == 'left') {
+					dialogue.css('top', target.offset().top + 'px');
+					dialogue.css('left', (target.offset().left - dialogue.outerWidth() - modalPad) + 'px');
+				} else if (modal.position == 'over') {
+					dialogue.css('top', target.offset().top + 'px');
+					dialogue.css('left', target.offset().left + 'px');
+				}
+			} else {
+				/* Event not specified, open dialogue in centre of page */
+				dialogue.css('left', ($(window).width() - dialogue.outerWidth()) / 2 + 'px');
+				dialogue.css('top', ($(window).height() - dialogue.outerHeight()) / 2 + 'px');
+			}
+			/* If there are form elements give the first one focus */
+			$(':input:visible:first', contents).focus();
+		},
+
+		/**
+		 * Tag names which, when encountered as css in typographical annotation, will be converted
+		 * directly to the equivalent HTML tags rather than as spans with the appropriate name
+		 */
 		knownTagNames : [ "h1", "h2", "h3", "h4", "h5", "h6", "ul", "ol", "li" ],
 
+		/**
+		 * Simple range overlap check
+		 */
 		overlapsRange : function(startA, endA, startB, endB) {
 			return (endB > startA) && (startB < endA);
 		},

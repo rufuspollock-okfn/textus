@@ -12,8 +12,7 @@ define([ 'text!templates/editSemanticAnnotationView.html' ], function(layoutTemp
 		"textus:comment" : {
 			name : "Comment",
 			schema : {
-				"text" : "TextArea",
-				"anotherText" : "Text"
+				"text" : "TextArea"
 			}
 		},
 		"textus:bibjson" : {
@@ -36,13 +35,15 @@ define([ 'text!templates/editSemanticAnnotationView.html' ], function(layoutTemp
 			});
 			el.find('#annotationEditor').append(form.render().el);
 			el.find('#annotationEditor').append(
-					"<button id='submitAnnotation'>" + (creating ? "Create" : "Update") + "</button>");
+					"<a href='#' class='btn btn-success' id='submitAnnotation'>" + (creating ? "Create" : "Update")
+							+ "</a>");
 			el.find('#submitAnnotation').bind("click", function() {
 				console.log(form.getValue());
 				presenter.storeAnnotation({
 					type : annotation.type,
 					payload : form.getValue()
 				});
+				return false;
 			});
 		} else {
 			console.log("Unable to find edit schema for annotation " + annotation);
@@ -56,25 +57,13 @@ define([ 'text!templates/editSemanticAnnotationView.html' ], function(layoutTemp
 		},
 
 		render : function() {
-
 			this.$el.html(layoutTemplate);
 			var presenter = this.options.presenter;
 			var annotation = this.options.annotation;
-			var creating = (annotation.payload == null);
-			if (creating) {
-				this.$el.find('#annotationEditorTitle').html("Create new annotation");
-			} else {
-				this.$el.find('#annotationEditorTitle').html("Edit annotation");
-			}
 			console.log(this.options);
 			populateAnnotationEditor(this.$el, annotation, presenter);
 			return this;
-		},
-
-		giveFocus : function() {
-			this.$el.find('input')[0].focus();
 		}
-
 	});
 
 });
