@@ -21,6 +21,7 @@ define([ 'views/userPrefsView', 'models' ], function(UserPrefsView, models) {
 			view.render();
 			$('.main').empty();
 			$('.main').append(view.el);
+			view.afterDisplay();
 			var renderFunction = function() {
 				view.render();
 			};

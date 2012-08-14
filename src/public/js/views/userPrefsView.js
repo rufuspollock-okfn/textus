@@ -11,6 +11,13 @@ define([ 'text!templates/userPrefsView.html', 'gravatar' ], function(template, g
 			$(this.el).html(template);
 			$('#gravatar', this.el).attr("src", gravatar.gravatarURL(80));
 			return this;
+		},
+
+		afterDisplay : function() {
+			$('#annotationColourPicker', this.el).colorPicker({
+				format : 'hex',
+				size : 150
+			});
 		}
 
 	});

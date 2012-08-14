@@ -203,6 +203,8 @@ define([ 'textus', 'views/textView', 'views/editSemanticAnnotationView', 'models
 
 		var viewsToDestroy = null;
 
+		var firingKeyEvents = true;
+
 		this.start = function(location) {
 
 			/*
@@ -216,61 +218,69 @@ define([ 'textus', 'views/textView', 'views/editSemanticAnnotationView', 'models
 
 			$('body').append("<div id='textViewDiv'></div>");
 
-			// Create a new textView
-			var textView = new TextView({
-				textModel : models.textModel,
-				presenter : {
-					/**
-					 * Called by the view when a selection of text has been made, used to set the
-					 * text selection model.
-					 * 
-					 * @param start
-					 *            The absolute index of the first character in the selected text.
-					 * @param end
-					 *            The absolute index of the last character in the selected text,
-					 *            should be start + text.length assuming all's working.
-					 * @param text
-					 *            The text of the selection.
-					 */
-					handleTextSelection : function(start, end, text) {
-						if (!isNaN(start) && !isNaN(end)) {
-							models.textSelectionModel.set({
-								start : ((start < end) ? start : end),
-								end : ((end > start) ? end : start),
-								text : text
-							});
-						}
-					},
-
-					/**
-					 * Called by the view when it's been resized and needs to have its text
-					 * re-filled.
-					 */
-					requestTextFill : function() {
-						updateTextAsync(models.textLocationModel.get("textId"), models.textLocationModel.get("offset"),
-								true, textView.pageHeight(), textView.measure);
-					},
-
-					forward : function() {
-						updateTextAsync(models.textLocationModel.get("textId"), models.textLocationModel.get("offset")
-								+ models.textModel.get("text").length, true, textView.pageHeight(), textView.measure);
-					},
-
-					back : function() {
-						updateTextAsync(models.textLocationModel.get("textId"), models.textLocationModel.get("offset"),
-								false, textView.pageHeight(), textView.measure);
+			/*
+			 * Create the presenter, this is the mediator between user interaction and the result of
+			 * that interaction
+			 */
+			var presenter = {
+				/**
+				 * Called by the view when a selection of text has been made, used to set the text
+				 * selection model.
+				 * 
+				 * @param start
+				 *            The absolute index of the first character in the selected text.
+				 * @param end
+				 *            The absolute index of the last character in the selected text, should
+				 *            be start + text.length assuming all's working.
+				 * @param text
+				 *            The text of the selection.
+				 */
+				handleTextSelection : function(start, end, text) {
+					if (!isNaN(start) && !isNaN(end)) {
+						models.textSelectionModel.set({
+							start : ((start < end) ? start : end),
+							end : ((end > start) ? end : start),
+							text : text
+						});
 					}
 				},
+
+				/**
+				 * Called by the view when it's been resized and needs to have its text re-filled.
+				 */
+				requestTextFill : function() {
+					updateTextAsync(models.textLocationModel.get("textId"), models.textLocationModel.get("offset"),
+							true, textView.pageHeight(), textView.measure);
+				},
+
+				forward : function() {
+					updateTextAsync(models.textLocationModel.get("textId"), models.textLocationModel.get("offset")
+							+ models.textModel.get("text").length, true, textView.pageHeight(), textView.measure);
+				},
+
+				back : function() {
+					updateTextAsync(models.textLocationModel.get("textId"), models.textLocationModel.get("offset"),
+							false, textView.pageHeight(), textView.measure);
+				}
+			};
+
+			/*
+			 * Create a new textView, render it, append it to the body of the page and hide the
+			 * normal content panel because we're overriding the bootstrap based layout and going to
+			 * 'full screen' mode
+			 */
+			var textView = new TextView({
+				textModel : models.textModel,
+				presenter : presenter,
 				textLocationModel : models.textLocationModel,
 				el : $('#textViewDiv')
 			});
-
 			textView.render();
 			$('body').append(textView.el);
 			$('.textus-content').hide();
 
 			/*
-			 * Store references to the two views to pass to the cleanup function on activity exit.
+			 * Store references to the view to pass to the cleanup function on activity exit.
 			 */
 			viewsToDestroy = [ textView ];
 
@@ -278,7 +288,6 @@ define([ 'textus', 'views/textView', 'views/editSemanticAnnotationView', 'models
 			 * Set up a listener on selection events on the text selection model.
 			 */
 			var s = models.textSelectionModel;
-
 			s.bind("change", function(event) {
 				if (models.loginModel.get("loggedIn") == false) {
 					return;
@@ -315,6 +324,7 @@ define([ 'textus', 'views/textView', 'views/editSemanticAnnotationView', 'models
 											models.textModel.set({
 												semantics : semanticsArray
 											});
+											firingKeyEvents = true;
 											closeModal();
 										});
 									}
@@ -323,13 +333,25 @@ define([ 'textus', 'views/textView', 'views/editSemanticAnnotationView', 'models
 							editView.render();
 							container.append(editView.el);
 							header.append("<h4>Create new annotation</h4>");
+							firingKeyEvents = false;
 						},
 						beforeClose : function() {
+							firingKeyEvents = true;
 							return true;
 						}
 					});
 				}
+			});
 
+			/* Set up a key listener on the document to allow arrow key based page navigation */
+			$(document.documentElement).keyup(function(event) {
+				if (firingKeyEvents) {
+					if (event.keyCode == 37) {
+						presenter.back();
+					} else if (event.keyCode == 39) {
+						presenter.forward();
+					}
+				}
 			});
 
 			/*
@@ -354,6 +376,7 @@ define([ 'textus', 'views/textView', 'views/editSemanticAnnotationView', 'models
 		 * cause zombie instances of the text rendered to be left kicking around.
 		 */
 		this.stop = function(callback) {
+			$(document.documentElement).unbind('keyup');
 			$('.textus-content .pageContainer').remove();
 			// Unbind the change listener on the text selection model
 			models.textSelectionModel.unbind();

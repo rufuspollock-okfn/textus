@@ -2,10 +2,10 @@
 .pageContainer .annotations {
 	position: absolute;
 	top: 0px;
-	bottom: 90px;
+	bottom: 80px;
 	right: 0px;
 	width: 260px;
-	padding: 20px 20px 0px 15px;
+	padding: 20px 20px 10px 15px;
 	margin-top: 0px;
 	overflow-y: auto;
 }
@@ -18,10 +18,12 @@
 .pageContainer .pageButtons {
 	position: absolute;
 	bottom: 20px;
-	right: 20px;
+	right: 10px;
 	width: 260px;
 	height: 50px;
 	padding-top: 10px;
+	padding-left: 10px;
+	padding-right: 10px;
 	border-color: #ddd;
 	border-style: solid;
 	border-width: 1px 0px 0px 0px;

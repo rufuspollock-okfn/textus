@@ -30,12 +30,17 @@ define([], function() {
 		showModal : function(modal, event) {
 			var glass = $('#modalGlassPane');
 			var modalPad = 4;
-
+			var escapeListener = function(event) {
+				if (event.keyCode == 27) {
+					hideGlass();
+				}
+			};
+			$(document.documentElement).keyup(escapeListener);
 			if (glass.is(':visible')) {
 				console.log("Warning - modal panel already visible, can't display again.");
 				return;
 			}
-			glass.empty();
+
 			glass.append('<div id="modalDialogue" class="textus-modal ui-draggable">'
 					+ '<div class="textus-modal-header"></div>'
 					+ '<div class="textus-modal-contents" id="modalDialogueContents"></div></div>');
@@ -47,8 +52,9 @@ define([], function() {
 				containment : "window"
 			});
 			var hideGlass = function() {
+				$(document.documentElement).unbind('keyup', escapeListener);
 				glass.unbind('click');
-				contents.empty();
+				glass.empty();
 				glass.hide();
 			};
 			contents.empty();

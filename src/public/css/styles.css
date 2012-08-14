@@ -10,6 +10,8 @@
 
 @import url('shakespeare.css');
 
+@import url('jquery.ui.colorPicker.css');
+
 .textus-content {
 	position: relative;
 	background-color: white;
