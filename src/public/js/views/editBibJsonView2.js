@@ -7,7 +7,7 @@ define([ 'text!templates/editBibJsonView2.html' ], function(template) {
 	var state = {};
 
 	var listener = null;
-	
+
 	var simple = function(displayName) {
 		return {
 			name : displayName,
@@ -108,7 +108,6 @@ define([ 'text!templates/editBibJsonView2.html' ], function(template) {
 				state[key] = [ "" ];
 			}
 		} else {
-
 			var newObject = {};
 			$.each(def.type, function(subKey, subDef) {
 				newObject[subKey] = "";
@@ -120,7 +119,7 @@ define([ 'text!templates/editBibJsonView2.html' ], function(template) {
 			}
 		}
 	};
-	
+
 	var valueChanged = function() {
 		if (listener) {
 			listener(state);
@@ -153,6 +152,7 @@ define([ 'text!templates/editBibJsonView2.html' ], function(template) {
 			$('#editBibJsonForm', this.el).submit(function() {
 				return false;
 			});
+			$('.dropdown-toggle', this.el).dropdown();
 
 			$.each(schema, function(key, def) {
 				if (!state.hasOwnProperty(key)) {
@@ -316,7 +316,11 @@ define([ 'text!templates/editBibJsonView2.html' ], function(template) {
 		},
 
 		setBibJson : function(newState) {
+			if (newState == null) {
+				newState = {};
+			}
 			state = newState;
+			this.render();
 		}
 
 	});

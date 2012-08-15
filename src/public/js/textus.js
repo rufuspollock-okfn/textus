@@ -31,7 +31,7 @@ define([], function() {
 			var glass = $('#modalGlassPane');
 			var modalPad = 4;
 			var escapeListener = function(event) {
-				if (event.keyCode == 27) {
+				if (event.keyCode == 27 && (!modal.beforeClose || modal.beforeClose())) {
 					hideGlass();
 				}
 			};

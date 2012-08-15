@@ -1,7 +1,7 @@
 // Defines TextView
 
-define([ 'textus', 'text!templates/textView.html', 'text!templates/annotations/comment.html',
-		'text!templates/annotations/bibjson.html' ], function(textus, layout, annotationComment, annotationBibjson) {
+define([ 'textus', 'text!templates/textView.html', 'text!templates/annotations/comment.html' ], function(textus,
+		layout, annotationComment) {
 
 	/**
 	 * Get the offset of the target in the container's coordinate space.
@@ -15,7 +15,6 @@ define([ 'textus', 'text!templates/textView.html', 'text!templates/annotations/c
 
 	var annotationRenderers = {
 		"textus:comment" : _.template(annotationComment),
-		"textus:bibjson" : _.template(annotationBibjson)
 	};
 
 	/**

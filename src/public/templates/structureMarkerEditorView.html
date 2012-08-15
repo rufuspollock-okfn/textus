@@ -1,0 +1,43 @@
+<form class="form-horizontal">
+	<fieldset>
+		<div class="control-group">
+			<label class="control-label" for="label">Label</label>
+			<div class="controls">
+				<input type="text" name="label" id="label" />
+				<p class="help-block">This box defines how the marker will
+					appear in the index (assuming the 'in index' checkbox is ticked)</p>
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="indexLevel">Index Level</label>
+			<div class="controls">
+				<select name="indexLevel" id="indexLevel">
+					<option value="-1">Not in index</option>
+					<option value="0">Top level</option>
+					<option value="1">Sub-level 1</option>
+					<option value="2">Sub-level 2</option>
+					<option value="3">Sub-level 3</option>
+					<option value="4">Sub-level 4</option>
+					<option value="5">Sub-level 5</option>
+					<option value="6">Sub-level 6</option>
+				</select>
+				<p class="help-block">Select the level at which you want the
+					marker to appear in the index.</p>
+			</div>
+		</div>
+		<hr />
+		<div class="control-group">
+			<label class="control-label" for="discoverable">Discoverable?</label>
+			<div class="controls">
+				<select name="discoverable" id="discoverable">
+					<option value="0">Not discoverable</option>
+					<option value="1">Discoverable</option>
+				</select>
+				<p class="help-block">Tick to create a citation at this point in
+					the text which will be discoverable from the 'all texts' view.</p>
+			</div>
+		</div>
+	</fieldset>
+</form>
+
+<div id="bibJsonEditorComponent"></div>

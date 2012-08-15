@@ -115,6 +115,7 @@ require([ 'router', 'models', 'loginClient' ], function(Router, models, loginCli
 			}
 
 			loginClient.getCurrentUser(function() {
+				$('#main').empty();
 				if (location != null) {
 					console.log("Starting activity '" + activityName + "' with location '" + location + "'");
 					_listenersToUnbind = activity.start(location);

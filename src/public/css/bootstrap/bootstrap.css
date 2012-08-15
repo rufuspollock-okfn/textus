@@ -3906,7 +3906,7 @@ a.thumbnail:hover {
   position: absolute;
   top: 100%;
   left: 0;
-  z-index: 1000;
+  z-index: 3000;
   display: none;
   float: left;
   min-width: 160px;

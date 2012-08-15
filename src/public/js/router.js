@@ -1,81 +1,86 @@
 // Router, loads appropriate pages based on target URL
 define([ 'activities/appActivity', 'activities/readTextActivity', 'activities/listTextsActivity', 'views/loginView',
 		'activities/textUploadActivity', 'activities/userPrefsActivity', 'activities/reviewTextUploadActivity',
-		'activities/createPasswordActivity', 'activities/loginActivity', 'activities/testActivity', 'models' ],
-		function(AppActivity, ReadTextActivity, ListTextsActivity, LoginView, TextUploadActivity, UserPrefsActivity,
-				ReviewTextUploadActivity, CreatePasswordActivity, LoginActivity, TestActivity, models) {
+		'activities/createPasswordActivity', 'activities/loginActivity', 'activities/testActivity',
+		'activities/editTextMetadataActivity', 'models' ], function(AppActivity, ReadTextActivity, ListTextsActivity,
+		LoginView, TextUploadActivity, UserPrefsActivity, ReviewTextUploadActivity, CreatePasswordActivity,
+		LoginActivity, TestActivity, EditTextMetadataActivity, models) {
 
-			/**
-			 * Router defined here, add client-side routes here to handle additional pages and
-			 * manage history sensibly.
-			 */
-			var appRouter = new (Backbone.Router.extend({
+	/**
+	 * Router defined here, add client-side routes here to handle additional pages and manage
+	 * history sensibly.
+	 */
+	var appRouter = new (Backbone.Router.extend({
 
-				routes : {
-					'text/:textId/:offset' : 'text',
-					'texts' : 'texts',
-					'login/:redirectTo' : 'login',
-					'upload' : 'uploadText',
-					'account' : 'userPrefs',
-					'register' : 'register',
-					'review' : 'review',
-					'password/:userId/:confirmKey' : 'password',
-					'test' : 'test',
-					'*actions' : 'defaultActions'
+		routes : {
+			'text/:textId/:offset' : 'text',
+			'texts' : 'texts',
+			'login/:redirectTo' : 'login',
+			'upload' : 'uploadText',
+			'account' : 'userPrefs',
+			'register' : 'register',
+			'review' : 'review',
+			'password/:userId/:confirmKey' : 'password',
+			'test' : 'test',
+			'meta/:textId' : 'textMeta',
+			'*actions' : 'defaultActions'
 
-				},
+		},
 
-				texts : function() {
-					this.startActivity(new ListTextsActivity());
-				},
+		texts : function() {
+			this.startActivity(new ListTextsActivity());
+		},
 
-				text : function(textId, offset) {
-					this.startActivity(new ReadTextActivity(), {
-						textId : textId,
-						offset : parseInt(offset),
-						router : appRouter
-					});
-				},
+		text : function(textId, offset) {
+			this.startActivity(new ReadTextActivity(), {
+				textId : textId,
+				offset : parseInt(offset),
+				router : appRouter
+			});
+		},
 
-				password : function(userId, confirmKey) {
-					this.startActivity(new CreatePasswordActivity(decodeURIComponent(userId),
-							decodeURIComponent(confirmKey)));
-				},
+		textMeta : function(textId) {
+			this.startActivity(new EditTextMetadataActivity(textId));
+		},
 
-				login : function(redirectTo) {
-					this.startActivity(new LoginActivity(decodeURIComponent(redirectTo)));
-				},
+		password : function(userId, confirmKey) {
+			this.startActivity(new CreatePasswordActivity(decodeURIComponent(userId), decodeURIComponent(confirmKey)));
+		},
 
-				uploadText : function() {
-					this.startActivity(new TextUploadActivity());
-				},
+		login : function(redirectTo) {
+			this.startActivity(new LoginActivity(decodeURIComponent(redirectTo)));
+		},
 
-				userPrefs : function() {
-					this.startActivity(new UserPrefsActivity());
-				},
+		uploadText : function() {
+			this.startActivity(new TextUploadActivity());
+		},
 
-				register : function() {
-					this.startActivity(new RegisterUserActivity());
-				},
+		userPrefs : function() {
+			this.startActivity(new UserPrefsActivity());
+		},
 
-				review : function() {
-					this.startActivity(new ReviewTextUploadActivity());
-				},
+		register : function() {
+			this.startActivity(new RegisterUserActivity());
+		},
 
-				defaultActions : function() {
-					this.startActivity(new AppActivity());
-				},
+		review : function() {
+			this.startActivity(new ReviewTextUploadActivity());
+		},
 
-				test : function() {
-					this.startActivity(new TestActivity());
-				}
+		defaultActions : function() {
+			this.startActivity(new AppActivity());
+		},
 
-			}));
+		test : function() {
+			this.startActivity(new TestActivity());
+		}
 
-			return {
-				initialize : function() {
-					Backbone.history.start();
-				}
-			};
+	}));
 
-		});
+	return {
+		initialize : function() {
+			Backbone.history.start();
+		}
+	};
+
+});

@@ -1,0 +1,38 @@
+<a class='btn btn-success' id='saveMetadataButton' style='float: right'>Save</a>
+<a class='btn btn-danger' id='resetMetadataButton'
+	style='float: right; margin-right: 10px;'>Reset</a>
+<ul class="nav nav-tabs">
+	<li class="active"><a href="#tab0" data-toggle="tab">Help</a></li>
+	<li><a href="#tab1" data-toggle="tab">Text Markers</a></li>
+	<li><a href="#tab2" data-toggle="tab">Ownership</a></li>
+</ul>
+<div class="tab-content" style="overflow: visible">
+	<div class="tab-pane active" id="tab0">
+		<h3>Structure Editing</h3>
+		<p>This page allows you to create text structure, it also allows
+			you to add other users who can then modify structure and indexing
+			information themselves. Text structure consists of markers at
+			locations within the text which may consist of either or both of an
+			index point (used to create the navigation index for this text) and a
+			(potentially partial) piece of bibliographic information.</p>
+		<p>In addition any marker can be flagged as discoverable - if so
+			the marker is used to generate a bibliographic reference which is
+			discoverable from the 'all texts' view. Without at least one such
+			marker there is no way for users to find or access your text.</p>
+	</div>
+	<div class="tab-pane" id="tab1">
+		<div id="textPanel"
+			style="overflow-y: scroll; padding-right: 15px; margin-top: -18px; margin-right: 0px; padding-top: 20px; padding-bottom: 20px"></div>
+	</div>
+	<div class="tab-pane" style="width: 100%" id="tab2">
+		<p>By default when you upload a text you are the only user with
+			access to this page. You can grant other users access by entering
+			their user ID (their email address used to identify them within this
+			textus instance) into the box below. You can also remove users from
+			this list or resign your own membership providing you leave at least
+			one user with access - this is to avoid orphan texts being left in
+			the system. Note that a user you grant access can potentially remove
+			you from the text in turn and select your collaborators accordingly!</p>
+		<hr />
+	</div>
+</div>

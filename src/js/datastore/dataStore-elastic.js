@@ -28,14 +28,13 @@ module.exports = exports = function(conf) {
 	client.createIndex(textusIndex);
 
 	/**
-	 * Defines the maximum size of text chunk stored in the datastore in
-	 * characters.
+	 * Defines the maximum size of text chunk stored in the datastore in characters.
 	 */
 	var textChunkSize = 1000;
 
 	/**
-	 * Query object to extract entities between the specified start and end
-	 * points and associated with the given textId
+	 * Query object to extract entities between the specified start and end points and associated
+	 * with the given textId
 	 */
 	var buildRangeQuery = function(textId, start, end) {
 		return {
@@ -60,15 +59,14 @@ module.exports = exports = function(conf) {
 					} ]
 				}
 			},
-			"size" : 10000,
+			"size" : 1000000,
 			"index" : textusIndex
 		};
 	};
 
 	/**
-	 * Accepts blocks of input text ordered by sequence and emits an array of
-	 * {offset, text} where the text parts are split on spaces and are at most
-	 * maxSize characters long.
+	 * Accepts blocks of input text ordered by sequence and emits an array of {offset, text} where
+	 * the text parts are split on spaces and are at most maxSize characters long.
 	 */
 	var createTextChunks = function(maxSize, data) {
 		/* Sort by sequence, extract text parts and join together */
@@ -104,20 +102,19 @@ module.exports = exports = function(conf) {
 	};
 
 	/**
-	 * Accept a start and end offset and a set of text chunks which guarantee to
-	 * cover the specified range, and return {text:STRING, start:INT, end:INT}
-	 * for that range.
+	 * Accept a start and end offset and a set of text chunks which guarantee to cover the specified
+	 * range, and return {text:STRING, start:INT, end:INT} for that range.
 	 * 
 	 * @param start
-	 *            the desired index of the first character in the returned
-	 *            result
+	 *            the desired index of the first character in the returned result, null to specify
+	 *            no trim
 	 * @param end
-	 *            the desired index of the character one beyond the returned
-	 *            result's end
+	 *            the desired index of the character one beyond the returned result's end, null to
+	 *            specify no trim
 	 * @param chunks
-	 *            a collection of objects of the form {text:string, start:int,
-	 *            end:int} which may be unordered but must define a contiguous
-	 *            range of text (this is currently not tested)
+	 *            a collection of objects of the form {text:string, start:int, end:int} which may be
+	 *            unordered but must define a contiguous range of text (this is currently not
+	 *            tested)
 	 */
 	var joinTextChunksAndTrim = function(start, end, chunks) {
 		if (chunks.length == 0) {
@@ -130,18 +127,25 @@ module.exports = exports = function(conf) {
 		chunks.sort(function(a, b) {
 			return a.start - b.start;
 		});
-		return {
-			text : chunks.map(function(chunk) {
-				return chunk.text;
-			}).join("").substr(start - chunks[0].start, end - start),
-			start : start,
-			end : end
-		};
+		if (start != null && end != null) {
+			return {
+				text : chunks.map(function(chunk) {
+					return chunk.text;
+				}).join("").substr(start - chunks[0].start, end - start),
+				start : start,
+				end : end
+			};
+		} else {
+			return {
+				text : chunks.map(function(chunk) {
+					return chunk.text;
+				}).join("")
+			};
+		}
 	};
 
 	/**
-	 * Method to index each item in a collection, using recursion to index the
-	 * items sequentially.
+	 * Method to index each item in a collection, using recursion to index the items sequentially.
 	 * 
 	 * @param index
 	 *            the ElasticSearch index into which objects will be inserted
@@ -150,8 +154,8 @@ module.exports = exports = function(conf) {
 	 * @param list
 	 *            a list of objects to index
 	 * @param callback
-	 *            function(err) called on completion of list indexing, passed
-	 *            the error if something went wrong or null otherwise.
+	 *            function(err) called on completion of list indexing, passed the error if something
+	 *            went wrong or null otherwise.
 	 */
 	var indexArray = function(index, type, list, callback) {
 		var item = list.shift();
@@ -171,18 +175,15 @@ module.exports = exports = function(conf) {
 	};
 
 	/**
-	 * Convenience method to index multiple collections using the indexArray
-	 * function.
+	 * Convenience method to index multiple collections using the indexArray function.
 	 * 
 	 * @param index
 	 *            the ElasticSearch index
 	 * @param lists
-	 *            a list of {type, list} where the type property is the type
-	 *            passed to the indexArray function and the list is the list of
-	 *            objects to index.
+	 *            a list of {type, list} where the type property is the type passed to the
+	 *            indexArray function and the list is the list of objects to index.
 	 * @param function(err)
-	 *            called on completion with the error (if a failure) or null if
-	 *            success.
+	 *            called on completion with the error (if a failure) or null if success.
 	 */
 	var indexArrays = function(index, lists, callback) {
 		var wrap = lists.shift();
@@ -213,8 +214,8 @@ module.exports = exports = function(conf) {
 		 * @param userId
 		 *            the user ID to retrieve
 		 * @param callback
-		 *            a function(err, user) called with the user structure or an
-		 *            error if no such user exists
+		 *            a function(err, user) called with the user structure or an error if no such
+		 *            user exists
 		 */
 		getUser : function(userId, callback) {
 			client.get(textusIndex, userId, {
@@ -225,14 +226,14 @@ module.exports = exports = function(conf) {
 		},
 
 		/**
-		 * Create a new user, passing in a description of the user to create and
-		 * calling the specified callback on success or failure
+		 * Create a new user, passing in a description of the user to create and calling the
+		 * specified callback on success or failure
 		 * 
 		 * @param user
 		 *            a user structure, see
 		 * @param callback
-		 *            a function(error, user) called with the user object stored
-		 *            or an error if the storage was unsuccessful.
+		 *            a function(error, user) called with the user object stored or an error if the
+		 *            storage was unsuccessful.
 		 */
 		createUser : function(user, callback) {
 			client.index(textusIndex, "user", user, {
@@ -299,8 +300,8 @@ module.exports = exports = function(conf) {
 		},
 
 		/**
-		 * Returns all text structure records in the database in the form {
-		 * textId : STRING, structure : [] } via the callback(error, data).
+		 * Returns all text structure records in the database in the form { textId : STRING,
+		 * structure : [] } via the callback(error, data).
 		 */
 		getTextStructures : function(callback) {
 			var query = {
@@ -330,10 +331,9 @@ module.exports = exports = function(conf) {
 		},
 
 		/**
-		 * Exposes an ElasticSearch endpoint which can be used to query for
-		 * bibliographic information associated with texts held in this
-		 * datastore. Modifies the query in-flight to add a filter to restrict
-		 * results to BibJSON blocks with the textus.role set to 'text'.
+		 * Exposes an ElasticSearch endpoint which can be used to query for bibliographic
+		 * information associated with texts held in this datastore. Modifies the query in-flight to
+		 * add a filter to restrict results to BibJSON blocks with the textus.role set to 'text'.
 		 */
 		queryTexts : function(query, callback) {
 			query.filter = {
@@ -352,30 +352,26 @@ module.exports = exports = function(conf) {
 		},
 
 		/**
-		 * Retrieves text along with the associated typographical and semantic
-		 * annotations which overlap at least partially with the specified
-		 * range.
+		 * Retrieves text along with the associated typographical and semantic annotations which
+		 * overlap at least partially with the specified range.
 		 * 
 		 * @param textId
 		 *            the textId of the text
 		 * @param start
-		 *            character offset within the text, this will be the first
-		 *            character in the result
+		 *            character offset within the text, this will be the first character in the
+		 *            result
 		 * @param end
-		 *            character offset within the text, this will be the
-		 *            character one beyond the end of the result, so the result
-		 *            is a string of end-start length
+		 *            character offset within the text, this will be the character one beyond the
+		 *            end of the result, so the result is a string of end-start length
 		 * @param callback
-		 *            a callback function callback(err, data) called with the
-		 *            data from the elasticsearch query massaged into the form {
-		 *            textId : STRING, text : STRING, typography : [], semantics :
-		 *            [], start : INT, end : INT }, and the err value set to any
-		 *            error (or null if no error) from the underlying
-		 *            elasticsearch instance.
+		 *            a callback function callback(err, data) called with the data from the
+		 *            elasticsearch query massaged into the form { textId : STRING, text : STRING,
+		 *            typography : [], semantics : [], start : INT, end : INT }, and the err value
+		 *            set to any error (or null if no error) from the underlying elasticsearch
+		 *            instance.
 		 */
 		fetchText : function(textId, start, end, callback) {
-			client.search(buildRangeQuery(textId, start, end), function(err,
-					results, res) {
+			client.search(buildRangeQuery(textId, start, end), function(err, results, res) {
 				if (err) {
 					callback(err, null);
 				} else {
@@ -383,105 +379,115 @@ module.exports = exports = function(conf) {
 					var typography = [];
 					var semantics = [];
 					var error = null;
-					results.hits
-							.forEach(function(hit) {
-								if (hit._type == "text") {
-									textChunks.push(hit._source);
-								} else if (hit._type == "typography") {
-									hit._source.id = hit._id;
-									typography.push(hit._source);
-								} else if (hit._type == "semantics") {
-									hit._source.id = hit._id;
-									semantics.push(hit._source);
-								} else {
-									error = "Unknown result type! '"
-											+ hit._type + "'.";
-									console.log(hit);
-								}
-							});
-					callback(error,
-							{
-								'textId' : textId,
-								'text' : joinTextChunksAndTrim(start, end,
-										textChunks).text,
-								'typography' : typography,
-								'semantics' : semantics,
-								'start' : start,
-								'end' : end
-							});
+					results.hits.forEach(function(hit) {
+						if (hit._type == "text") {
+							textChunks.push(hit._source);
+						} else if (hit._type == "typography") {
+							hit._source.id = hit._id;
+							typography.push(hit._source);
+						} else if (hit._type == "semantics") {
+							hit._source.id = hit._id;
+							semantics.push(hit._source);
+						} else {
+							error = "Unknown result type! '" + hit._type + "'.";
+							console.log(hit);
+						}
+					});
+					callback(error, {
+						'textId' : textId,
+						'text' : joinTextChunksAndTrim(start, end, textChunks).text,
+						'typography' : typography,
+						'semantics' : semantics,
+						'start' : start,
+						'end' : end
+					});
 				}
 				;
 			});
 		},
 
+		fetchCompleteText : function(textId, callback) {
+			var query = {
+				"query" : {
+					"text" : {
+						"textId" : textId
+					},
+				},
+				"size" : 1000000,
+				"index" : textusIndex
+			};
+			client.search(query, function(err, results, res) {
+				if (err) {
+					callback(err, null);
+				} else {
+					var textChunks = [];
+					var typography = [];
+					results.hits.forEach(function(hit) {
+						if (hit._type == "text") {
+							textChunks.push(hit._source);
+						} else if (hit._type == "typography") {
+							hit._source.id = hit._id;
+							typography.push(hit._source);
+						}
+					});
+					callback(null, {
+						'textId' : textId,
+						'text' : joinTextChunksAndTrim(null, null, textChunks).text,
+						'typography' : typography
+					});
+				}
+			});
+		},
+
 		/**
-		 * Index the given data, calling the callback function on completion
-		 * with either an error message or the text ID of the stored data.
+		 * Index the given data, calling the callback function on completion with either an error
+		 * message or the text ID of the stored data.
 		 * 
 		 * @param data {
-		 *            text : [ { text : STRING, sequence : INT } ... ],
-		 *            semantics : [], typography : [], structure : [] }
+		 *            text : [ { text : STRING, sequence : INT } ... ], semantics : [], typography :
+		 *            [], structure : [] }
 		 * @param callback
 		 *            a function of type function(error, textId)
 		 * @returns immediately, asynchronous function.
 		 */
 		importData : function(data, callback) {
-			client
-					.index(
-							textusIndex,
-							"structure",
-							{
-								time : Date.now(),
-								structure : data.structure
-							},
-							function(err, res) {
-								if (!err) {
-									var textId = res._id;
-									console
-											.log("Registered structure, textId set to "
-													+ textId);
-									var dataToIndex = [
-											{
-												type : "text",
-												list : createTextChunks(
-														textChunkSize, data)
-														.map(
-																function(chunk) {
-																	return {
-																		textId : textId,
-																		text : chunk.text,
-																		start : chunk.offset,
-																		end : chunk.offset
-																				+ chunk.text.length
-																	};
-																})
-											},
-											{
-												type : "semantics",
-												list : data.semantics
-														.map(function(
-																annotation) {
-															annotation.textId = textId;
-															return annotation;
-														})
-											},
-											{
-												type : "typography",
-												list : data.typography
-														.map(function(
-																annotation) {
-															annotation.textId = textId;
-															return annotation;
-														})
-											} ];
-									indexArrays(textusIndex, dataToIndex,
-											function(err) {
-												callback(err, textId);
-											});
-								} else {
-									callback(err, null);
-								}
-							});
+			client.index(textusIndex, "structure", {
+				time : Date.now(),
+				structure : data.structure
+			}, function(err, res) {
+				if (!err) {
+					var textId = res._id;
+					console.log("Registered structure, textId set to " + textId);
+					var dataToIndex = [ {
+						type : "text",
+						list : createTextChunks(textChunkSize, data).map(function(chunk) {
+							return {
+								textId : textId,
+								text : chunk.text,
+								start : chunk.offset,
+								end : chunk.offset + chunk.text.length
+							};
+						})
+					}, {
+						type : "semantics",
+						list : data.semantics.map(function(annotation) {
+							annotation.textId = textId;
+							return annotation;
+						})
+					}, {
+						type : "typography",
+						list : data.typography.map(function(annotation) {
+							annotation.textId = textId;
+							return annotation;
+						})
+					} ];
+					indexArrays(textusIndex, dataToIndex, function(err) {
+						callback(err, textId);
+					});
+				} else {
+					callback(err, null);
+				}
+			});
 		},
 
 		/**
@@ -490,8 +496,7 @@ module.exports = exports = function(conf) {
 		 * @param refs
 		 *            a list of bibJSON objects to store
 		 * @param callback
-		 *            function(err) called with null for success, an error
-		 *            message otherwise.
+		 *            function(err) called with null for success, an error message otherwise.
 		 */
 		storeBibliographicReferences : function(refs, callback) {
 			indexArray(textusIndex, "bibjson", refs, function(err) {

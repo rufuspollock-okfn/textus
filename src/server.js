@@ -58,6 +58,19 @@ app.get("/api/text/:textId/:start/:end", function(req, res) {
 });
 
 /**
+ * GET request for complete text and syntactic metadata only
+ */
+app.get("/api/completeText/:textId", function(req, res) {
+	datastore.fetchCompleteText(req.params.textId, function(err, data) {
+		if (err) {
+			console.log(err);
+		} else {
+			res.json(data);
+		}
+	});
+});
+
+/**
  * GET request for a list of all texts along with their structure (used to display the list of
  * texts)
  */

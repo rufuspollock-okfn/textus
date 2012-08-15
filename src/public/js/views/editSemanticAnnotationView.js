@@ -14,12 +14,6 @@ define([ 'text!templates/editSemanticAnnotationView.html' ], function(layoutTemp
 			schema : {
 				"text" : "TextArea"
 			}
-		},
-		"textus:bibjson" : {
-			name : "BibJSON",
-			schema : {
-			// TODO - fix BibJSON schema here
-			}
 		}
 	};
 
