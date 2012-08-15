@@ -8,23 +8,25 @@ define([ 'text!templates/listTextsView.html' ], function(layoutTemplate) {
 
 		render : function() {
 			$(this.el).html(layoutTemplate);
-			$('#facetText').facetview({
-				search_url : '/api/texts-es?',
-				search_index : 'elasticsearch',
-				facets : [ {
-					'field' : 'author.name',
-					'display' : 'author'
-				}, {
-					'field' : 'year',
-					'display' : 'year'
-				} ],
-				renderer : function(hit, parent) {
-					parent.append("<div>Title : " + hit.title + "</div>");
-					if (hit.textus && hit.textus.textId) {
-						parent.append("<a class='btn' href='#/text/"+hit.textus.textId+"/0'>Read</a>");
-					}
-				}
-			});
+			$('#facetText').facetview(
+					{
+						search_url : '/api/texts-es?',
+						search_index : 'elasticsearch',
+						facets : [ {
+							'field' : 'author.name',
+							'display' : 'author'
+						}, {
+							'field' : 'year',
+							'display' : 'year'
+						} ],
+						renderer : function(hit, parent) {
+							parent.append("<div>Title : " + hit.title + "</div>");
+							if (hit.textus && hit.textus.textId && hit.textus.offset) {
+								parent.append("<a class='btn btn-info' href='#/text/" + hit.textus.textId + "/"
+										+ hit.textus.offset + "'>Read</a>");
+							}
+						}
+					});
 		}
 
 	});

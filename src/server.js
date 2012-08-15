@@ -46,9 +46,10 @@ app.get("/api/text/:textId/:start/:end", function(req, res) {
 		if (err) {
 			console.log(err);
 		} else {
-			// Use the login object to fetch colours for each user and augment the
-			// semantic
-			// annotations
+			/*
+			 * Use the login object to fetch colours for each user and augment the semantic
+			 * annotations
+			 */
 			painter.augmentAnnotations(data.semantics, [ painter.painters.colourByUser ], function(newSemantics) {
 				data.semantics = newSemantics;
 				res.json(data);
@@ -71,11 +72,11 @@ app.get("/api/completeText/:textId", function(req, res) {
 });
 
 /**
- * GET request for a list of all texts along with their structure (used to display the list of
- * texts)
+ * Retrieve the metadata for the specified text, metadata specified as { title : string, markers : {
+ * int -> marker }, owners : [string] }
  */
-app.get("/api/texts", function(req, res) {
-	datastore.getTextStructures(function(err, data) {
+app.get("/api/meta/:textId", function(req, res) {
+	datastore.getTextMetadata(req.params.textId, function(err, data) {
 		if (err) {
 			console.log(err);
 		} else {
@@ -85,7 +86,42 @@ app.get("/api/texts", function(req, res) {
 });
 
 /**
- * POST to /api/texts to upload a text into the session ready for review. Redirects to /#review
+ * Update the text metadata for the specified text ID. Metadata is specified as { title : string,
+ * markers : { int -> marker }, owners : [string] }. Call will fail if the current metadata doesn't
+ * have the current user as one of the owners. Returns { err : string | null, message : string } to
+ * the callback. As a side effect this should trigger re-creation of the publicly visible BibJSON
+ * fragments, if any, which represent this text in the 'all texts' view and the exposed BibServer
+ * query API.
+ * 
+ * @TODO - Permission checks! Check that the updated metadata has at least one viable user and that
+ *       the submitting user had permissions to do so based on the previous value of the metadata.
+ */
+app.post("/api/meta/:textId", login.checkLogin, function(req, res) {
+	datastore.updateTextMetadata(req.params.textId, req.body, function(err, data) {
+		if (err) {
+			console.log(err);
+		} else {
+			res.json(data);
+		}
+	});
+});
+
+/**
+ * Retrieve text metadata descriptions of the form { textId : string -> { title : string, owners :
+ * [string] }}
+ */
+app.get("/api/uploads", function(req, res) {
+	datastore.getTextStructureSummaries(function(err, data) {
+		if (err) {
+			console.log(err);
+		} else {
+			res.json(data);
+		}
+	});
+});
+
+/**
+ * POST to /api/upload to upload a text into the session ready for review. Redirects to /#review
  * activity on the client which can then use the /api/review GET method to return the parsed data
  * and any error messages.
  */
@@ -159,13 +195,11 @@ app.get("/api/upload/review", login.checkLogin, function(req, res) {
 });
 
 /**
- * Act on the review, accepts JSON body with { accept : boolean, refs : [ { bibjson : Object, index :
- * int } ... ] }. If accept is 'true' then the data is sent to the data store for storage. Once a
- * text ID has been allocated any bibJSON objects submitted are augmented with the textus specific
- * metadata and sent to the data store for storage. The response message is of the form { textId :
- * string, error : string } where one of textId or error will be null. The client may use this
- * message to jump directly to the reader UI for the uploaded text. If 'accept' is set to false this
- * simply removes the file data from the session object and sends a blank response message.
+ * Act on the review, accepts JSON body with { accept : boolean, title : string }. If accept is
+ * 'true' then the data is sent to the data store for storage. The response message is of the form {
+ * textId : string, error : string } where one of textId or error will be null. The client may use
+ * this message to jump directly to the reader UI for the uploaded text. If 'accept' is set to false
+ * this simply removes the file data from the session object and sends a blank response message.
  */
 app.post("/api/upload/review", login.checkLogin, function(req, res) {
 	if (req.body.accept === 'true') {
@@ -177,7 +211,11 @@ app.post("/api/upload/review", login.checkLogin, function(req, res) {
 			});
 		} else {
 			/* Add the user ID to the data object */
-			data.user = req.session.user;
+			data.metadata = {
+				title : req.body.title,
+				markers : {},
+				owners : [ req.session.user ]
+			};
 			datastore.importData(data, function(err, textId) {
 				if (err) {
 					res.json({
@@ -185,31 +223,9 @@ app.post("/api/upload/review", login.checkLogin, function(req, res) {
 						error : err
 					});
 				} else {
-					/*
-					 * Have the Text ID, augment the bibliographic references (if any) with the
-					 * textus-specific metadata and send them to be stored
-					 */
-					var refsToStore = req.body.refs.map(function(ref) {
-						ref.textus = {
-							role : 'text',
-							textId : textId,
-							userId : req.session.user
-						};
-						return ref;
-					});
-					datastore.storeBibliographicReferences(refsToStore, function(err) {
-						if (err) {
-							res.json({
-								textId : null,
-								error : err
-							});
-						} else {
-							delete req.session.upload;
-							res.json({
-								textId : textId,
-								error : null
-							});
-						}
+					res.json({
+						textId : textId,
+						error : null
 					});
 				}
 			});

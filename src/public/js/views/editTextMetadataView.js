@@ -9,15 +9,19 @@ define(
 			/* Used to write back metadata to the data store */
 			var presenter = null;
 
-			var state = {};
+			var state = {
+				title : "",
+				markers : {},
+				owners : []
+			};
 
 			var showEditor = function(offset, event) {
 				var editor = new StructureMarkerEditorView({
 					presenter : {}
 				});
 				editor.render();
-				if (state[offset]) {
-					editor.setValue(state[offset]);
+				if (state.markers["marker" + offset]) {
+					editor.setValue(state.markers["marker" + offset]);
 				} else {
 					editor.setValue({
 						label : "",
@@ -44,16 +48,16 @@ define(
 										});
 
 										$('#saveMarkerButton', header).click(function() {
-											state[offset] = editor.getValue();
+											state.markers["marker" + offset] = editor.getValue();
 											updateFromState();
 											closeModal();
 											return false;
 										});
-										if (!state[offset]) {
+										if (!state.markers["marker" + offset]) {
 											$('#deleteMarkerButton', header).hide();
 										} else {
 											$('#deleteMarkerButton', header).click(function() {
-												delete state[offset];
+												delete state.markers["marker" + offset];
 												updateFromState();
 												closeModal();
 												return false;
@@ -71,12 +75,12 @@ define(
 			var updateFromState = function() {
 				$('#textPanel>a[offset]').each(
 						function() {
-							var offset = parseInt($(this).attr('offset'));
+							var offset = $(this).attr('offset');
 							$(this).removeClass('btn-info').removeClass('btn-primary').removeClass('btn-success')
 									.removeClass('btn-warning');
-							if (state[offset]) {
-								var marker = state[offset];
-								if (marker.discoverable) {
+							if (state.markers["marker" + offset]) {
+								var marker = state.markers["marker" + offset];
+								if (marker.discoverable === true) {
 									$(this).addClass('btn-success');
 								} else if (marker.indexLevel > -1) {
 									$(this).addClass('btn-info');
@@ -104,7 +108,7 @@ define(
 					/* Load the layout */
 					$(this.el).html(template);
 					$('#saveMetadataButton', this.el).click(function() {
-						presenter.saveMetadata();
+						presenter.saveMetadata(state);
 						return false;
 					});
 					$('#resetMetadataButton', this.el).click(function() {
@@ -133,7 +137,7 @@ define(
 						$(this).css('background-color', 'transparent');
 					});
 					$('#textPanel>a[offset]').click(function(event) {
-						var offset = parseInt($(this).attr('offset'));
+						var offset = $(this).attr('offset');
 						showEditor(offset, event);
 					});
 				},

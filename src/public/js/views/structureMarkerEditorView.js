@@ -30,13 +30,13 @@ define([ 'text!templates/structureMarkerEditorView.html', 'views/editBibJsonView
 			state = JSON.parse(JSON.stringify(marker));
 			$('#label', this.el).val(state.label);
 			$('#indexLevel', this.el).val(state.indexLevel);
-			$('#discoverable', this.el).val(state.discoverable ? 1 : 0);
+			$('#discoverable', this.el).val(state.discoverable === true ? 1 : 0);
 			bibJsonEditor.setBibJson(state.bibJson);
 		},
 
 		getValue : function() {
-			state.discoverable = $('#discoverable', this.el).val() == 1;
-			state.indexLevel = $('#indexLevel', this.el).val();
+			state.discoverable = (parseInt($('#discoverable', this.el).val()) === 1);
+			state.indexLevel = parseInt($('#indexLevel', this.el).val());
 			state.label = $('#label', this.el).val();
 			return state;
 		}

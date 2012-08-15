@@ -5,22 +5,30 @@
 				Reject</a></li>
 	</ul>
 	<div class="tab-content" style="overflow: visible">
-		<div class="tab-pane active" style="overflow-y: scroll; padding-right: 10px;" id="tab1">
-			<p>I'm in Section 1.</p>
-		</div>
+		<div class="tab-pane active"
+			style="overflow-y: scroll; padding-right: 10px;" id="tab1"></div>
 		<div class="tab-pane" style="width: 100%" id="tab2">
-			<p>To make your new text visible to other users you need to
-				assign a set of basic bibliographic metadata. Use the control below
-				to create a new citation for the text, this citation is what is used
-				when searching by author, title etc. Once your citation looks
-				correct click the 'Accept' button just below this paragraph to store
-				it to the database.</p>
+			<p>Once you have checked the text please give the uploaded
+				document a name - this is not used for the public 'all texts' view,
+				it is simply to help you identify the document in the list of
+				uploads for which you are responsible.</p>
 			<div id="reviewTabButtons" style="height: 30px">
 				<a class='btn btn-success pull-right' id="acceptReviewButton">Accept</a>
 				<a class='btn btn-danger pull-right' id="rejectReviewButton"
 					style="margin-right: 10px">Reject</a>
 			</div>
 			<hr />
+			<form class="form-horizontal">
+				<fieldset>
+					<div class="control-group">
+						<label class="control-label" for="uploadedTitle">Title</label>
+						<div class="controls">
+							<input type="text" class="span4" id="uploadedTitle"
+								placeholder="Please specify a title...">
+						</div>
+					</div>
+				</fieldset>
+			</form>
 		</div>
 	</div>
 </div>

@@ -10,23 +10,10 @@ define([ 'text!templates/reviewTextUploadView.html', 'views/editBibJsonView2', '
 		render : function() {
 			var content = $(this.el);
 			content.html(template);
-			var subView = new Editor({
-				bibJson : {
-					title : "Title"
-				}
-			});
-			subView.render();
-			console.log(subView);
-			$('#tab2', content).append(subView.el);
 			$('a[data-toggle="tab"]', this.el).click(function(e) {
 				e.preventDefault();
-				console.log("Switching tab to " + $(this).attr("href"));
 				$(this).tab('show');
 			});
-
-			this.getBibJson = function() {
-				return subView.getBibJson();
-			};
 			return this;
 		},
 
@@ -38,6 +25,10 @@ define([ 'text!templates/reviewTextUploadView.html', 'views/editBibJsonView2', '
 			}).join("");
 			$('#tab1', this.el).html(textus.markupText(text, 0, data.typography, data.semantics));
 
+		},
+
+		getTitle : function() {
+			return $('#uploadedTitle', this.el).val();
 		}
 
 	});

@@ -1,42 +1,5 @@
 define([ 'textus', 'views/listTextsView' ], function(textus, ListTextsView) {
 
-	/**
-	 * API call to retrieve a list of texts, find their top level structure nodes and return structs
-	 * of the form { textId:STRING, offset:INT, description:STRING, name:STRING } for each structure
-	 * node at depth 0. Where there are no structure nodes for a particular text the description and
-	 * name will reflect this and an entry will be created for index 0 in the text. The callback
-	 * function will be called with the resultant list.
-	 */
-	var retrieveTextList = function(callback) {
-		$.getJSON("api/texts", function(data) {
-			var texts = [];
-			data.forEach(function(text) {
-				var foundStructure = false;
-				var textId = text.textId;
-				text.structure.forEach(function(node) {
-					if (node.depth == 0) {
-						foundStructure = true;
-						texts.push({
-							textId : textId,
-							offset : node.start,
-							name : node.name,
-							description : node.description
-						});
-					}
-				});
-				if (!foundStructure) {
-					texts.push({
-						textId : textId,
-						offset : 0,
-						name : "Unknown",
-						description : "No description for text ID " + textId
-					});
-				}
-			});
-			callback(texts);
-		});
-	};
-
 	return function() {
 
 		this.name = "ListTextsActivity";
@@ -46,9 +9,6 @@ define([ 'textus', 'views/listTextsView' ], function(textus, ListTextsView) {
 		this.start = function() {
 			var view = new ListTextsView();
 			view.render();
-			// retrieveTextList(function(data) {
-			// view.setTextsList(data);
-			// });
 		};
 
 		this.stop = function(callback) {

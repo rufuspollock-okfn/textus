@@ -303,7 +303,7 @@ module.exports = exports = function(conf) {
 		 * Returns all text structure records in the database in the form { textId : STRING,
 		 * structure : [] } via the callback(error, data).
 		 */
-		getTextStructures : function(callback) {
+		getTextStructureSummaries : function(callback) {
 			var query = {
 				"query" : {
 					"match_all" : {}
@@ -320,12 +320,40 @@ module.exports = exports = function(conf) {
 				if (err) {
 					callback(err, null);
 				} else {
-					callback(null, results.hits.map(function(hit) {
-						return {
-							textId : hit._id,
-							structure : hit._source.structure
+					var result = {};
+					results.hits.forEach(function(hit) {
+						result[hit._id] = {
+							title : hit._source.title,
+							owners : hit._source.owners,
+							date : hit._source.date
 						};
-					}));
+					});
+					callback(null, result);
+				}
+			});
+		},
+
+		updateTextMetadata : function(textId, newMetadata, callback) {
+			newMetadata.date = Date.now;
+			client.index(textusIndex, "structure", newMetadata, {
+				id : textId,
+				refresh : true,
+				create : false
+			}, function(err, result) {
+				if (err) {
+					callback(err, null);
+				} else {
+					datastore.getTextMetadata(textId, callback);
+				}
+			});
+		},
+
+		getTextMetadata : function(textId, callback) {
+			client.get(textusIndex, textId, function(err, doc, res) {
+				if (err) {
+					callback(err, null);
+				} else {
+					callback(null, doc);
 				}
 			});
 		},
@@ -445,16 +473,14 @@ module.exports = exports = function(conf) {
 		 * 
 		 * @param data {
 		 *            text : [ { text : STRING, sequence : INT } ... ], semantics : [], typography :
-		 *            [], structure : [] }
+		 *            []}
 		 * @param callback
 		 *            a function of type function(error, textId)
 		 * @returns immediately, asynchronous function.
 		 */
 		importData : function(data, callback) {
-			client.index(textusIndex, "structure", {
-				time : Date.now(),
-				structure : data.structure
-			}, function(err, res) {
+			data.metadata.date = Date.now;
+			client.index(textusIndex, "structure", data.metadata, function(err, res) {
 				if (!err) {
 					var textId = res._id;
 					console.log("Registered structure, textId set to " + textId);
@@ -482,7 +508,9 @@ module.exports = exports = function(conf) {
 						})
 					} ];
 					indexArrays(textusIndex, dataToIndex, function(err) {
-						callback(err, textId);
+						client.refresh(textusIndex, function(err, res) {
+							callback(err, textId);
+						});
 					});
 				} else {
 					callback(err, null);

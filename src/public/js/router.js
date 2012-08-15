@@ -2,9 +2,10 @@
 define([ 'activities/appActivity', 'activities/readTextActivity', 'activities/listTextsActivity', 'views/loginView',
 		'activities/textUploadActivity', 'activities/userPrefsActivity', 'activities/reviewTextUploadActivity',
 		'activities/createPasswordActivity', 'activities/loginActivity', 'activities/testActivity',
-		'activities/editTextMetadataActivity', 'models' ], function(AppActivity, ReadTextActivity, ListTextsActivity,
-		LoginView, TextUploadActivity, UserPrefsActivity, ReviewTextUploadActivity, CreatePasswordActivity,
-		LoginActivity, TestActivity, EditTextMetadataActivity, models) {
+		'activities/editTextMetadataActivity', 'activities/myUploadsActivity', 'models' ], function(AppActivity,
+		ReadTextActivity, ListTextsActivity, LoginView, TextUploadActivity, UserPrefsActivity,
+		ReviewTextUploadActivity, CreatePasswordActivity, LoginActivity, TestActivity, EditTextMetadataActivity,
+		MyUploadsActivity, models) {
 
 	/**
 	 * Router defined here, add client-side routes here to handle additional pages and manage
@@ -23,8 +24,13 @@ define([ 'activities/appActivity', 'activities/readTextActivity', 'activities/li
 			'password/:userId/:confirmKey' : 'password',
 			'test' : 'test',
 			'meta/:textId' : 'textMeta',
+			'uploads' : 'uploads',
 			'*actions' : 'defaultActions'
 
+		},
+
+		uploads : function() {
+			this.startActivity(new MyUploadsActivity());
 		},
 
 		texts : function() {

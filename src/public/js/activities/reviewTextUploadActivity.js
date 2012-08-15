@@ -25,13 +25,11 @@ define([ 'textus', 'views/reviewTextUploadView' ], function(textus, ReviewTextUp
 				}
 			});
 			$('#acceptReviewButton').click(function(e) {
-				var ref = view.getBibJson();
 				$.post("api/upload/review", {
 					accept : true,
-					refs : [ ref ]
+					title : view.getTitle()
 				}, function(data) {
-					console.log(data);
-					window.location.href = "#texts";
+					window.location.href = "#meta/"+data.textId;
 				});
 			});
 			$('#rejectReviewButton').click(function(e) {

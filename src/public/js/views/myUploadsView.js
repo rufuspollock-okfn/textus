@@ -1,14 +1,13 @@
-define([ 'text!templates/appView.html' ], function(layoutTemplate) {
+define([ 'text!templates/myUploadsView.html' ], function(layout) {
 
 	return Backbone.View.extend({
 
 		intialize : function() {
 			_.bindAll(this);
-
 		},
 
 		render : function() {
-			$('.main').html(layoutTemplate);
+			$('.main').html(layout);
 			return this;
 		}
 
