@@ -93,15 +93,33 @@ app.get("/api/meta/:textId", function(req, res) {
  * fragments, if any, which represent this text in the 'all texts' view and the exposed BibServer
  * query API.
  * 
- * @TODO - Permission checks! Check that the updated metadata has at least one viable user and that
- *       the submitting user had permissions to do so based on the previous value of the metadata.
+ * @TODO - should check that at least one owner exists within Textus, but as we can't currently
+ *       remove people from projects through the UI this isn't a major issue.
  */
 app.post("/api/meta/:textId", login.checkLogin, function(req, res) {
-	datastore.updateTextMetadata(req.params.textId, req.body, function(err, data) {
+	var userId = req.session.user;
+	datastore.getTextMetadata(req.params.textId, function(err, currentMetadata) {
+		var foundUser = false;
 		if (err) {
 			console.log(err);
 		} else {
-			res.json(data);
+			currentMetadata.owners.forEach(function(ownerId) {
+				if (ownerId === userId) {
+					foundUser = true;
+				}
+			});
+			if (foundUser) {
+				datastore.updateTextMetadata(req.params.textId, req.body, function(err, data) {
+					if (err) {
+						console.log(err);
+					} else {
+						res.json(data);
+					}
+				});
+			} else {
+				console.log("Attempt to update a metadata document to which the user '" + userId
+						+ "' doesn't have write access.");
+			}
 		}
 	});
 });

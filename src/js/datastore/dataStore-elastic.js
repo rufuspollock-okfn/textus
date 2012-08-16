@@ -204,9 +204,72 @@ module.exports = exports = function(conf) {
 	};
 
 	/**
+	 * For a given text and metadata block, remove all existing bibliographic top level references
+	 * and replace them with new ones derived from any discoverable markers in the metadata. Call
+	 * the callback with null for success or an error message for failure of any kind.
+	 */
+	regenerateBibliographicReferences = function(textId, newMetadata, callback) {
+		console.log("regenerateBibliographicReferences not implemented yet, no indexing available!");
+		callback(null);
+	};
+
+	/**
 	 * The datastore API
 	 */
 	var datastore = {
+
+		/**
+		 * Stash the supplied set of bibliographic references.
+		 * 
+		 * @param refs
+		 *            a list of bibJSON objects to store
+		 * @param callback
+		 *            function(err) called with null for success, an error message otherwise.
+		 */
+		storeBibliographicReferences : function(refs, callback) {
+			indexArray(textusIndex, "bibjson", refs, function(err) {
+				if (err) {
+					console.log(err);
+				}
+				callback(err);
+			});
+		},
+
+		getBibliographicReferences : function(textId, callback) {
+			var query = {
+				"query" : {
+					"bool" : {
+						"must" : [ {
+							"text" : {
+								"textus.textId" : textId
+							}
+						}, {
+							"text" : {
+								"textus.role" : "text"
+							}
+						} ]
+					}
+				},
+				"filter" : {
+					"type" : {
+						"value" : "bibjson"
+					}
+				},
+				"size" : 10000,
+				"index" : textusIndex
+			};
+			client.search(query, function(err, results, res) {
+				if (err) {
+					callback(err, null);
+				} else {
+					var result = results.hits.map(function(hit) {
+						return hit._source;
+					});
+					console.log("Retrieved bibjson for text '" + textId + "'", JSON.stringify(result));
+					callback(null, result);
+				}
+			});
+		},
 
 		/**
 		 * Retrieve a user record by user ID, typically an email address
@@ -343,7 +406,13 @@ module.exports = exports = function(conf) {
 				if (err) {
 					callback(err, null);
 				} else {
-					datastore.getTextMetadata(textId, callback);
+					regenerateBibliographicReferences(textId, newMetadata, function(err) {
+						if (!err) {
+							datastore.getTextMetadata(textId, callback);
+						} else {
+							callback(err, null);
+						}
+					});
 				}
 			});
 		},
@@ -516,24 +585,8 @@ module.exports = exports = function(conf) {
 					callback(err, null);
 				}
 			});
-		},
-
-		/**
-		 * Stash the supplied set of bibliographic references.
-		 * 
-		 * @param refs
-		 *            a list of bibJSON objects to store
-		 * @param callback
-		 *            function(err) called with null for success, an error message otherwise.
-		 */
-		storeBibliographicReferences : function(refs, callback) {
-			indexArray(textusIndex, "bibjson", refs, function(err) {
-				if (err) {
-					console.log(err);
-				}
-				callback(err);
-			});
 		}
+
 	};
 
 	return datastore;

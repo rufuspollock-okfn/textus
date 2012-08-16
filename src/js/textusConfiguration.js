@@ -1,4 +1,5 @@
 var url = require('url');
+var colours = require('colors');
 
 var config = {
 	textus : {
@@ -28,6 +29,8 @@ module.exports = exports = {
 	 */
 	conf : function() {
 
+		console.log("\nConfiguring Textus : ");
+		
 		var argParser = require('optimist')
 				.usage('Usage: $0 [options]')
 				.alias('p', 'port')
@@ -82,11 +85,11 @@ module.exports = exports = {
 		// they exist.
 		if (process.env.TEXTUS_BASE_URL) {
 			config.textus.base = process.env.TEXTUS_BASE_URL;
-			console.log("INFO - textus base URL explicitly set to '" + config.textus.base + "'");
+			console.log("\tTEXTUS_BASE_URL".yellow + " = " + config.textus.base.green);
 		}
 		if (process.env.MAILGUN_API_KEY) {
 			config.mailgun.key = process.env.MAILGUN_API_KEY;
-			console.log("INFO - mailgun API key set from MAILGUN_API_KEY", config.mailgun.key);
+			console.log("\tMAILGUN_API_KEY".yellow + " = " + config.mailgun.key.green);
 		}
 		if (process.env.PORT) {
 			config.textus.port = parseInt(process.env.PORT, 10);
@@ -97,20 +100,20 @@ module.exports = exports = {
 			config.es.host = esUrl.hostname;
 			config.es.port = (typeof esUrl.port !== 'undefined' && esUrl.port !== null) ? parseInt(esUrl.port, 10) : 80;
 			config.es.index = esUrl.pathname.slice(1);
-			console.log("INFO - elasticsearch properties set from BONSAI_INDEX_URL.", config.es);
-		} else {
-			console.log("INFO - elasticsearch properties set", config.es);
+			console.log("\tBONSAI_INDEX_URL".yellow + " = " + process.env.BONSAI_INDEX_URL.green);
 		}
+		console.log("\tElastic Search".yellow + " = ", JSON.stringify(config.es, null, 0).green);
 
 		if (config.mailgun.key === null) {
-			console.log("WARNING - no mailgun API key set, email functionality will be unavailable. "
-					+ "To fix this set the MAILGUN_API_KEY environment variable appropriately, "
-					+ "or specify with --mailgunKey on the command line.");
+			console.log("\tMAILGUN_API_KEY".yellow + " : "
+					+ "No mailgun API key set, email functionality unavailable!".red
+					+ "\n\tTo fix this set the MAILGUN_API_KEY environment variable appropriately, "
+					+ "\n\tor specify with --mailgunKey on the command line.");
 		}
 
 		if (config.textus.base === null) {
-			console.log("INFO - textus base URL not explicitly set, will be inferred "
-					+ "from first request to password reset location.");
+			console.log("\tTEXTUS_BASE_URL".yellow + " : " + "Textus base URL not explicitly set".red
+					+ "\n\tThe base location will be inferred from first request to password reset API.");
 		}
 
 		return config;
