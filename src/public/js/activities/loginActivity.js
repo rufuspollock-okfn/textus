@@ -8,11 +8,12 @@ define([ 'textus', 'views/loginView', 'models', 'loginClient' ], function(textus
 		this.pageTitle = "Log In or Register";
 
 		this.start = function() {
+
 			$('#LoginActivity').addClass('active');
 			console.log("Login / registration activity started");
 			var view = new View();
 			view.render();
-
+			$('#redirectTo').val(redirectTo);
 			/* Register */
 			$('#register-button').click(function() {
 				view.clearMessage();

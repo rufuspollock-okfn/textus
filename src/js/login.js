@@ -575,6 +575,7 @@ module.exports = exports = function(datastore, conf) {
 			 */
 			app.get("/" + prefix + "login/openid/authenticate", function(req, res) {
 				var identifier = req.query.openid_identifier;
+				req.session.redirectTo = req.query.redirectTo;
 				getRelyingParty(req).authenticate(identifier, false, function(error, authUrl) {
 					if (!error && authUrl) {
 						res.redirect(authUrl);
@@ -591,7 +592,7 @@ module.exports = exports = function(datastore, conf) {
 				getRelyingParty(req).verifyAssertion(req, function(error, result) {
 					if (!error && result.authenticated && result.email != null) {
 						loginService.loginWithOpenID(req, result.claimedIdentifier, result.email, function(response) {
-							res.redirect(conf.textus.base);
+							res.redirect(conf.textus.base + (req.session.redirectTo ? req.session.redirectTo : ""));
 						});
 					}
 				});
