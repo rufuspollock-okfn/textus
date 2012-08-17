@@ -27,10 +27,10 @@ module.exports = exports = {
 	/**
 	 * @returns a configuration object
 	 */
-	conf : function() {
+	conf : function(options) {
 
 		console.log("\nConfiguring Textus : ");
-		
+
 		var argParser = require('optimist')
 				.usage('Usage: $0 [options]')
 				.alias('p', 'port')
@@ -53,6 +53,14 @@ module.exports = exports = {
 		});
 
 		var args = argParser.argv;
+
+		if (options) {
+			for ( var prop in options) {
+				if (options.hasOwnProperty(prop)) {
+					args[prop] = options[prop];
+				}
+			}
+		}
 
 		if (args.help) {
 			console.log(argParser.help());
@@ -112,8 +120,8 @@ module.exports = exports = {
 		}
 
 		if (config.textus.base === null) {
-			console.log("\tTEXTUS_BASE_URL".yellow + " : " + "Textus base URL not explicitly set".red
-					+ "\n\tThe base location will be inferred from first request to password reset API.");
+			console.log("\tTEXTUS_BASE_URL".yellow + " : "
+					+ "Textus base URL will be extracted from first request to API".cyan);
 		}
 
 		return config;

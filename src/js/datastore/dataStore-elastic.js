@@ -23,21 +23,17 @@ module.exports = exports = function(conf) {
 	var textusIndex = conf.es.index;
 
 	/**
-	 * Create the index if it doesn't already exist
-	 */
-	client.createIndex(textusIndex);
-
-	/**
 	 * Defines the maximum size of text chunk stored in the datastore in characters.
 	 */
 	var textChunkSize = 1000;
 
 	/**
-	 * Query object to extract entities between the specified start and end points and associated
-	 * with the given textId
+	 * Build a new query object to retrieve entities with a matching textId, start index less than
+	 * 'start' and end index greater than or equal to 'end'. Optionally restrict results to a
+	 * particular type, omit to include all results.
 	 */
-	var buildRangeQuery = function(textId, start, end) {
-		return {
+	function buildRangeQuery(textId, start, end, type) {
+		var result = {
 			"query" : {
 				"bool" : {
 					"must" : [ {
@@ -62,13 +58,59 @@ module.exports = exports = function(conf) {
 			"size" : 1000000,
 			"index" : textusIndex
 		};
-	};
+		if (type) {
+			result.filter = {
+				"type" : {
+					"value" : type
+				}
+			};
+		}
+	}
+
+	/**
+	 * Build a new query object to retrieve entities of the specified matching all of the supplied
+	 * terms. If the terms argument is omitted this matches all entities of that type. The terms
+	 * argument is an object where keys are the keys in the "term" argument within a boolean 'must'
+	 * and values are their required values.
+	 */
+	function buildTermQuery(type, terms) {
+		var result = {
+			"filter" : {
+				"type" : {
+					"value" : type
+				}
+			},
+			"size" : 10000,
+			"index" : textusIndex
+		};
+		if (terms) {
+			result.query = {
+				"bool" : {
+					"must" : []
+				}
+			};
+			for ( var termName in terms) {
+				if (terms.hasOwnProperty(termName)) {
+					var term = {};
+					term[termName] = terms[termName];
+					result.query.bool.must.push({
+						"term" : term
+					});
+				}
+			}
+		} else {
+			result.query = {
+				"match_all" : {}
+			};
+		}
+		return result;
+	}
 
 	/**
 	 * Accepts blocks of input text ordered by sequence and emits an array of {offset, text} where
 	 * the text parts are split on spaces and are at most maxSize characters long.
 	 */
-	var createTextChunks = function(maxSize, data) {
+	function createTextChunks(maxSize, data) {
 		/* Sort by sequence, extract text parts and join together */
 		var text = data.text.sort(function(a, b) {
 			return a.sequence - b.sequence;
@@ -97,9 +139,8 @@ module.exports = exports = function(conf) {
 			}
 
 		}
-		console.log("Chunked text - " + result.length + " parts.");
 		return result;
-	};
+	}
 
 	/**
 	 * Accept a start and end offset and a set of text chunks which guarantee to cover the specified
@@ -116,7 +157,7 @@ module.exports = exports = function(conf) {
 	 *            unordered but must define a contiguous range of text (this is currently not
 	 *            tested)
 	 */
-	var joinTextChunksAndTrim = function(start, end, chunks) {
+	function joinTextChunksAndTrim(start, end, chunks) {
 		if (chunks.length == 0) {
 			return {
 				text : "",
@@ -142,13 +183,11 @@ module.exports = exports = function(conf) {
 				}).join("")
 			};
 		}
-	};
+	}
 
 	/**
-	 * Method to index each item in a collection, using recursion to index the items sequentially.
+	 * Method to index each item in a collection, using a bulk indexing operation.
 	 * 
-	 * @param index
-	 *            the ElasticSearch index into which objects will be inserted
 	 * @param type
 	 *            the type under which the objects are indexed
 	 * @param list
@@ -157,51 +196,53 @@ module.exports = exports = function(conf) {
 	 *            function(err) called on completion of list indexing, passed the error if something
 	 *            went wrong or null otherwise.
 	 */
-	var indexArray = function(index, type, list, callback) {
-		var item = list.shift();
-		if (item) {
-			client.index(index, type, item, function(err, res) {
+	function indexArray(type, list, callback) {
+		if (list.length > 0) {
+			client.bulk(list.map(function(item) {
+				return {
+					index : {
+						"index" : textusIndex,
+						"type" : type,
+						"data" : item
+					}
+				};
+			}), function(err, res) {
 				if (err) {
-					console.log(err);
-					callback(err);
-				} else {
-					indexArray(index, type, list, callback);
+					console.log("Indexing failed : " + err);
 				}
+				callback(err);
 			});
 		} else {
-			console.log("Indexed data with type " + type);
 			callback(null);
 		}
-	};
+	}
 
 	/**
 	 * Convenience method to index multiple collections using the indexArray function.
 	 * 
-	 * @param index
-	 *            the ElasticSearch index
 	 * @param lists
 	 *            a list of {type, list} where the type property is the type passed to the
 	 *            indexArray function and the list is the list of objects to index.
 	 * @param function(err)
 	 *            called on completion with the error (if a failure) or null if success.
 	 */
-	var indexArrays = function(index, lists, callback) {
+	function indexArrays(lists, callback) {
 		var wrap = lists.shift();
 		if (wrap) {
 			var type = wrap.type;
 			var list = wrap.list;
-			indexArray(index, type, list, function(err) {
+			indexArray(type, list, function(err) {
 				if (err) {
 					err.message = "Error while indexing " + type;
 					callback(err);
 				} else {
-					indexArrays(index, lists, callback);
+					indexArrays(lists, callback);
 				}
 			});
 		} else {
 			callback(null);
 		}
-	};
+	}
 
 	/**
 	 * For a given text and metadata block, remove all existing bibliographic top level references
@@ -219,6 +260,39 @@ module.exports = exports = function(conf) {
 	var datastore = {
 
 		/**
+		 * Initialise the datastore
+		 * 
+		 * @param callback
+		 *            called with any error, or null if the initialisation succeeded.
+		 */
+		init : function(callback) {
+			client.createIndex(textusIndex, function(err, index, data) {
+				if (!err || err
+						&& (err + "" === "Error: IndexAlreadyExistsException[[" + textusIndex + "] Already exists]")) {
+					callback(null);
+				} else {
+					callback(err);
+				}
+			});
+		},
+
+		/**
+		 * Delete the entire index and re-create it, purging all contents. Callback will be called
+		 * with an error message, or null if the operation succeeded.
+		 */
+		clearIndex : function(callback) {
+			client.deleteIndex(textusIndex, function(err, data) {
+				if (!err) {
+					client.createIndex(textusIndex, function(err, index, data) {
+						callback(err);
+					});
+				} else {
+					callback(err);
+				}
+			});
+		},
+
+		/**
 		 * Stash the supplied set of bibliographic references.
 		 * 
 		 * @param refs
@@ -227,47 +301,36 @@ module.exports = exports = function(conf) {
 		 *            function(err) called with null for success, an error message otherwise.
 		 */
 		storeBibliographicReferences : function(refs, callback) {
-			indexArray(textusIndex, "bibjson", refs, function(err) {
+			indexArray("bibjson", refs, function(err) {
 				if (err) {
 					console.log(err);
 				}
-				callback(err);
+				client.refresh(textusIndex, function(err) {
+					callback(err);
+				});
+
 			});
 		},
 
-		getBibliographicReferences : function(textId, callback) {
-			var query = {
-				"query" : {
-					"bool" : {
-						"must" : [ {
-							"text" : {
-								"textus.textId" : textId
-							}
-						}, {
-							"text" : {
-								"textus.role" : "text"
-							}
-						} ]
+		/**
+		 * Bulk delete objects of the specified type by ID.
+		 */
+		deleteByIds : function(type, ids, callback) {
+			/* Check for empty ID list - this causes the bulk operation to fail */
+			if (ids.length == 0) {
+				callback(null);
+				return;
+			}
+			client.bulk(ids.map(function(item) {
+				return {
+					"delete" : {
+						"index" : textusIndex,
+						"type" : type,
+						"id" : item
 					}
-				},
-				"filter" : {
-					"type" : {
-						"value" : "bibjson"
-					}
-				},
-				"size" : 10000,
-				"index" : textusIndex
-			};
-			client.search(query, function(err, results, res) {
-				if (err) {
-					callback(err, null);
-				} else {
-					var result = results.hits.map(function(hit) {
-						return hit._source;
-					});
-					console.log("Retrieved bibjson for text '" + textId + "'", JSON.stringify(result));
-					callback(null, result);
-				}
+				};
+			}), function(err, res) {
+				callback(err);
 			});
 		},
 
@@ -346,8 +409,10 @@ module.exports = exports = function(conf) {
 		 * Create and index a new semantic annotation
 		 * 
 		 * @param annotation
+		 *            the annotation to store
 		 * @param callback
-		 * @returns
+		 *            called with (err, response) where err is the error or null and response is the
+		 *            response from elasticsearch
 		 */
 		createSemanticAnnotation : function(annotation, callback) {
 			client.index(textusIndex, "semantics", annotation, {
@@ -363,23 +428,11 @@ module.exports = exports = function(conf) {
 		},
 
 		/**
-		 * Returns all text structure records in the database in the form { textId : STRING,
-		 * structure : [] } via the callback(error, data).
+		 * Returns summary information for all uploads in the form { title: STRING, owners :
+		 * [string], date:INT } via the callback(error, data).
 		 */
 		getTextStructureSummaries : function(callback) {
-			var query = {
-				"query" : {
-					"match_all" : {}
-				},
-				"filter" : {
-					"type" : {
-						"value" : "structure"
-					}
-				},
-				"size" : 10000,
-				"index" : textusIndex
-			};
-			client.search(query, function(err, results, res) {
+			client.search(buildTermQuery('metadata'), function(err, results, res) {
 				if (err) {
 					callback(err, null);
 				} else {
@@ -396,9 +449,22 @@ module.exports = exports = function(conf) {
 			});
 		},
 
+		/**
+		 * Update the metadata document for a given TextID. The metadata defines both the set of
+		 * markers used for bibliographic search and indexing and the ownership of this upload.
+		 * 
+		 * @param textId
+		 *            the textID, actually acts as the ID of the metadata document as this is how
+		 *            the internals work.
+		 * @param newMetadata
+		 *            the new metadata document
+		 * @param callback
+		 *            called with (err, result), where one argument will be null depending on
+		 *            success / failure of the call.
+		 */
 		updateTextMetadata : function(textId, newMetadata, callback) {
 			newMetadata.date = Date.now;
-			client.index(textusIndex, "structure", newMetadata, {
+			client.index(textusIndex, "metadata", newMetadata, {
 				id : textId,
 				refresh : true,
 				create : false
@@ -406,17 +472,95 @@ module.exports = exports = function(conf) {
 				if (err) {
 					callback(err, null);
 				} else {
-					regenerateBibliographicReferences(textId, newMetadata, function(err) {
-						if (!err) {
-							datastore.getTextMetadata(textId, callback);
-						} else {
+					datastore.getTextMetadata(textId, callback);
+				}
+			});
+		},
+
+		/**
+		 * Replace the set of bibliographic references used when searching for text entry points
+		 * from the 'all texts' page. This deletes the existing references, if any, and indexes the
+		 * new ones, refreshing the index.
+		 * 
+		 * @param textId
+		 *            the text ID for which references should be stored.
+		 * @param newRefs
+		 *            an array of BibJSON objects, these will have the necessary textus fields added
+		 *            if they aren't already present.
+		 * @param callback
+		 *            called with (err, result) where err is the error or null if everything was
+		 *            fine, and result is the set of references which were stored or null if the
+		 *            method failed.
+		 */
+		replaceReferencesForText : function(textId, newRefs, callback) {
+			newRefs.forEach(function(ref) {
+				if (!ref.textus) {
+					ref.textus = {};
+				}
+				ref.textus.textId = textId;
+				ref.textus.role = 'text';
+			});
+			/* Find the existing references, if any, and delete them */
+			datastore.getBibliographicReferences(textId, function(err, result) {
+				if (err) {
+					callback(err, null);
+				} else {
+					datastore.deleteByIds('bibjson', result.map(function(ref) {
+						return ref.textus.id;
+					}), function(err) {
+						if (err) {
+							/* Failed during the delete part! */
 							callback(err, null);
+						} else {
+							datastore.storeBibliographicReferences(newRefs, function(err) {
+								if (err) {
+									callback(err, null);
+								} else {
+									datastore.getBibliographicReferences(textId, callback);
+								}
+							});
 						}
 					});
 				}
 			});
 		},
 
+		/**
+		 * Retrieve all the references with textus.role === 'text' and the specified textus.textId
+		 * 
+		 * @param textId
+		 * @param callback
+		 *            called with (err, result) where err is null if success and result is an array
+		 *            of BibJSON objects matching the search.
+		 */
+		getBibliographicReferences : function(textId, callback) {
+			client.search(buildTermQuery("bibjson", {
+				"textus.textId" : textId,
+				"textus.role" : "text"
+			}), function(err, results, res) {
+				if (err) {
+					callback(err, null);
+				} else {
+					var result = results.hits.map(function(hit) {
+						var item = hit._source;
+						item.textus.id = hit._id;
+						return item;
+					});
+					callback(null, result);
+				}
+			});
+		},
+
+		/**
+		 * Retrieve the metadata document containing the structure markers and ownership information
+		 * for a single uploaded text.
+		 * 
+		 * @param textId
+		 *            the text for which metadata should be retrieved
+		 * @param callback
+		 *            called with (err, result) where err is null or the error and result is the
+		 *            metadata document or null if the call failed.
+		 */
 		getTextMetadata : function(textId, callback) {
 			client.get(textusIndex, textId, function(err, doc, res) {
 				if (err) {
@@ -545,14 +689,12 @@ module.exports = exports = function(conf) {
 		 *            []}
 		 * @param callback
 		 *            a function of type function(error, textId)
-		 * @returns immediately, asynchronous function.
 		 */
 		importData : function(data, callback) {
 			data.metadata.date = Date.now;
-			client.index(textusIndex, "structure", data.metadata, function(err, res) {
+			client.index(textusIndex, "metadata", data.metadata, function(err, res) {
 				if (!err) {
 					var textId = res._id;
-					console.log("Registered structure, textId set to " + textId);
 					var dataToIndex = [ {
 						type : "text",
 						list : createTextChunks(textChunkSize, data).map(function(chunk) {
@@ -576,7 +718,7 @@ module.exports = exports = function(conf) {
 							return annotation;
 						})
 					} ];
-					indexArrays(textusIndex, dataToIndex, function(err) {
+					indexArrays(dataToIndex, function(err) {
 						client.refresh(textusIndex, function(err, res) {
 							callback(err, textId);
 						});

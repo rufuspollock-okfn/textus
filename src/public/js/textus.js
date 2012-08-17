@@ -148,7 +148,34 @@ define([], function() {
 			var tags = [];
 			// Function to check whether two ranges overlap
 			var overlapsRange = this.overlapsRange;
-			var knownTagNames = [ "h1", "h2", "h3", "h4", "h5", "h6", "ul", "ol", "li" ];
+			var knownTagNames = [ {
+				name : "p",
+				tag : "span"
+			}, {
+				name : "ul"
+			}, {
+				name : "ol"
+			}, {
+				name : "li"
+			}, {
+				name : "h1"
+			}, {
+				name : "h2"
+			}, {
+				name : "h3"
+			}, {
+				name : "h4"
+			}, {
+				name : "h5"
+			}, {
+				name : "h6"
+			}, {
+				name : "b",
+				tag : "span"
+			}, {
+				name : "i",
+				tag : "span"
+			} ];
 			// Add semantic annotations to the pool of tags
 			semantics.forEach(function(annotation) {
 				if (overlapsRange(textOffset, textOffset + text.length, annotation.start, annotation.end)) {
@@ -178,9 +205,9 @@ define([], function() {
 					var tagName = "span";
 					var tagNameIndex = 0;
 					var tagPriority = 0;
-					knownTagNames.forEach(function(candidateTagName) {
-						if (candidateTagName == annotation.css) {
-							tagName = candidateTagName;
+					knownTagNames.forEach(function(css) {
+						if (css.name == annotation.css) {
+							tagName = (css.tag ? css.tag : css.name);
 							tagPriority = tagNameIndex;
 						}
 						tagNameIndex++;
@@ -218,11 +245,6 @@ define([], function() {
 									return a.tagPriority - b.tagPriority;
 								}
 							} else {
-								if (b.endpos == a.endpos) {
-									if (a.tagPriority != null && b.tagPriority != null) {
-										return b.tagPriority - a.tagPriority;
-									}
-								}
 								return b.endpos - a.endpos;
 							}
 						}

@@ -73,7 +73,7 @@ define(
 			};
 
 			var updateFromState = function() {
-				$('#textPanel>a[offset]').each(
+				$('#textPanel>span>a[offset]').each(
 						function() {
 							var offset = $(this).attr('offset');
 							$(this).removeClass('btn-info').removeClass('btn-primary').removeClass('btn-success')

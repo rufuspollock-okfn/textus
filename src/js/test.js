@@ -8,19 +8,18 @@ module.exports = exports = function() {
 	}
 
 	function success(message) {
-		console.log("\t" + lastTestName.yellow + " : " + (message ? message : "PASS").green + " " + elapsedTime()
-				+ "\n\n");
+		console.log("\t" + lastTestName.yellow + " : " + (message ? message + "" : "PASS").green + " " + elapsedTime());
 		nextTest();
 	}
 
 	function fail(message) {
-		console.log("\t" + lastTestName.yellow + " : " + (message ? message : "FAILED").red + " " + elapsedTime()
+		console.log("\t" + lastTestName.yellow + " : " + (message ? message + "" : "FAILED").red + " " + elapsedTime()
 				+ "\n\n");
 	}
 
 	function nextTest() {
 		if (tests.length == 0) {
-			console.log("\nAll tests passed.".green);
+			console.log("\n\tAll tests passed.\n".green);
 			return;
 		} else {
 			var test = tests.shift();
@@ -34,7 +33,7 @@ module.exports = exports = function() {
 
 	function checkFirstOutput() {
 		if (firstOutput) {
-			console.log("\t" + (lastTestName + "...").yellow);
+			console.log("\n\t" + (lastTestName + "...").yellow);
 			console.log("\t----------------------------------------------------------------------");
 			firstOutput = false;
 		}
