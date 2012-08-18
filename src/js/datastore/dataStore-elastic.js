@@ -37,8 +37,8 @@ module.exports = exports = function(conf) {
 			"query" : {
 				"bool" : {
 					"must" : [ {
-						"text" : {
-							"textId" : textId
+						"term" : {
+							"textId" : textId.toLowerCase()
 						}
 					}, {
 						"range" : {
@@ -65,6 +65,7 @@ module.exports = exports = function(conf) {
 				}
 			};
 		}
+		return result;
 	}
 
 	/**
@@ -92,7 +93,7 @@ module.exports = exports = function(conf) {
 			for ( var termName in terms) {
 				if (terms.hasOwnProperty(termName)) {
 					var term = {};
-					term[termName] = terms[termName];
+					term[termName] = terms[termName].toLowerCase();
 					result.query.bool.must.push({
 						"term" : term
 					});
@@ -245,16 +246,6 @@ module.exports = exports = function(conf) {
 	}
 
 	/**
-	 * For a given text and metadata block, remove all existing bibliographic top level references
-	 * and replace them with new ones derived from any discoverable markers in the metadata. Call
-	 * the callback with null for success or an error message for failure of any kind.
-	 */
-	regenerateBibliographicReferences = function(textId, newMetadata, callback) {
-		console.log("regenerateBibliographicReferences not implemented yet, no indexing available!");
-		callback(null);
-	};
-
-	/**
 	 * The datastore API
 	 */
 	var datastore = {
@@ -293,29 +284,10 @@ module.exports = exports = function(conf) {
 		},
 
 		/**
-		 * Stash the supplied set of bibliographic references.
-		 * 
-		 * @param refs
-		 *            a list of bibJSON objects to store
-		 * @param callback
-		 *            function(err) called with null for success, an error message otherwise.
-		 */
-		storeBibliographicReferences : function(refs, callback) {
-			indexArray("bibjson", refs, function(err) {
-				if (err) {
-					console.log(err);
-				}
-				client.refresh(textusIndex, function(err) {
-					callback(err);
-				});
-
-			});
-		},
-
-		/**
 		 * Bulk delete objects of the specified type by ID.
 		 */
 		deleteByIds : function(type, ids, callback) {
+			// console.log("Removing by ID from '" + type + "'", JSON.stringify(ids));
 			/* Check for empty ID list - this causes the bulk operation to fail */
 			if (ids.length == 0) {
 				callback(null);
@@ -505,6 +477,7 @@ module.exports = exports = function(conf) {
 				if (err) {
 					callback(err, null);
 				} else {
+					// console.log("Retrieved existing refs : ", JSON.stringify(result));
 					datastore.deleteByIds('bibjson', result.map(function(ref) {
 						return ref.textus.id;
 					}), function(err) {
@@ -516,12 +489,37 @@ module.exports = exports = function(conf) {
 								if (err) {
 									callback(err, null);
 								} else {
-									datastore.getBibliographicReferences(textId, callback);
+									datastore.getBibliographicReferences(textId, function(err, result) {
+										// console.log("Store now contains : ",
+										// JSON.stringify(result));
+										callback(err, result);
+									});
 								}
 							});
 						}
 					});
 				}
+			});
+		},
+
+		/**
+		 * Stash the supplied set of bibliographic references.
+		 * 
+		 * @param refs
+		 *            a list of bibJSON objects to store
+		 * @param callback
+		 *            function(err) called with null for success, an error message otherwise.
+		 */
+		storeBibliographicReferences : function(refs, callback) {
+			// console.log("storeBibliographicReferences", JSON.stringify(refs, null, 2));
+			indexArray("bibjson", refs, function(err) {
+				if (err) {
+					console.log(err);
+				}
+				client.refresh(textusIndex, function(err) {
+					callback(err);
+				});
+
 			});
 		},
 
@@ -534,13 +532,17 @@ module.exports = exports = function(conf) {
 		 *            of BibJSON objects matching the search.
 		 */
 		getBibliographicReferences : function(textId, callback) {
-			client.search(buildTermQuery("bibjson", {
+			var query = buildTermQuery("bibjson", {
 				"textus.textId" : textId,
 				"textus.role" : "text"
-			}), function(err, results, res) {
+			});
+			// console.log("getBibliographicReferences for '" + textId + "'", JSON.stringify(query,
+			// null, 2));
+			client.search(query, function(err, results, res) {
 				if (err) {
 					callback(err, null);
 				} else {
+					// console.log(JSON.stringify(results, null, 2));
 					var result = results.hits.map(function(hit) {
 						var item = hit._source;
 						item.textus.id = hit._id;
@@ -612,7 +614,8 @@ module.exports = exports = function(conf) {
 		 *            instance.
 		 */
 		fetchText : function(textId, start, end, callback) {
-			client.search(buildRangeQuery(textId, start, end), function(err, results, res) {
+			var query = buildRangeQuery(textId, start, end);
+			client.search(query, function(err, results, res) {
 				if (err) {
 					callback(err, null);
 				} else {

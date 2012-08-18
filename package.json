@@ -11,7 +11,8 @@
     "crypto": "~0.0.3",
     "mailgun": "~0.4.2",
     "openid" : "~0.4.2",
-    "colors" : "0.6.0-1"
+    "colors" : "0.6.0-1",
+    "amdefine": ">=0.0.2"
   },
   "engines": {
     "node": "~0.6.0",

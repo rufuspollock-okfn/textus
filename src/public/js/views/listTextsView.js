@@ -20,6 +20,7 @@ define([ 'text!templates/listTextsView.html' ], function(layoutTemplate) {
 							'display' : 'year'
 						} ],
 						renderer : function(hit, parent) {
+							console.log(hit);
 							parent.append("<div>Title : " + hit.title + "</div>");
 							if (hit.textus && hit.textus.textId && hit.textus.offset) {
 								parent.append("<a class='btn btn-info' href='#/text/" + hit.textus.textId + "/"

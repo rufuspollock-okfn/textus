@@ -12,6 +12,8 @@ var fs = require('fs');
 var parsers = require('./js/import/parsers.js');
 // URL handling support
 var url = require('url');
+// Marker parsing
+var markers = require('./public/js/markers.js');
 
 /**
  * Configure the HTTP server with the body parser used to handle file uploads.
@@ -113,7 +115,19 @@ app.post("/api/meta/:textId", login.checkLogin, function(req, res) {
 					if (err) {
 						console.log(err);
 					} else {
-						res.json(data);
+						console.log("Updated metadata on server");
+						console.log(JSON.stringify(data, null, 2));
+						var parsedMarkerSet = markers(data);
+						var newRefs = parsedMarkerSet.discoverableBibJson();
+						console.log("Getting discoverable BibJSON");
+						console.log(JSON.stringify(newRefs, null, 2));
+						datastore.replaceReferencesForText(req.params.textId, newRefs, function(err, response) {
+							if (err) {
+								console.log(err);
+							} else {
+								res.json(data);
+							}
+						});
 					}
 				});
 			} else {
