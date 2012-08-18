@@ -115,12 +115,12 @@ app.post("/api/meta/:textId", login.checkLogin, function(req, res) {
 					if (err) {
 						console.log(err);
 					} else {
-						console.log("Updated metadata on server");
-						console.log(JSON.stringify(data, null, 2));
+						//console.log("Updated metadata on server");
+						//console.log(JSON.stringify(data, null, 2));
 						var parsedMarkerSet = markers(data);
 						var newRefs = parsedMarkerSet.discoverableBibJson();
-						console.log("Getting discoverable BibJSON");
-						console.log(JSON.stringify(newRefs, null, 2));
+						//console.log("Getting discoverable BibJSON");
+						//console.log(JSON.stringify(newRefs, null, 2));
 						datastore.replaceReferencesForText(req.params.textId, newRefs, function(err, response) {
 							if (err) {
 								console.log(err);

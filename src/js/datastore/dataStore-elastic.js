@@ -38,7 +38,7 @@ module.exports = exports = function(conf) {
 				"bool" : {
 					"must" : [ {
 						"term" : {
-							"textId" : textId.toLowerCase()
+							"textId" : textId
 						}
 					}, {
 						"range" : {
@@ -93,7 +93,7 @@ module.exports = exports = function(conf) {
 			for ( var termName in terms) {
 				if (terms.hasOwnProperty(termName)) {
 					var term = {};
-					term[termName] = terms[termName].toLowerCase();
+					term[termName] = terms[termName];
 					result.query.bool.must.push({
 						"term" : term
 					});
@@ -245,6 +245,52 @@ module.exports = exports = function(conf) {
 		}
 	}
 
+	var indexOptions = {
+		"mappings" : {
+			"bibjson" : {
+				"properties" : {
+					"textus.textId" : {
+						"type" : "string",
+						"index" : "not_analyzed",
+						"store" : "yes"
+					},
+					"textus.id" : {
+						"type" : "string",
+						"index" : "not_analyzed",
+						"store" : "yes"
+					}
+				}
+			},
+			"text" : {
+				"properties" : {
+					"textId" : {
+						"type" : "string",
+						"index" : "not_analyzed",
+						"store" : "yes"
+					}
+				}
+			},
+			"typography" : {
+				"properties" : {
+					"textId" : {
+						"type" : "string",
+						"index" : "not_analyzed",
+						"store" : "yes"
+					}
+				}
+			},
+			"semantics" : {
+				"properties" : {
+					"textId" : {
+						"type" : "string",
+						"index" : "not_analyzed",
+						"store" : "yes"
+					}
+				}
+			}
+		}
+	};
+
 	/**
 	 * The datastore API
 	 */
@@ -257,7 +303,7 @@ module.exports = exports = function(conf) {
 		 *            called with any error, or null if the initialisation succeeded.
 		 */
 		init : function(callback) {
-			client.createIndex(textusIndex, function(err, index, data) {
+			client.createIndex(textusIndex, indexOptions, function(err, index, data) {
 				if (!err || err
 						&& (err + "" === "Error: IndexAlreadyExistsException[[" + textusIndex + "] Already exists]")) {
 					callback(null);
@@ -274,7 +320,7 @@ module.exports = exports = function(conf) {
 		clearIndex : function(callback) {
 			client.deleteIndex(textusIndex, function(err, data) {
 				if (!err) {
-					client.createIndex(textusIndex, function(err, index, data) {
+					client.createIndex(textusIndex, indexOptions, function(err, index, data) {
 						callback(err);
 					});
 				} else {
@@ -287,7 +333,8 @@ module.exports = exports = function(conf) {
 		 * Bulk delete objects of the specified type by ID.
 		 */
 		deleteByIds : function(type, ids, callback) {
-			// console.log("Removing by ID from '" + type + "'", JSON.stringify(ids));
+
+			//console.log("Removing by ID from '" + type + "'", JSON.stringify(ids));
 			/* Check for empty ID list - this causes the bulk operation to fail */
 			if (ids.length == 0) {
 				callback(null);
