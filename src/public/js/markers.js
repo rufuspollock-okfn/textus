@@ -13,7 +13,6 @@ define([], function() {
 	 * properties, or a list of length 0 after all empty items are removed.
 	 */
 	function isEmpty(o) {
-		console.log(JSON.stringify(o, null, 2));
 		if (o === null) {
 			return true;
 		} else if (typeof o === 'string') {
@@ -115,15 +114,30 @@ define([], function() {
 				var result = [];
 				markers.forEach(function(marker) {
 					if (marker.discoverable) {
-						console.log("Getting resolved entity at " + marker.index);
 						result.push(bibJsonAt(marker.index));
 					}
 				});
 				return result;
+			},
+
+			/**
+			 * Return all index points as {level : int, offset : int, text : string} in order of
+			 * ascending offset.
+			 */
+			indexPoints : function() {
+				return markers.filter(function(marker) {
+					return marker.indexLevel >= 0;
+				}).map(function(marker) {
+					return {
+						level : marker.indexLevel,
+						offset : marker.index,
+						text : marker.label
+					};
+				});
 			}
 
 		};
-
 	};
 
 });
+;

@@ -2,6 +2,7 @@ var hash = require('password-hash');
 var crypto = require('crypto');
 var Mailgun = require('mailgun').Mailgun;
 var openid = require('openid');
+var colours = require('colors');
 
 /**
  * Generate a random secret token.
@@ -491,7 +492,7 @@ module.exports = exports = function(datastore, conf) {
 						protocol = "https";
 					}
 					conf.textus.base = protocol + "://" + req.header("host") + "/";
-					console.log("Computed textus base url : " + conf.textus.base);
+					console.log("Computed textus base url".yellow + " : " + conf.textus.base.green);
 				}
 				if (conf.textus.base[conf.textus.base.length - 1] != "/") {
 					conf.textus.base = conf.textus.base + "/";
@@ -506,7 +507,7 @@ module.exports = exports = function(datastore, conf) {
 							false, false, [ new openid.UserInterface(), new openid.AttributeExchange({
 								"http://axschema.org/contact/email" : "required"
 							}) ]);
-					console.log("Created openId relying party", relyingParty);
+					// console.log("Created openId relying party", relyingParty);
 				}
 				return relyingParty;
 			};

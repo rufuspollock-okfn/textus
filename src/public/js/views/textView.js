@@ -111,6 +111,9 @@ define([ 'textus', 'text!templates/textView.html', 'text!templates/annotations/c
 					ctx.fillRect(coords.x, coords.y, child.outerWidth(), child.outerHeight());
 				}
 			}
+			else {
+				child.remove();
+			}
 		});
 	};
 

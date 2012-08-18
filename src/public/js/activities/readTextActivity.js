@@ -1,5 +1,5 @@
-define([ 'textus', 'views/textView', 'views/editSemanticAnnotationView', 'models' ], function(textus, TextView,
-		EditSemanticAnnotationView, models) {
+define([ 'textus', 'views/textView', 'views/editSemanticAnnotationView', 'models', 'markers' ], function(textus,
+		TextView, EditSemanticAnnotationView, models, markers) {
 
 	return function() {
 
@@ -288,60 +288,104 @@ define([ 'textus', 'views/textView', 'views/editSemanticAnnotationView', 'models
 			 * Set up a listener on selection events on the text selection model.
 			 */
 			var s = models.textSelectionModel;
+
 			s.bind("change", function(event) {
-				if (models.loginModel.get("loggedIn") == false) {
-					return;
+				if (models.loginModel.get("loggedIn")) {
+					$('.show-if-login').show();
+				} else {
+					$('.show-if-login').hide();
 				}
-				var text = s.get("text");
-				var start = s.get("start");
-				var end = s.get("end");
-				var textId = models.textLocationModel.get("textId");
 				if (s.get("text") != "") {
-					textus.showModal({
-						constructor : function(container, header, closeModal) {
-							var editView = new EditSemanticAnnotationView({
-								text : s.get("text"),
-								start : s.get("start"),
-								end : s.get("end"),
-								textId : models.textLocationModel.get("textId"),
-								annotation : {
-									type : "textus:comment",
-									payload : null
-								},
-								presenter : {
-									storeAnnotation : function(data) {
-										console.log("Annotation data : " + data);
-										var newAnnotation = {
-											start : s.get("start"),
-											end : s.get("end"),
-											textId : models.textLocationModel.get("textId"),
-											type : data.type,
-											payload : data.payload
-										};
-										$.post("api/semantics", newAnnotation, function(returnedAnnotation) {
-											var semanticsArray = models.textModel.get("semantics").slice(0);
-											semanticsArray.push(returnedAnnotation);
-											models.textModel.set({
-												semantics : semanticsArray
-											});
-											firingKeyEvents = true;
-											closeModal();
-										});
-									}
-								}
-							});
-							editView.render();
-							container.append(editView.el);
-							header.append("<h4>Create new annotation</h4>");
-							firingKeyEvents = false;
-						},
-						beforeClose : function() {
-							firingKeyEvents = true;
-							return true;
-						}
-					});
+					$('.show-if-select').show();
+				} else {
+					$('.show-if-select').hide();
 				}
 			});
+
+			$('#annotate-button').click(function(event) {
+				var textId = models.textLocationModel.get("textId");
+				textus.showModal({
+					constructor : function(container, header, closeModal) {
+						var editView = new EditSemanticAnnotationView({
+							text : s.get("text"),
+							start : s.get("start"),
+							end : s.get("end"),
+							textId : models.textLocationModel.get("textId"),
+							annotation : {
+								type : "textus:comment",
+								payload : null
+							},
+							presenter : {
+								storeAnnotation : function(data) {
+									console.log("Annotation data : " + data);
+									var newAnnotation = {
+										start : s.get("start"),
+										end : s.get("end"),
+										textId : models.textLocationModel.get("textId"),
+										type : data.type,
+										payload : data.payload
+									};
+									$.post("api/semantics", newAnnotation, function(returnedAnnotation) {
+										var semanticsArray = models.textModel.get("semantics").slice(0);
+										semanticsArray.push(returnedAnnotation);
+										models.textModel.set({
+											semantics : semanticsArray
+										});
+										firingKeyEvents = true;
+										closeModal();
+									});
+								}
+							}
+						});
+						editView.render();
+						container.append(editView.el);
+						header.append("<h4>Create new annotation</h4>");
+						firingKeyEvents = false;
+					},
+					beforeClose : function() {
+						firingKeyEvents = true;
+						return true;
+					},
+					position : "bottom"
+				}, event);
+				return false;
+			});
+
+			$('#index-button').click(
+					function(event) {
+						var textId = models.textLocationModel.get("textId");
+						$.getJSON('/api/meta/' + textId, function(metadata) {
+							var indexEntries = markers(metadata).indexPoints();
+							textus.showModal({
+								constructor : function(container, header, closeModal) {
+									header.append("<h4>Index</h4>");
+									indexEntries.forEach(function(entry) {
+										var link = "<a href='#/text/" + textId + "/" + entry.offset + "'>" + entry.text
+												+ "</a>";
+										container.append("<div style='margin-left:" + (parseInt(entry.level) * 20)
+												+ "px; line-height: 25px; height: 25px;'>" + link + "</div>");
+										$('div:last-child', container)
+												.click(
+														function() {
+															updateTextAsync(models.textLocationModel.get("textId"),
+																	entry.offset, true, textView.pageHeight(),
+																	textView.measure);
+															
+															closeModal();
+														});
+									});
+								},
+								position : "bottom"
+							}, event);
+						});
+						return false;
+					});
+
+			if (models.loginModel.get("loggedIn")) {
+				$('.show-if-login').show();
+			} else {
+				$('.show-if-login').hide();
+			}
 
 			/* Set up a key listener on the document to allow arrow key based page navigation */
 			$(document.documentElement).keyup(function(event) {
