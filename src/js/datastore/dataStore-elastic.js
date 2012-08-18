@@ -245,52 +245,6 @@ module.exports = exports = function(conf) {
 		}
 	}
 
-	var indexOptions = {
-		"mappings" : {
-			"bibjson" : {
-				"properties" : {
-					"textus.textId" : {
-						"type" : "string",
-						"index" : "not_analyzed",
-						"store" : "yes"
-					},
-					"textus.id" : {
-						"type" : "string",
-						"index" : "not_analyzed",
-						"store" : "yes"
-					}
-				}
-			},
-			"text" : {
-				"properties" : {
-					"textId" : {
-						"type" : "string",
-						"index" : "not_analyzed",
-						"store" : "yes"
-					}
-				}
-			},
-			"typography" : {
-				"properties" : {
-					"textId" : {
-						"type" : "string",
-						"index" : "not_analyzed",
-						"store" : "yes"
-					}
-				}
-			},
-			"semantics" : {
-				"properties" : {
-					"textId" : {
-						"type" : "string",
-						"index" : "not_analyzed",
-						"store" : "yes"
-					}
-				}
-			}
-		}
-	};
-
 	/**
 	 * The datastore API
 	 */
@@ -303,10 +257,77 @@ module.exports = exports = function(conf) {
 		 *            called with any error, or null if the initialisation succeeded.
 		 */
 		init : function(callback) {
-			client.createIndex(textusIndex, indexOptions, function(err, index, data) {
+			client.createIndex(textusIndex, function(err, index, data) {
 				if (!err || err
 						&& (err + "" === "Error: IndexAlreadyExistsException[[" + textusIndex + "] Already exists]")) {
-					callback(null);
+					client.putMapping("bibjson", {
+						"bibjson" : {
+							properties : {
+								"textus.textId" : {
+									"type" : "string",
+									"index" : "not_analyzed"
+								},
+								"textus.id" : {
+									"type" : "string",
+									"index" : "not_analyzed"
+								}
+							}
+						}
+					}, function(err, res) {
+						if (!err) {
+							client.putMapping("text", {
+								"text" : {
+									"properties" : {
+										"textId" : {
+											"type" : "string",
+											"index" : "not_analyzed",
+											"store" : "yes"
+										}
+									}
+								}
+							}, function(err, res) {
+								if (!err) {
+									client.putMapping("typography", {
+										"typography" : {
+											"properties" : {
+												"textId" : {
+													"type" : "string",
+													"index" : "not_analyzed",
+													"store" : "yes"
+												}
+											}
+										}
+									}, function(err, res) {
+										if (!err) {
+											client.putMapping("semantics", {
+												"semantics" : {
+													"properties" : {
+														"textId" : {
+															"type" : "string",
+															"index" : "not_analyzed",
+															"store" : "yes"
+														}
+													}
+												}
+											}, function(err, res) {
+												if (!err) {
+													callback(null);
+												} else {
+													callback(err);
+												}
+											});
+										} else {
+											callback(err);
+										}
+									});
+								} else {
+									callback(err);
+								}
+							});
+						} else {
+							callback(err);
+						}
+					});
 				} else {
 					callback(err);
 				}
@@ -320,9 +341,7 @@ module.exports = exports = function(conf) {
 		clearIndex : function(callback) {
 			client.deleteIndex(textusIndex, function(err, data) {
 				if (!err) {
-					client.createIndex(textusIndex, indexOptions, function(err, index, data) {
-						callback(err);
-					});
+					datastore.init(callback);
 				} else {
 					callback(err);
 				}
@@ -334,7 +353,7 @@ module.exports = exports = function(conf) {
 		 */
 		deleteByIds : function(type, ids, callback) {
 
-			//console.log("Removing by ID from '" + type + "'", JSON.stringify(ids));
+			// console.log("Removing by ID from '" + type + "'", JSON.stringify(ids));
 			/* Check for empty ID list - this causes the bulk operation to fail */
 			if (ids.length == 0) {
 				callback(null);
