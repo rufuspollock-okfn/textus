@@ -6,12 +6,12 @@ define([ 'textus', 'text!templates/textView.html', 'text!templates/annotations/c
 	/**
 	 * Get the offset of the target in the container's coordinate space.
 	 */
-	var relativeCoords = function(container, target) {
+	function relativeCoords(container, target) {
 		return {
 			x : target.offset().left - container.offset().left,
 			y : target.offset().top - container.offset().top
 		};
-	};
+	}
 
 	var annotationRenderers = {
 		"textus:comment" : _.template(annotationComment),
@@ -26,7 +26,7 @@ define([ 'textus', 'text!templates/textView.html', 'text!templates/annotations/c
 	 * @param annotationContainer
 	 *            The div into which annotation object representations are to be injected
 	 */
-	var populateAnnotationContainer = function(semantics, annotationContainer) {
+	function populateAnnotationContainer(semantics, annotationContainer) {
 		console.log("Populating annotation container");
 		console.log(annotationContainer);
 		annotationContainer.empty();
@@ -38,7 +38,7 @@ define([ 'textus', 'text!templates/textView.html', 'text!templates/annotations/c
 			}
 		});
 		semantics.forEach(function(annotation) {
-			var d = $("<div annotation-id=\"" + annotation.id + "\"/>");
+			var d = $("<div class='annotation' annotation-id=\"" + annotation.id + "\"/>");
 			if (annotationRenderers[annotation.type]) {
 				d.html(annotationRenderers[annotation.type](annotation));
 			} else {
@@ -46,7 +46,8 @@ define([ 'textus', 'text!templates/textView.html', 'text!templates/annotations/c
 			}
 			annotationContainer.append(d);
 		});
-	};
+	}
+	;
 
 	/**
 	 * Resize, clear and re-render the lines linking annotation blocks to their corresponding divs
@@ -62,9 +63,10 @@ define([ 'textus', 'text!templates/textView.html', 'text!templates/annotations/c
 	 * @param annotationContainer
 	 *            The DIV containing annotation elements as immediate children.
 	 */
-	var renderLinks = function(textContainer, canvas, semantics, annotationContainer) {
+	function renderLinks(textContainer, canvas, semantics, annotationContainer) {
 		var width = textContainer.outerWidth(true);
-		var height = annotationContainer.outerHeight(true);
+		var height = textContainer.outerHeight(true);
+		var backgroundHeight = annotationContainer.outerHeight(true);
 		canvas.get(0).height = height;
 		canvas.get(0).width = width;
 		var ctx = canvas.get(0).getContext("2d");
@@ -83,41 +85,78 @@ define([ 'textus', 'text!templates/textView.html', 'text!templates/annotations/c
 				};
 			}
 		});
+
+		/*
+		 * Remove any annotation elements which have somehow managed to get into the panel even
+		 * though we don't have the corresponding region rendered - this can happen sometimes with
+		 * annotations which end with certain kinds of block elements. While we're doing this sum up
+		 * the total height of all annotation divs which are left in order to work out whether we
+		 * can balance them.
+		 */
+		var space = annotationContainer.height() - 60;
+		console.log("Space in container", space);
 		annotationContainer.children().each(function() {
-			var child = $(this);
-			var margin = 10;
-			var id = child.attr("annotation-id");
+			var id = $(this).attr("annotation-id");
 			if (regions[id]) {
-				var coords = relativeCoords(canvas, child);
-				if (coords.y >= (-child.outerHeight()) && coords.y <= height) {
-					var region = regions[id];
-					var anchorY = coords.y + (child.outerHeight() / 2);
-					if (coords.y + margin < region.y && coords.y - margin + (child.outerHeight()) > region.y) {
-						anchorY = region.y;
-					} else if (coords.y - margin + (child.outerHeight()) < region.y) {
-						anchorY = coords.y + child.outerHeight() - margin;
-					} else if (coords.y + margin > region.y) {
-						anchorY = coords.y + margin;
-					}
-					if (anchorY > 0 && anchorY < height) {
-						ctx.strokeStyle = region.colour;
-						ctx.beginPath();
-						ctx.moveTo(region.x, region.y);
-						ctx.lineTo(coords.x, anchorY);
-						ctx.closePath();
-						ctx.stroke();
-					}
-					ctx.fillStyle = region.colour;
-					ctx.fillRect(coords.x, coords.y, child.outerWidth(), child.outerHeight());
-				}
-			}
-			else {
-				child.remove();
+				var height = $(this).outerHeight();
+				console.log(height);
+				space = space - height;
+			} else {
+				$(this).remove();
 			}
 		});
-	};
+		console.log("Space remaining after annotations ", space);
+		$('.annotation-spacer', annotationContainer).remove();
+		if (space > 0) {
+			annotationContainer.children().each(function() {
+				/* Find ideal target offset */
+				var child = $(this);
+				var id = child.attr("annotation-id");
+				var childHeight = child.outerHeight(true);
+				var desiredY = Math.max(0, regions[id].y - childHeight / 2) + 20;
+				var currentY = relativeCoords(canvas, child).y + childHeight / 2;
+				console.log(child, desiredY, currentY);
+				if (currentY < desiredY) {
+					var size = Math.min(desiredY - currentY, space);
+					child.before("<div class='annotation-spacer' style='height:" + size + "px'></div>");
+					space = space - size;
+				}
+			});
+		}
+		annotationContainer.children('.annotation').each(
+				function() {
+					var child = $(this);
+					var margin = 10;
+					var childHeight = child.outerHeight(true);
+					var id = child.attr("annotation-id");
+					var coords = relativeCoords(canvas, child);
+					if (coords.y >= (-childHeight) && coords.y <= backgroundHeight) {
+						var region = regions[id];
+						var anchorY = coords.y + (childHeight / 2);
+						if (coords.y + margin < region.y && coords.y - margin + (childHeight) > region.y) {
+							anchorY = region.y;
+						} else if (coords.y - margin + (childHeight) < region.y) {
+							anchorY = coords.y + childHeight - margin;
+						} else if (coords.y + margin > region.y) {
+							anchorY = coords.y + margin;
+						}
+						if (anchorY > 0 && anchorY < backgroundHeight) {
+							ctx.strokeStyle = region.colour;
+							ctx.beginPath();
+							ctx.moveTo(region.x, region.y);
+							ctx.lineTo(coords.x, anchorY);
+							ctx.closePath();
+							ctx.stroke();
+						}
+						ctx.fillStyle = region.colour;
+						console.log(child.outerHeight(), coords.y, backgroundHeight);
+						ctx.fillRect(coords.x, coords.y, child.outerWidth(), Math.min(child.outerHeight(),
+								backgroundHeight - coords.y));
+					}
+				});
+	}
 
-	var getLineHeight = function(e) {
+	function getLineHeight(e) {
 		while (e != null && e.css("line-height").match(/\d+/) == null) {
 			console.log(e);
 			e = e.parent();
@@ -127,7 +166,7 @@ define([ 'textus', 'text!templates/textView.html', 'text!templates/annotations/c
 			return 0;
 		}
 		return parseInt(e.css("line-height").match(/\d+/)[0]);
-	};
+	}
 
 	/**
 	 * Resize, clear and re-render the overlay of annotation positions on the canvas. This assumes
@@ -146,7 +185,7 @@ define([ 'textus', 'text!templates/textView.html', 'text!templates/annotations/c
 	 */
 	var renderCanvas = function(canvas, textContainer, semantics) {
 		var width = textContainer.outerWidth(true);
-		var height = textContainer.outerHeight(true);
+		var height = textContainer.outerHeight(true) - 20;
 		canvas.get(0).height = height;
 		canvas.get(0).width = width;
 		var ctx = canvas.get(0).getContext("2d");

@@ -43,7 +43,7 @@
 
 
 /* Each top level annotation div within the annotation container */
-.pageContainer .annotations>div {
+.pageContainer .annotations>div.annotation {
 	display: block;
 	border: solid;
 	border-width: 1px;
