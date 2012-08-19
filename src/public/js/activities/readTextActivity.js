@@ -8,7 +8,7 @@ define([ 'textus', 'views/textView', 'views/editSemanticAnnotationView', 'models
 		 * typographical and semantic annotations.
 		 */
 		var retrieveText = function(textId, offset, length, callback) {
-			console.log("Retrieving " + length + " characters of text from " + offset);
+			// console.log("Retrieving " + length + " characters of text from " + offset);
 			$.getJSON("api/text/" + textId + "/" + offset + "/" + (offset + length), function(data) {
 				callback(data);
 			});
@@ -115,8 +115,9 @@ define([ 'textus', 'views/textView', 'views/editSemanticAnnotationView', 'models
 			 * progressively reduced each iteration.
 			 */
 			var trim = function(data) {
-				console.log("Starting trim function, text has offset " + data.offset + " and length "
-						+ data.text.length);
+				// console.log("Starting trim function, text has offset " + data.offset + " and
+				// length "
+				// + data.text.length);
 				var trimData = function(length) {
 					var amountRemoved = data.text.length - length;
 					return {
@@ -129,26 +130,27 @@ define([ 'textus', 'views/textView', 'views/editSemanticAnnotationView', 'models
 				};
 
 				var textLength = data.text.length - (textChunkSize - 1);
-				console.log("Text length starts at " + textLength);
+				// console.log("Text length starts at " + textLength);
 				var i = textChunkSize;
 				while (i > 1) {
 					i = i / 2;
 					var test = trimData(textLength + i);
-					console.log("Trim - end offset of text is " + (test.offset + test.text.length));
-					console.log("Trimmed text : " + test.text.substring(0, 20) + "...");
+					// console.log("Trim - end offset of text is " + (test.offset +
+					// test.text.length));
+					// console.log("Trimmed text : " + test.text.substring(0, 20) + "...");
 					var measured = measure(markupStruct(test));
 					if (measured <= height) {
 						textLength = textLength + i;
-						console.log("Text length is " + textLength + " (+" + i + ")");
+						//console.log("Text length is " + textLength + " (+" + i + ")");
 					} else {
-						console.log("Text is too high - measured at " + measured + ", maximum is " + height);
+						//console.log("Text is too high - measured at " + measured + ", maximum is " + height);
 					}
 				}
 				var t = trimData(textLength);
 				var annotationFilter = function(a) {
 					return a.end >= t.offset && a.start <= (t.offset + t.text.length);
 				};
-				console.log("Offset = " + t.offset + " text.length = " + t.text.length);
+				// console.log("Offset = " + t.offset + " text.length = " + t.text.length);
 				/*
 				 * Handle the special case where we went back and the start offset ended up being
 				 * zero. In these cases we should re-do the entire call going fowards from zero
@@ -317,7 +319,7 @@ define([ 'textus', 'views/textView', 'views/editSemanticAnnotationView', 'models
 							},
 							presenter : {
 								storeAnnotation : function(data) {
-									console.log("Annotation data : " + data);
+									//console.log("Annotation data : " + data);
 									var newAnnotation = {
 										start : s.get("start"),
 										end : s.get("end"),
@@ -370,7 +372,7 @@ define([ 'textus', 'views/textView', 'views/editSemanticAnnotationView', 'models
 															updateTextAsync(models.textLocationModel.get("textId"),
 																	entry.offset, true, textView.pageHeight(),
 																	textView.measure);
-															
+
 															closeModal();
 														});
 									});
@@ -386,6 +388,12 @@ define([ 'textus', 'views/textView', 'views/editSemanticAnnotationView', 'models
 			} else {
 				$('.show-if-login').hide();
 			}
+
+			$('#cite-button').click(function() {
+				location.router.navigate("#snippet/" + location.textId + "/" + s.get("start") + "/" + s.get("end"), {
+					trigger : true
+				});
+			});
 
 			/* Set up a key listener on the document to allow arrow key based page navigation */
 			$(document.documentElement).keyup(function(event) {

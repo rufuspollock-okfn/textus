@@ -12,6 +12,11 @@
 
 @import url('jquery.ui.colorPicker.css');
 
+.textus-highlight {
+	color: black;
+	background-color: #efe;
+}
+
 .textus-content {
 	position: relative;
 	background-color: white;

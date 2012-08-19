@@ -3,6 +3,53 @@ define([], function() {
 	return {
 
 		/**
+		 * Render a BibJSON object to a string of HTML. This is an attempt to implement the style
+		 * guide at http://www.chicagomanualofstyle.org/tools_citationguide.html/ - it's partial at
+		 * the moment though, a good one to work on if anyone fancies it...
+		 * 
+		 * @param bib
+		 *            the BibJSON object to render
+		 * @param options
+		 *            an (optional) object which can be used to supply any additional rendering
+		 *            options. This could be used to select a citation style, but is not currently
+		 *            used in Textus.
+		 * @returns a string of HTML which can be inserted into a container to display the BibJSON.
+		 *          The returned HTML contains no elements with block display, so is suitable for
+		 *          single line rendering.
+		 */
+		renderBibJson : function(bib, options) {
+			var parts = [];
+			/* Return a string of the person object */
+			function name(person) {
+				return (person.firstname == '' ? '' : person.firstname + ' ') + person.lastname;
+			}
+
+			if (bib.author && bib.author.length > 0) {
+				if (bib.author.length == 1) {
+					/* Single author */
+					parts.push(name(bib.author[0]));
+				} else if (bib.author.length < 4) {
+					/* Multiple authors, show all */
+					parts.push((bib.author.map(name).join(" and ")));
+				} else {
+					/* Multiple authors, show first author 'et al' */
+					parts.push((name(bib.author[0])) + " et al.");
+				}
+			}
+			if (bib.title) {
+				parts.push("<em>" + bib.title + "</em>");
+			}
+			if (bib.year) {
+				parts.push(bib.year);
+			}
+			if (parts.length > 0) {
+				return parts.join(", ");
+			} else {
+				return "No reference available!";
+			}
+		},
+
+		/**
 		 * Create and display the modal dialogue.
 		 * 
 		 * @param modal
