@@ -1,11 +1,11 @@
 /* Annotation container on the right hand of the page */
 .pageContainer .annotations {
 	position: absolute;
-	top: 0px;
+	top: 21px;
 	bottom: 80px;
 	right: 0px;
 	width: 260px;
-	padding: 20px 20px 10px 15px;
+	padding: 10px 20px 10px 15px;
 	margin-top: 0px;
 	overflow-y: auto;
 }
@@ -29,18 +29,30 @@
 	border-width: 1px 0px 0px 0px;
 }
 
+.pageContainer .topMargin {
+	position: absolute;
+	top: 20px;
+	right: 10px;
+	width: 260px;
+	height: 0px;
+	padding-top: 10px;
+	padding-left: 10px;
+	padding-right: 10px;
+	border-color: #ddd;
+	border-style: solid;
+	border-width: 1px 0px 0px 0px;
+}
+
 #toolbar {
 	position: absolute;
 	top: 40px;
 	right: 0px;
-	left: 0px;	
+	left: 0px;
 	padding-top: 10px;
 	padding-bottom: 0px;
 	padding-left: 20px;
 	padding-right: 20px;
 }
-
-
 
 /* Each top level annotation div within the annotation container */
 .pageContainer .annotations>div.annotation {
@@ -50,13 +62,24 @@
 	border-color: #bbb;
 	position: relative;
 	margin: 0px 0px 5px 0px;
+	padding: 5px 5px 5px 30px;
 	background-color: #fffefe;
-	padding: 5px;
 	-moz-box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
 	-webkit-box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
 	box-shadow: 2px 2px 3px #bbb;
 	-moz-border-radius: 4px;
 	border-radius: 4px;
+}
+
+.pageContainer .annotations>div.annotation .edit-annotation-button {
+	position: absolute;
+	padding: 0px;
+	width: 19px;
+	height: 19px;
+	line-height: 20px;
+	left: 1px;
+	top: 1px;
+	z-index: 4;
 }
 
 /* Annotations of type textus:comment, author and comment divs are styled */
@@ -133,7 +156,7 @@ span.i {
 /* Canvases used to render the annotation indicators on the page and the coloured overlays on the annotation divs */
 .pageContainer canvas {
 	position: absolute;
-	top: 0px;
+	top: 20px;
 	left: 0px;
 	z-index: 3;
 	pointer-events: none;
@@ -177,33 +200,4 @@ span.i {
 	width: 0px;
 	display: inline-block;
 	white-space: nowrap;
-}
-
-/* Page turn buttons */
-.footer button {
-	position: absolute;
-	height: 45px;
-	bottom: 0px;
-	z-index: 4;
-	-moz-border-radius: 0px;
-	border-radius: 0px;
-	-moz-border-top-left-radius: 15px;
-}
-
-.footer button#pageBackButton {
-	left: 0px;
-	border-width: 1px 1px 0px 0px;
-	border-color: #aaa;
-	border-style: solid;
-	border-top-right-radius: 15px;
-	-moz-border-top-right-radius: 15px;
-}
-
-.footer button#pageForwardButton {
-	border-width: 1px 0px 0px 1px;
-	border-color: #aaa;
-	border-style: solid;
-	right: 0px;
-	border-top-left-radius: 15px;
-	-moz-border-top-left-radius: 15px;
 }

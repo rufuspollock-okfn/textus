@@ -1,7 +1,7 @@
 // Defines TextView
 
-define([ 'textus', 'text!templates/textView.html', 'text!templates/annotations/comment.html' ], function(textus,
-		layout, annotationComment) {
+define([ 'textus', 'text!templates/textView.html', 'text!templates/annotations/comment.html', 'models' ], function(
+		textus, layout, annotationComment, models) {
 
 	/**
 	 * Get the offset of the target in the container's coordinate space.
@@ -26,9 +26,7 @@ define([ 'textus', 'text!templates/textView.html', 'text!templates/annotations/c
 	 * @param annotationContainer
 	 *            The div into which annotation object representations are to be injected
 	 */
-	function populateAnnotationContainer(semantics, annotationContainer) {
-		console.log("Populating annotation container");
-		console.log(annotationContainer);
+	function populateAnnotationContainer(semantics, annotationContainer, presenter) {
 		annotationContainer.empty();
 		semantics.sort(function(a, b) {
 			if (a.start != b.start) {
@@ -44,10 +42,20 @@ define([ 'textus', 'text!templates/textView.html', 'text!templates/annotations/c
 			} else {
 				d.html(annotation.id);
 			}
+			if (models.loginModel.get("loggedIn") && models.loginModel.get("user").id == annotation.user) {
+				var a = $("<a class='btn btn-success edit-annotation-button'>"
+						+ "<i class='icon-edit icon-white'></i></a>");
+				a.click(function(event) {
+					if (presenter) {
+						presenter.editAnnotation(event, annotation);
+					}
+				});
+				d.prepend(a);
+
+			}
 			annotationContainer.append(d);
 		});
 	}
-	;
 
 	/**
 	 * Resize, clear and re-render the lines linking annotation blocks to their corresponding divs
@@ -67,7 +75,7 @@ define([ 'textus', 'text!templates/textView.html', 'text!templates/annotations/c
 		var width = textContainer.outerWidth(true);
 		var height = textContainer.outerHeight(true);
 		var backgroundHeight = annotationContainer.outerHeight(true);
-		canvas.get(0).height = height;
+		canvas.get(0).height = height - 20;
 		canvas.get(0).width = width;
 		var ctx = canvas.get(0).getContext("2d");
 		ctx.lineWidth = 2;
@@ -94,18 +102,15 @@ define([ 'textus', 'text!templates/textView.html', 'text!templates/annotations/c
 		 * can balance them.
 		 */
 		var space = annotationContainer.height() - 60;
-		console.log("Space in container", space);
 		annotationContainer.children().each(function() {
 			var id = $(this).attr("annotation-id");
 			if (regions[id]) {
 				var height = $(this).outerHeight();
-				console.log(height);
 				space = space - height;
 			} else {
 				$(this).remove();
 			}
 		});
-		console.log("Space remaining after annotations ", space);
 		$('.annotation-spacer', annotationContainer).remove();
 		if (space > 0) {
 			annotationContainer.children().each(function() {
@@ -115,7 +120,6 @@ define([ 'textus', 'text!templates/textView.html', 'text!templates/annotations/c
 				var childHeight = child.outerHeight(true);
 				var desiredY = Math.max(0, regions[id].y - childHeight / 2) + 20;
 				var currentY = relativeCoords(canvas, child).y + childHeight / 2;
-				console.log(child, desiredY, currentY);
 				if (currentY < desiredY) {
 					var size = Math.min(desiredY - currentY, space);
 					child.before("<div class='annotation-spacer' style='height:" + size + "px'></div>");
@@ -123,37 +127,34 @@ define([ 'textus', 'text!templates/textView.html', 'text!templates/annotations/c
 				}
 			});
 		}
-		annotationContainer.children('.annotation').each(
-				function() {
-					var child = $(this);
-					var margin = 10;
-					var childHeight = child.outerHeight(true);
-					var id = child.attr("annotation-id");
-					var coords = relativeCoords(canvas, child);
-					if (coords.y >= (-childHeight) && coords.y <= backgroundHeight) {
-						var region = regions[id];
-						var anchorY = coords.y + (childHeight / 2);
-						if (coords.y + margin < region.y && coords.y - margin + (childHeight) > region.y) {
-							anchorY = region.y;
-						} else if (coords.y - margin + (childHeight) < region.y) {
-							anchorY = coords.y + childHeight - margin;
-						} else if (coords.y + margin > region.y) {
-							anchorY = coords.y + margin;
-						}
-						if (anchorY > 0 && anchorY < backgroundHeight) {
-							ctx.strokeStyle = region.colour;
-							ctx.beginPath();
-							ctx.moveTo(region.x, region.y);
-							ctx.lineTo(coords.x, anchorY);
-							ctx.closePath();
-							ctx.stroke();
-						}
-						ctx.fillStyle = region.colour;
-						console.log(child.outerHeight(), coords.y, backgroundHeight);
-						ctx.fillRect(coords.x, coords.y, child.outerWidth(), Math.min(child.outerHeight(),
-								backgroundHeight - coords.y));
-					}
-				});
+		annotationContainer.children('.annotation').each(function() {
+			var child = $(this);
+			var margin = 10;
+			var childHeight = child.outerHeight(true);
+			var id = child.attr("annotation-id");
+			var coords = relativeCoords(canvas, child);
+			if (coords.y >= (-childHeight) && coords.y <= backgroundHeight) {
+				var region = regions[id];
+				var anchorY = coords.y + (childHeight / 2);
+				if (coords.y + margin < region.y && coords.y - margin + (childHeight) > region.y) {
+					anchorY = region.y;
+				} else if (coords.y - margin + (childHeight) < region.y) {
+					anchorY = coords.y + childHeight - margin;
+				} else if (coords.y + margin > region.y) {
+					anchorY = coords.y + margin;
+				}
+				if (anchorY > 0 && anchorY < backgroundHeight) {
+					ctx.strokeStyle = region.colour;
+					ctx.beginPath();
+					ctx.moveTo(region.x, region.y);
+					ctx.lineTo(coords.x, anchorY);
+					ctx.closePath();
+					ctx.stroke();
+				}
+				ctx.fillStyle = region.colour;
+				ctx.fillRect(coords.x, coords.y, 25, Math.min(child.outerHeight(), backgroundHeight - coords.y));
+			}
+		});
 	}
 
 	function getLineHeight(e) {
@@ -186,7 +187,7 @@ define([ 'textus', 'text!templates/textView.html', 'text!templates/annotations/c
 	var renderCanvas = function(canvas, textContainer, semantics) {
 		var width = textContainer.outerWidth(true);
 		var height = textContainer.outerHeight(true) - 20;
-		canvas.get(0).height = height;
+		canvas.get(0).height = height - 20;
 		canvas.get(0).width = width;
 		var ctx = canvas.get(0).getContext("2d");
 		var leftMargin = 30;
@@ -204,7 +205,8 @@ define([ 'textus', 'text!templates/textView.html', 'text!templates/annotations/c
 
 			var lineHeight = getLineHeight($(this));
 			var id = $(this).attr("annotation-id");
-			// If we're right on the end of the line move the start coordinates to the following
+			// If we're right on the end of the line move the start coordinates to the
+			// following
 			// line
 			if (coords.x >= rightMargin) {
 				coords.x = leftMargin;
@@ -333,7 +335,7 @@ define([ 'textus', 'text!templates/textView.html', 'text!templates/annotations/c
 							model.get("semantics"))
 				});
 				pageText.html(model.get("cachedHTML"));
-				populateAnnotationContainer(model.get("semantics"), annotations);
+				populateAnnotationContainer(model.get("semantics"), annotations, presenter);
 				renderCanvas(pageCanvas, pageText, model.get("semantics"));
 				renderLinks(pageText, linkCanvas, model.get("semantics"), annotations);
 			});

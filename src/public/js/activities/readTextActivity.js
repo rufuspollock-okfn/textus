@@ -141,9 +141,10 @@ define([ 'textus', 'views/textView', 'views/editSemanticAnnotationView', 'models
 					var measured = measure(markupStruct(test));
 					if (measured <= height) {
 						textLength = textLength + i;
-						//console.log("Text length is " + textLength + " (+" + i + ")");
+						// console.log("Text length is " + textLength + " (+" + i + ")");
 					} else {
-						//console.log("Text is too high - measured at " + measured + ", maximum is " + height);
+						// console.log("Text is too high - measured at " + measured + ", maximum is
+						// " + height);
 					}
 				}
 				var t = trimData(textLength);
@@ -263,6 +264,9 @@ define([ 'textus', 'views/textView', 'views/editSemanticAnnotationView', 'models
 				back : function() {
 					updateTextAsync(models.textLocationModel.get("textId"), models.textLocationModel.get("offset"),
 							false, textView.pageHeight(), textView.measure);
+				},
+				editAnnotation : function(event, annotation) {
+					window.alert(JSON.stringify(annotation));
 				}
 			};
 
@@ -319,7 +323,7 @@ define([ 'textus', 'views/textView', 'views/editSemanticAnnotationView', 'models
 							},
 							presenter : {
 								storeAnnotation : function(data) {
-									//console.log("Annotation data : " + data);
+									// console.log("Annotation data : " + data);
 									var newAnnotation = {
 										start : s.get("start"),
 										end : s.get("end"),
