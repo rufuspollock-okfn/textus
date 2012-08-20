@@ -13,7 +13,7 @@ define([ 'text!templates/listTextsView.html', 'textus' ], function(layoutTemplat
 						search_url : '/api/texts-es?',
 						search_index : 'elasticsearch',
 						facets : [ {
-							'field' : 'author.name',
+							'field' : 'author.lastname',
 							'display' : 'author'
 						}, {
 							'field' : 'year',

@@ -82,18 +82,6 @@
 	z-index: 4;
 }
 
-/* Annotations of type textus:comment, author and comment divs are styled */
-.annotation-textus-comment>.annotation-author {
-	font-weight: bold;
-	font-size: 12px;
-}
-
-.annotation-textus-comment>.comment {
-	font-size: 12px;
-	text-align: justify;
-	padding-top: 2px;
-}
-
 /* Styles for the basic set of annotations [p,i1,i2,i3,i4,i5,i6,b,i] */
 /* Lists and heading elements are defined globally in mainLayout.css */
 span.p,span.paragraph,span.i1,span.i2,span.i3,span.i4,span.i5,span.i6 {

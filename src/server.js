@@ -45,6 +45,13 @@ var app = function() {
  */
 app.get("/api/text/:textId/:start/:end", function(req, res) {
 	datastore.fetchText(req.params.textId, parseInt(req.params.start), parseInt(req.params.end), function(err, data) {
+		var user = login.getCurrentUserId(req);
+		data.semantics = data.semantics.filter(function(item, index, array) {
+			if (item.visibility === 'private' && (user != item.user)) {
+				return false;
+			}
+			return true;
+		});
 		if (err) {
 			console.log(err);
 		} else {
@@ -115,12 +122,12 @@ app.post("/api/meta/:textId", login.checkLogin, function(req, res) {
 					if (err) {
 						console.log(err);
 					} else {
-						//console.log("Updated metadata on server");
-						//console.log(JSON.stringify(data, null, 2));
+						// console.log("Updated metadata on server");
+						// console.log(JSON.stringify(data, null, 2));
 						var parsedMarkerSet = markers(data);
 						var newRefs = parsedMarkerSet.discoverableBibJson();
-						//console.log("Getting discoverable BibJSON");
-						//console.log(JSON.stringify(newRefs, null, 2));
+						// console.log("Getting discoverable BibJSON");
+						// console.log(JSON.stringify(newRefs, null, 2));
 						datastore.replaceReferencesForText(req.params.textId, newRefs, function(err, response) {
 							if (err) {
 								console.log(err);
@@ -287,13 +294,18 @@ app.get("/api/texts-es", function(req, res) {
  * POST to create new semantic annotation
  */
 app.post("/api/semantics", login.checkLogin, function(req, res) {
+	/*
+	 * Create a new annotation object, adding the current logged in user and only copying the fields
+	 * we need from the supplied object to ensure we don't end up with grot in the data store.
+	 */
 	var annotation = {
 		user : req.session.user,
 		type : req.body.type,
 		payload : req.body.payload,
 		start : parseInt(req.body.start),
 		end : parseInt(req.body.end),
-		textId : req.body.textId
+		textId : req.body.textId,
+		visibility : req.body.visibility
 	};
 	datastore.createSemanticAnnotation(annotation, function(err, response) {
 		if (err) {
@@ -304,6 +316,89 @@ app.post("/api/semantics", login.checkLogin, function(req, res) {
 				painter.augmentAnnotations([ annotation ], [ painter.painters.colourByUser ], function(newSemantics) {
 					res.json(newSemantics[0]);
 				});
+			});
+		}
+	});
+});
+
+/**
+ * POST new annotation data to update or delete an annotation. Set visibility to 'delete' on the
+ * updated annotation to remove it from the store. Sends {success : bool, error : string} back on
+ * completion.
+ */
+app.post("/api/semantics/:annotationId", login.checkLogin, function(req, res) {
+	datastore.getSemanticAnnotation(req.params.annotationId, function(err, existingAnnotation) {
+		if (err) {
+			res.json({
+				success : false,
+				error : err
+			});
+			return;
+		}
+		/*
+		 * Check that the current annotation is in a suitable state for update or delete and that
+		 * the current user is the owner
+		 */
+		if (existingAnnotation.visibility === 'final') {
+			res.json({
+				success : false,
+				error : "Annotation is final, can't be modified or deleted!"
+			});
+			return;
+		}
+		if (existingAnnotation.user != req.session.user) {
+			res.json({
+				success : false,
+				error : "Attempt to modify or delete an annotation the user does not own!"
+			});
+			return;
+		}
+		var annotation = req.body;
+		if (annotation.id != req.params.annotationId) {
+			res.json({
+				success : false,
+				error : "Annotation ID on supplied annotation doesn't match HTTP resource!"
+			});
+			return;
+		}
+		if (annotation.visibility === 'delete') {
+			/* Delete the annotation */
+			datastore.deleteSemanticAnnotation(req.params.annotationId, function(err) {
+				if (!err) {
+					res.json({
+						success : true,
+						error : null
+					});
+				} else {
+					res.json({
+						success : false,
+						error : err
+					});
+				}
+			});
+		} else {
+			var annotationToStore = {
+				user : existingAnnotation.user,
+				type : annotation.type,
+				payload : annotation.payload,
+				start : existingAnnotation.start,
+				end : existingAnnotation.end,
+				textId : existingAnnotation.textId,
+				visibility : annotation.visibility
+			};
+			/* Update the annotation */
+			datastore.updateSemanticAnnotation(annotationToStore, req.params.annotationId, function(err) {
+				if (!err) {
+					res.json({
+						success : true,
+						error : null
+					});
+				} else {
+					res.json({
+						success : false,
+						error : err
+					});
+				}
 			});
 		}
 	});

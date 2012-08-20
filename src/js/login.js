@@ -166,6 +166,25 @@ module.exports = exports = function(datastore, conf) {
 		},
 
 		/**
+		 * Synchronous method which just retrieves and checks the user ID, returning it or null if
+		 * there is no user.
+		 * 
+		 * @param req
+		 *            the HTTP request object, used to interrogate the cookies set by the login
+		 *            system
+		 * @return userId or null if no user
+		 */
+		getCurrentUserId : function(req) {
+			var user = req.session.user;
+			var userKey = req.session.userKey;
+			if (user && userKey && loginSecrets[user] && loginSecrets[user] == userKey) {
+				return user;
+			} else {
+				return null;
+			}
+		},
+
+		/**
 		 * Create a new user record, assigning a random colour to the user record.
 		 * 
 		 * @param email

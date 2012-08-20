@@ -33,7 +33,7 @@ require([ 'router', 'models', 'loginClient' ], function(Router, models, loginCli
 		fieldset : '<fieldset><legend>{{legend}}</legend>{{fields}}</fieldset>',
 		field : '<div class="control-group"><label class="control-label" for="{{id}}">'
 				+ '{{title}}</label><div class="controls"><div class="input-xlarge">'
-				+ '{{editor}}</div><div class="help-block">{{help}}</div></div></div>',
+				+ '{{editor}}</div></div></div>',
 		nestedField : '<div><div title="{{title}}" class="input-xlarge">{{editor}}</div>'
 				+ '<div class="help-block">{{help}}</div></div>',
 		list : '<div class="bbf-list"><ul class="unstyled clearfix">{{items}}</ul>'

@@ -1,7 +1,7 @@
 // Defines TextView
 
-define([ 'textus', 'text!templates/textView.html', 'text!templates/annotations/comment.html', 'models' ], function(
-		textus, layout, annotationComment, models) {
+define([ 'textus', 'text!templates/textView.html', 'views/annotationTypes', 'models' ], function(textus, layout,
+		annotationTypes, models) {
 
 	/**
 	 * Get the offset of the target in the container's coordinate space.
@@ -13,9 +13,7 @@ define([ 'textus', 'text!templates/textView.html', 'text!templates/annotations/c
 		};
 	}
 
-	var annotationRenderers = {
-		"textus:comment" : _.template(annotationComment),
-	};
+	var annotationRenderers = annotationTypes.renderers;
 
 	/**
 	 * Create DIV elements in the annotation container corresponding to the supplied semantic
@@ -37,12 +35,26 @@ define([ 'textus', 'text!templates/textView.html', 'text!templates/annotations/c
 		});
 		semantics.forEach(function(annotation) {
 			var d = $("<div class='annotation' annotation-id=\"" + annotation.id + "\"/>");
+			var colour = {
+				'private' : 'red',
+				'provisional' : '#cc9933',
+				'final' : 'black',
+				'unknown' : 'pink'
+			}[annotation.visibility ? annotation.visibility : 'unknown'];
+			var userDisplay = {
+				'private' : annotation.user + " <sup style='color:"+colour+"'>[private]</sup>",
+				'provisional' : annotation.user + " <sup style='color:"+colour+"'>[provisional]</sup>",
+				'final' : annotation.user,
+				'unknown' : annotation.user
+			}[annotation.visibility ? annotation.visibility : 'unknown'];
+			d.append($("<div style='color:#555; padding-bottom:4px;'>" + userDisplay + "</div>"));
 			if (annotationRenderers[annotation.type]) {
-				d.html(annotationRenderers[annotation.type](annotation));
+				d.append(annotationRenderers[annotation.type](annotation.payload));
 			} else {
-				d.html(annotation.id);
+				d.append(annotation.id);
 			}
-			if (models.loginModel.get("loggedIn") && models.loginModel.get("user").id == annotation.user) {
+			if (models.loginModel.get("loggedIn") && models.loginModel.get("user").id == annotation.user
+					&& annotation.visibility != 'final') {
 				var a = $("<a class='btn btn-success edit-annotation-button'>"
 						+ "<i class='icon-edit icon-white'></i></a>");
 				a.click(function(event) {

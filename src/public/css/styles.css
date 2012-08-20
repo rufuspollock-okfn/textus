@@ -12,6 +12,8 @@
 
 @import url('jquery.ui.colorPicker.css');
 
+@import url('annotationEditor.css');
+
 .textus-highlight {
 	color: black;
 	background-color: #efe;

@@ -266,7 +266,36 @@ define([ 'textus', 'views/textView', 'views/editSemanticAnnotationView', 'models
 							false, textView.pageHeight(), textView.measure);
 				},
 				editAnnotation : function(event, annotation) {
-					window.alert(JSON.stringify(annotation));
+					var textId = models.textLocationModel.get("textId");
+					textus.showModal({
+						constructor : function(container, header, closeModal) {
+							var editView = new EditSemanticAnnotationView({
+								presenter : {
+									updateAnnotation : function(annotation) {
+										$.post("api/semantics/" + annotation.id, annotation, function(response) {
+											if (response.success) {
+												presenter.requestTextFill();
+												closeModal();
+											} else {
+												window.alert(respose.message);
+												closeModal();
+											}
+										});
+									}
+								},
+								annotation : annotation
+							});
+							editView.render();
+							container.append(editView.el);
+							header.append("<h4>Edit annotation [" + annotation.visibility + "]</h4>");
+							firingKeyEvents = false;
+						},
+						beforeClose : function() {
+							firingKeyEvents = true;
+							return true;
+						},
+						position : "left"
+					}, event);
 				}
 			};
 
@@ -308,40 +337,32 @@ define([ 'textus', 'views/textView', 'views/editSemanticAnnotationView', 'models
 				}
 			});
 
+			function buildAnnotationEditorPresenter(closeModal) {
+				return {
+					createAnnotation : function(newAnnotation) {
+						// console.log("Annotation data : " + data);
+						newAnnotation.start = s.get("start");
+						newAnnotation.end = s.get("end");
+						newAnnotation.textId = models.textLocationModel.get("textId");
+						$.post("api/semantics", newAnnotation, function(returnedAnnotation) {
+							var semanticsArray = models.textModel.get("semantics").slice(0);
+							semanticsArray.push(returnedAnnotation);
+							models.textModel.set({
+								semantics : semanticsArray
+							});
+							firingKeyEvents = true;
+							closeModal();
+						});
+					}
+				};
+			}
+
 			$('#annotate-button').click(function(event) {
 				var textId = models.textLocationModel.get("textId");
 				textus.showModal({
 					constructor : function(container, header, closeModal) {
 						var editView = new EditSemanticAnnotationView({
-							text : s.get("text"),
-							start : s.get("start"),
-							end : s.get("end"),
-							textId : models.textLocationModel.get("textId"),
-							annotation : {
-								type : "textus:comment",
-								payload : null
-							},
-							presenter : {
-								storeAnnotation : function(data) {
-									// console.log("Annotation data : " + data);
-									var newAnnotation = {
-										start : s.get("start"),
-										end : s.get("end"),
-										textId : models.textLocationModel.get("textId"),
-										type : data.type,
-										payload : data.payload
-									};
-									$.post("api/semantics", newAnnotation, function(returnedAnnotation) {
-										var semanticsArray = models.textModel.get("semantics").slice(0);
-										semanticsArray.push(returnedAnnotation);
-										models.textModel.set({
-											semantics : semanticsArray
-										});
-										firingKeyEvents = true;
-										closeModal();
-									});
-								}
-							}
+							presenter : buildAnnotationEditorPresenter(closeModal)
 						});
 						editView.render();
 						container.append(editView.el);

@@ -1,4 +1,28 @@
-<div class="annotationEditorContents">
-	<div id="annotationEditor" />
+<div class="annotationEditorContents form-horizontal">
+
+	<div class='control-group creating-annotation'>
+		<label class='control-label' for='annotationTypeSelect'>Type</label>
+		<div class='controls'>
+			<select id='typeSelect' name='annotationTypeSelect'></select>
+		</div>
+	</div>
+	<div id="annotationEditor" style="margin-bottom: 40px" />
+	<div
+		style="position: absolute; right: 10px; left: 10px; bottom: 5px; height: 30px;">
+		<div class="creating-annotation" style="position: absolute; right: 0px">
+			<a href="#" id="create" class="btn btn-success">Save</a>
+		</div>
+		<div style="position: absolute; right: 0px"
+			class="editing-annotation inline">
+			<div style='padding-right: 5px'>Save as :</div>
+			<div class="btn-group" class="hide-if-final">
+				<a href="#" id="saveAsPrivate" class="btn btn-success">Private</a> <a
+					href="#" id="saveAsProvisional" class="btn btn-success">Provisional</a>
+				
+			</div>
+			<div class="btn-group"><a href="#" id="saveAsFinal" class="btn btn-warning">Final</a></div>
+		</div>
+		<a href="#" id="delete" class="btn btn-danger editing-annotation" style="position:absolute; left:0px">Delete</a>
+	</div>
 </div>
 

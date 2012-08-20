@@ -465,6 +465,32 @@ module.exports = exports = function(conf) {
 			});
 		},
 
+		updateSemanticAnnotation : function(annotation, annotationId, callback) {
+			client.index(textusIndex, "semantics", annotation, {
+				id : annotationId,
+				refresh : true,
+				create : false
+			}, function(err, result) {
+				callback(err);
+			});
+		},
+
+		deleteSemanticAnnotation : function(annotationId, callback) {
+			client.del(textusIndex, "semantics", annotationId, function(err, result) {
+				client.refresh(function() {
+					callback(err);
+				});
+			});
+		},
+
+		getSemanticAnnotation : function(annotationId, callback) {
+			client.get(textusIndex, annotationId, {
+				type : "semantics"
+			}, function(err, annotation) {
+				callback(err, annotation);
+			});
+		},
+
 		/**
 		 * Returns summary information for all uploads in the form { title: STRING, owners :
 		 * [string], date:INT } via the callback(error, data).
