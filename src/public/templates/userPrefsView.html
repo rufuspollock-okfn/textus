@@ -1,6 +1,5 @@
 <div>
 	<h2>User preferences</h2>
-	<p>This page isn't ready yet....</p>
 	<hr />
 	<div class="row">
 		<div class="span1">
@@ -19,13 +18,16 @@
 	<hr />
 	<div class="row">
 		<div class="span1">&nbsp;</div>
-		<div class="span10">
+		<div class="span7">
 			<h3>Annotation Colour</h3>
 			<p>This control determines the colour used for any annotations
 				you make. Changes here will be reflected in any annotations you have
 				already made, assuming the viewer has selected an annotation
 				colouring mode based on author.</p>
-			<h4 style="color: green">TODO - Implement color picker</h4>
+
+		</div>
+		<div class="span3">
+			<div id="annotationColourPicker" style="padding-left: 100px"></div>
 		</div>
 
 	</div>
@@ -37,14 +39,25 @@
 			<p>Used in place of an email address, if you leave this field
 				blank textus will use your email address when it needs to represent
 				you in some fashion.</p>
-			<h4 style="color: green">TODO - Implement display name control</h4>
+			<form class="form-horizontal" style="padding-top:10px">
+				<fieldset>
+					<div class="control-group">
+						<label class="control-label" for="displayName">Display
+							Name</label>
+						<div class="controls">
+							<input type="text" class="span3" id="displayName"
+								placeholder="name" />
+						</div>
+					</div>
+				</fieldset>
+			</form>
 		</div>
 
 	</div>
 	<hr />
 	<div class="row">
-
-		<a class="btn btn-success pull-right">Save Changes</a>
+		<a class="btn btn-success pull-right" id="saveChanges">Save
+			Changes</a>
 	</div>
 </div>
 

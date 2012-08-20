@@ -35,6 +35,7 @@ div.colorpicker span.picker, div.colorpicker span.handle {
   z-index: 2;
 }
 div.colorpicker div.slider {
+	display:none;
   width: 6px;
   background-color: #fff;
   background-clip: padding-box;

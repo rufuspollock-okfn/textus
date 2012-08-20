@@ -11,10 +11,14 @@ define([ 'views/userPrefsView', 'models' ], function(UserPrefsView, models) {
 			var view = new UserPrefsView({
 				loginModel : models.loginModel,
 				presenter : {
-					updateUserPrefs : function(prefs) {
-						// Call update API here, update then poke the user model to trigger
-						// re-rendering of the view.
-						console.log("Call to update user prefs " + prefs);
+					updatePrefs : function() {
+						$.post("api/login/user/prefs", view.getPrefs(), function(response) {
+							if (response.success) {
+								window.location.reload();
+							} else {
+								console.log(response);
+							}
+						});
 					}
 				}
 			});
@@ -23,14 +27,16 @@ define([ 'views/userPrefsView', 'models' ], function(UserPrefsView, models) {
 			$('.main').append(view.el);
 			view.afterDisplay();
 			var renderFunction = function() {
-				view.render();
+				view.setPrefs(models.loginModel.get("user").prefs);
 			};
+			view.setPrefs(models.loginModel.get("user").prefs);
 			models.loginModel.bind("change", renderFunction);
 			return [ {
 				event : "change",
 				model : models.loginModel,
 				handler : renderFunction
 			} ];
+			
 		};
 
 		this.stop = function(callback) {

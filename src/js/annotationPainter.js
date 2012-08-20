@@ -85,6 +85,19 @@ module.exports = exports = function(login) {
 				return {
 					colour : "rgba(" + c.red + "," + c.green + "," + c.blue + ",0.2)"
 				};
+			},
+
+			/**
+			 * Add in the display name if available
+			 */
+			addDisplayName : function(annotation, user) {
+				if (user.prefs.displayName && user.prefs.displayName != '') {
+					return {
+						displayName : user.prefs.displayName
+					};
+				} else {
+					return {};
+				}
 			}
 
 		}

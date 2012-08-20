@@ -427,7 +427,8 @@ module.exports = exports = function(datastore, conf) {
 		 *            existing keys
 		 */
 		updateUserPrefs : function(id, prefs, callback) {
-			this.getUser(id, function(user) {
+			this.getUser(id, function(response) {
+				var user = response.user;
 				if (user == null) {
 					callback(buildCallback(null, false, "No user specified for prefs update!"));
 				} else {
@@ -550,6 +551,16 @@ module.exports = exports = function(datastore, conf) {
 				});
 			});
 
+			/**
+			 * POST to update preferences, merging in the supplied object with the exising user
+			 * preferences.
+			 */
+			app.post("/" + prefix + "login/user/prefs", loginService.checkLogin, function(req, res) {
+				loginService.updateUserPrefs(req.session.user, req.body, function(response) {
+					res.json(response);
+				});
+			});
+			
 			/**
 			 * GET to request verification of a new user password, sending a confirmation email with
 			 * a link to the password reset page

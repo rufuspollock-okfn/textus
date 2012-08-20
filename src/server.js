@@ -59,10 +59,11 @@ app.get("/api/text/:textId/:start/:end", function(req, res) {
 			 * Use the login object to fetch colours for each user and augment the semantic
 			 * annotations
 			 */
-			painter.augmentAnnotations(data.semantics, [ painter.painters.colourByUser ], function(newSemantics) {
-				data.semantics = newSemantics;
-				res.json(data);
-			});
+			painter.augmentAnnotations(data.semantics,
+					[ painter.painters.colourByUser, painter.painters.addDisplayName ], function(newSemantics) {
+						data.semantics = newSemantics;
+						res.json(data);
+					});
 		}
 	});
 });
@@ -313,7 +314,8 @@ app.post("/api/semantics", login.checkLogin, function(req, res) {
 		} else {
 			annotation.id = response._id;
 			login.getUser(annotation.user, function(user) {
-				painter.augmentAnnotations([ annotation ], [ painter.painters.colourByUser ], function(newSemantics) {
+				painter.augmentAnnotations([ annotation ], [ painter.painters.colourByUser,
+						painter.painters.addDisplayName ], function(newSemantics) {
 					res.json(newSemantics[0]);
 				});
 			});

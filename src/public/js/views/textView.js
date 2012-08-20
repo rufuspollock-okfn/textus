@@ -41,11 +41,12 @@ define([ 'textus', 'text!templates/textView.html', 'views/annotationTypes', 'mod
 				'final' : 'black',
 				'unknown' : 'pink'
 			}[annotation.visibility ? annotation.visibility : 'unknown'];
+			var userName = (annotation.dynamic.displayName ? annotation.dynamic.displayName : annotation.user);
 			var userDisplay = {
-				'private' : annotation.user + " <sup style='color:"+colour+"'>[private]</sup>",
-				'provisional' : annotation.user + " <sup style='color:"+colour+"'>[provisional]</sup>",
-				'final' : annotation.user,
-				'unknown' : annotation.user
+				'private' : userName + " <sup style='color:" + colour + "'>[private]</sup>",
+				'provisional' : userName + " <sup style='color:" + colour + "'>[provisional]</sup>",
+				'final' : userName,
+				'unknown' : userName
 			}[annotation.visibility ? annotation.visibility : 'unknown'];
 			d.append($("<div style='color:#555; padding-bottom:4px;'>" + userDisplay + "</div>"));
 			if (annotationRenderers[annotation.type]) {
