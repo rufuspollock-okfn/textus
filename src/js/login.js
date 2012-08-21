@@ -348,52 +348,21 @@ module.exports = exports = function(datastore, conf) {
 
 		/**
 		 * Called when we have a verified OpenID login. This call should fetch the user with the
-		 * appropriate email, creating one if necessary. If there is no openID identifier associated
-		 * with that user it should assign it and proceed, otherwise it should verify that they
-		 * match. If they do match then we have a successful login.
+		 * appropriate email, creating one if necessary.
 		 * 
-		 * @param claimedIdentifier
 		 * @param id
 		 * @param callback
 		 */
-		loginWithOpenID : function(req, claimedIdentifier, id, callback) {
+		loginWithOpenID : function(req, id, callback) {
 			loginService.getOrCreateUser(id, function(response) {
 				if (response.success) {
-					if (response.user.openid) {
-						if (response.user.openid == claimedIdentifier) {
-							/* Login success */
-							req.session.user = response.user.id;
-							req.session.userKey = randomSecret();
-							loginSecrets[req.session.user] = req.session.userKey;
-							callback(buildCallback(response.user, true, "Logged in via OpenID as " + id));
-							return;
-						} else {
-							/* Login failure */
-							callback(buildCallback(null, false, "OpenID claimed identifier doesn't match!"));
-							return;
-						}
-					} else {
-						/*
-						 * User doesn't have an openID claimed identifier, set it, store it and log
-						 * in
-						 */
-						response.user.openid = claimedIdentifier;
-						datastore.createOrUpdateUser(response.user, function(err, user) {
-							if (err) {
-								callback(buildCallback(null, false,
-										"Unable to store OpenID claimed identifier for user account " + id));
-								return;
-							} else {
-								req.session.user = user.id;
-								req.session.userKey = randomSecret();
-								loginSecrets[req.session.user] = req.session.userKey;
-								callback(buildCallback(user, true, "Logged in via OpenID as " + id));
-								return;
-							}
-						});
-					}
+					req.session.user = response.user.id;
+					req.session.userKey = randomSecret();
+					loginSecrets[req.session.user] = req.session.userKey;
+					callback(buildCallback(response.user, true, "Logged in via OpenID as " + id));
+					return;
 				} else {
-					callback(response);
+					callback(buildCallback(null, false, "Unable to log in with OpendID for account " + id));
 				}
 			});
 		},
@@ -560,7 +529,7 @@ module.exports = exports = function(datastore, conf) {
 					res.json(response);
 				});
 			});
-			
+
 			/**
 			 * GET to request verification of a new user password, sending a confirmation email with
 			 * a link to the password reset page
@@ -622,9 +591,11 @@ module.exports = exports = function(datastore, conf) {
 			app.get("/" + prefix + "login/openid/verify", function(req, res) {
 				getRelyingParty(req).verifyAssertion(req, function(error, result) {
 					if (!error && result.authenticated && result.email != null) {
-						loginService.loginWithOpenID(req, result.claimedIdentifier, result.email, function(response) {
+						loginService.loginWithOpenID(req, result.email, function(response) {
 							res.redirect(conf.textus.base + (req.session.redirectTo ? req.session.redirectTo : ""));
 						});
+					} else {
+						res.redirect(conf.textus.base + "/#login");
 					}
 				});
 			});

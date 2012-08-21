@@ -48,8 +48,9 @@
 	top: 40px;
 	right: 0px;
 	left: 0px;
+	z-index: 1;
 	padding-top: 10px;
-	padding-bottom: 0px;
+	/*padding-bottom: 0px;*/
 	padding-left: 20px;
 	padding-right: 20px;
 }
