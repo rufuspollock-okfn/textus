@@ -23,14 +23,16 @@ module.exports = exports = function(conf) {
 	var textusIndex = conf.es.index;
 
 	/**
-	 * Defines the maximum size of text chunk stored in the datastore in characters.
+	 * Defines the maximum size of text chunk stored in the datastore in
+	 * characters.
 	 */
 	var textChunkSize = 1000;
 
 	/**
-	 * Build a new query object to retrieve entities with a matching textId, start index less than
-	 * 'start' and end index greater than or equal to 'end'. Optionally restrict results to a
-	 * particular type, omit to include all results.
+	 * Build a new query object to retrieve entities with a matching textId,
+	 * start index less than 'start' and end index greater than or equal to
+	 * 'end'. Optionally restrict results to a particular type, omit to include
+	 * all results.
 	 */
 	function buildRangeQuery(textId, start, end, type) {
 		var result = {
@@ -69,10 +71,11 @@ module.exports = exports = function(conf) {
 	}
 
 	/**
-	 * Build a new query object to retrieve entities of the specified matching all of the supplied
-	 * terms. If the terms argument is omitted this matches all entities of that type. The terms
-	 * argument is an object where keys are the keys in the "term" argument within a boolean 'must'
-	 * and values are their required values.
+	 * Build a new query object to retrieve entities of the specified matching
+	 * all of the supplied terms. If the terms argument is omitted this matches
+	 * all entities of that type. The terms argument is an object where keys are
+	 * the keys in the "term" argument within a boolean 'must' and values are
+	 * their required values.
 	 */
 	function buildTermQuery(type, terms) {
 		var result = {
@@ -108,8 +111,9 @@ module.exports = exports = function(conf) {
 	}
 
 	/**
-	 * Accepts blocks of input text ordered by sequence and emits an array of {offset, text} where
-	 * the text parts are split on spaces and are at most maxSize characters long.
+	 * Accepts blocks of input text ordered by sequence and emits an array of
+	 * {offset, text} where the text parts are split on spaces and are at most
+	 * maxSize characters long.
 	 */
 	function createTextChunks(maxSize, data) {
 		/* Sort by sequence, extract text parts and join together */
@@ -144,19 +148,20 @@ module.exports = exports = function(conf) {
 	}
 
 	/**
-	 * Accept a start and end offset and a set of text chunks which guarantee to cover the specified
-	 * range, and return {text:STRING, start:INT, end:INT} for that range.
+	 * Accept a start and end offset and a set of text chunks which guarantee to
+	 * cover the specified range, and return {text:STRING, start:INT, end:INT}
+	 * for that range.
 	 * 
 	 * @param start
-	 *            the desired index of the first character in the returned result, null to specify
-	 *            no trim
+	 *            the desired index of the first character in the returned
+	 *            result, null to specify no trim
 	 * @param end
-	 *            the desired index of the character one beyond the returned result's end, null to
-	 *            specify no trim
+	 *            the desired index of the character one beyond the returned
+	 *            result's end, null to specify no trim
 	 * @param chunks
-	 *            a collection of objects of the form {text:string, start:int, end:int} which may be
-	 *            unordered but must define a contiguous range of text (this is currently not
-	 *            tested)
+	 *            a collection of objects of the form {text:string, start:int,
+	 *            end:int} which may be unordered but must define a contiguous
+	 *            range of text (this is currently not tested)
 	 */
 	function joinTextChunksAndTrim(start, end, chunks) {
 		if (chunks.length == 0) {
@@ -187,15 +192,16 @@ module.exports = exports = function(conf) {
 	}
 
 	/**
-	 * Method to index each item in a collection, using a bulk indexing operation.
+	 * Method to index each item in a collection, using a bulk indexing
+	 * operation.
 	 * 
 	 * @param type
 	 *            the type under which the objects are indexed
 	 * @param list
 	 *            a list of objects to index
 	 * @param callback
-	 *            function(err) called on completion of list indexing, passed the error if something
-	 *            went wrong or null otherwise.
+	 *            function(err) called on completion of list indexing, passed
+	 *            the error if something went wrong or null otherwise.
 	 */
 	function indexArray(type, list, callback) {
 		if (list.length > 0) {
@@ -207,7 +213,9 @@ module.exports = exports = function(conf) {
 						"data" : item
 					}
 				};
-			}), function(err, res) {
+			}), {
+				'index' : textusIndex
+			}, function(err, res) {
 				if (err) {
 					console.log("Indexing failed : " + err);
 				}
@@ -219,13 +227,16 @@ module.exports = exports = function(conf) {
 	}
 
 	/**
-	 * Convenience method to index multiple collections using the indexArray function.
+	 * Convenience method to index multiple collections using the indexArray
+	 * function.
 	 * 
 	 * @param lists
-	 *            a list of {type, list} where the type property is the type passed to the
-	 *            indexArray function and the list is the list of objects to index.
+	 *            a list of {type, list} where the type property is the type
+	 *            passed to the indexArray function and the list is the list of
+	 *            objects to index.
 	 * @param function(err)
-	 *            called on completion with the error (if a failure) or null if success.
+	 *            called on completion with the error (if a failure) or null if
+	 *            success.
 	 */
 	function indexArrays(lists, callback) {
 		var wrap = lists.shift();
@@ -245,6 +256,82 @@ module.exports = exports = function(conf) {
 		}
 	}
 
+	var mappings = {
+		"bibjson" : {
+			"textus.textId" : {
+				"type" : "string",
+				"index" : "not_analyzed"
+			},
+			"textus.id" : {
+				"type" : "string",
+				"index" : "not_analyzed"
+			}
+		},
+		"text" : {
+			"textId" : {
+				"type" : "string",
+				"index" : "not_analyzed",
+				"store" : "yes"
+			}
+		},
+		"typography" : {
+			"textId" : {
+				"type" : "string",
+				"index" : "not_analyzed",
+				"store" : "yes"
+			}
+
+		},
+		"semantics" : {
+			"textId" : {
+				"type" : "string",
+				"index" : "not_analyzed",
+				"store" : "yes"
+			}
+		}
+	};
+
+	function createMappings(callback) {
+		var mappingArray = [];
+		var mapping;
+		for ( var type in mappings) {
+			if (mappings.hasOwnProperty(type)) {
+				mapping = {
+					'type' : type
+				};
+				mapping[type] = {
+					'properties' : mappings[type]
+				};
+				//console.log(mapping);
+				mappingArray.push(mapping);
+			}
+		}
+		createMappingsFromList(mappingArray, callback);
+	}
+	function createMappingsFromList(mappingArray, callback) {
+		var mapping = mappingArray.shift();
+		var type;
+		var properties;
+		if (mapping) {
+			type = mapping.type;
+			properties = {};
+			properties[type] = mapping[type];
+			client.putMapping(textusIndex, type, properties,
+					function(err, res) {
+						if (err) {
+							callback("Failed while creating mapping for "
+									+ type + " : " + err);
+						} else {
+//							console.log("Created mapping for type '"
+//									+ mapping.type + "'", mapping[type]);
+							createMappingsFromList(mappingArray, callback);
+						}
+					});
+		} else {
+			callback(null);
+		}
+	}
+
 	/**
 	 * The datastore API
 	 */
@@ -254,89 +341,23 @@ module.exports = exports = function(conf) {
 		 * Initialise the datastore
 		 * 
 		 * @param callback
-		 *            called with any error, or null if the initialisation succeeded.
+		 *            called with any error, or null if the initialisation
+		 *            succeeded.
 		 */
 		init : function(callback) {
+			var message = "Error when creating index (may not be important) : ";
 			client.createIndex(textusIndex, function(err, index, data) {
-				if (!err || err
-						&& (err + "" === "Error: IndexAlreadyExistsException[[" + textusIndex + "] Already exists]")) {
-					client.putMapping("bibjson", {
-						"bibjson" : {
-							properties : {
-								"textus.textId" : {
-									"type" : "string",
-									"index" : "not_analyzed"
-								},
-								"textus.id" : {
-									"type" : "string",
-									"index" : "not_analyzed"
-								}
-							}
-						}
-					}, function(err, res) {
-						if (!err) {
-							client.putMapping("text", {
-								"text" : {
-									"properties" : {
-										"textId" : {
-											"type" : "string",
-											"index" : "not_analyzed",
-											"store" : "yes"
-										}
-									}
-								}
-							}, function(err, res) {
-								if (!err) {
-									client.putMapping("typography", {
-										"typography" : {
-											"properties" : {
-												"textId" : {
-													"type" : "string",
-													"index" : "not_analyzed",
-													"store" : "yes"
-												}
-											}
-										}
-									}, function(err, res) {
-										if (!err) {
-											client.putMapping("semantics", {
-												"semantics" : {
-													"properties" : {
-														"textId" : {
-															"type" : "string",
-															"index" : "not_analyzed",
-															"store" : "yes"
-														}
-													}
-												}
-											}, function(err, res) {
-												if (!err) {
-													callback(null);
-												} else {
-													callback(err);
-												}
-											});
-										} else {
-											callback(err);
-										}
-									});
-								} else {
-									callback(err);
-								}
-							});
-						} else {
-							callback(err);
-						}
-					});
-				} else {
-					callback(err);
+				if (err) {
+					console.log(message, err);
 				}
+				createMappings(callback);
 			});
 		},
 
 		/**
-		 * Delete the entire index and re-create it, purging all contents. Callback will be called
-		 * with an error message, or null if the operation succeeded.
+		 * Delete the entire index and re-create it, purging all contents.
+		 * Callback will be called with an error message, or null if the
+		 * operation succeeded.
 		 */
 		clearIndex : function(callback) {
 			client.deleteIndex(textusIndex, function(err, data) {
@@ -353,7 +374,8 @@ module.exports = exports = function(conf) {
 		 */
 		deleteByIds : function(type, ids, callback) {
 
-			// console.log("Removing by ID from '" + type + "'", JSON.stringify(ids));
+			// console.log("Removing by ID from '" + type + "'",
+			// JSON.stringify(ids));
 			/* Check for empty ID list - this causes the bulk operation to fail */
 			if (ids.length == 0) {
 				callback(null);
@@ -367,7 +389,9 @@ module.exports = exports = function(conf) {
 						"id" : item
 					}
 				};
-			}), function(err, res) {
+			}), {
+				'index' : textusIndex
+			}, function(err, res) {
 				callback(err);
 			});
 		},
@@ -378,8 +402,8 @@ module.exports = exports = function(conf) {
 		 * @param userId
 		 *            the user ID to retrieve
 		 * @param callback
-		 *            a function(err, user) called with the user structure or an error if no such
-		 *            user exists
+		 *            a function(err, user) called with the user structure or an
+		 *            error if no such user exists
 		 */
 		getUser : function(userId, callback) {
 			client.get(textusIndex, userId, {
@@ -390,14 +414,14 @@ module.exports = exports = function(conf) {
 		},
 
 		/**
-		 * Create a new user, passing in a description of the user to create and calling the
-		 * specified callback on success or failure
+		 * Create a new user, passing in a description of the user to create and
+		 * calling the specified callback on success or failure
 		 * 
 		 * @param user
 		 *            a user structure, see
 		 * @param callback
-		 *            a function(error, user) called with the user object stored or an error if the
-		 *            storage was unsuccessful.
+		 *            a function(error, user) called with the user object stored
+		 *            or an error if the storage was unsuccessful.
 		 */
 		createUser : function(user, callback) {
 			client.index(textusIndex, "user", user, {
@@ -449,8 +473,8 @@ module.exports = exports = function(conf) {
 		 * @param annotation
 		 *            the annotation to store
 		 * @param callback
-		 *            called with (err, response) where err is the error or null and response is the
-		 *            response from elasticsearch
+		 *            called with (err, response) where err is the error or null
+		 *            and response is the response from elasticsearch
 		 */
 		createSemanticAnnotation : function(annotation, callback) {
 			client.index(textusIndex, "semantics", annotation, {
@@ -476,7 +500,8 @@ module.exports = exports = function(conf) {
 		},
 
 		deleteSemanticAnnotation : function(annotationId, callback) {
-			client.del(textusIndex, "semantics", annotationId, function(err, result) {
+			client.del(textusIndex, "semantics", annotationId, function(err,
+					result) {
 				client.refresh(function() {
 					callback(err);
 				});
@@ -492,11 +517,12 @@ module.exports = exports = function(conf) {
 		},
 
 		/**
-		 * Returns summary information for all uploads in the form { title: STRING, owners :
-		 * [string], date:INT } via the callback(error, data).
+		 * Returns summary information for all uploads in the form { title:
+		 * STRING, owners : [string], date:INT } via the callback(error, data).
 		 */
 		getTextStructureSummaries : function(callback) {
-			client.search(buildTermQuery('metadata'), function(err, results, res) {
+			client.search(buildTermQuery('metadata'), function(err, results,
+					res) {
 				if (err) {
 					callback(err, null);
 				} else {
@@ -514,17 +540,18 @@ module.exports = exports = function(conf) {
 		},
 
 		/**
-		 * Update the metadata document for a given TextID. The metadata defines both the set of
-		 * markers used for bibliographic search and indexing and the ownership of this upload.
+		 * Update the metadata document for a given TextID. The metadata defines
+		 * both the set of markers used for bibliographic search and indexing
+		 * and the ownership of this upload.
 		 * 
 		 * @param textId
-		 *            the textID, actually acts as the ID of the metadata document as this is how
-		 *            the internals work.
+		 *            the textID, actually acts as the ID of the metadata
+		 *            document as this is how the internals work.
 		 * @param newMetadata
 		 *            the new metadata document
 		 * @param callback
-		 *            called with (err, result), where one argument will be null depending on
-		 *            success / failure of the call.
+		 *            called with (err, result), where one argument will be null
+		 *            depending on success / failure of the call.
 		 */
 		updateTextMetadata : function(textId, newMetadata, callback) {
 			newMetadata.date = Date.now;
@@ -542,19 +569,20 @@ module.exports = exports = function(conf) {
 		},
 
 		/**
-		 * Replace the set of bibliographic references used when searching for text entry points
-		 * from the 'all texts' page. This deletes the existing references, if any, and indexes the
-		 * new ones, refreshing the index.
+		 * Replace the set of bibliographic references used when searching for
+		 * text entry points from the 'all texts' page. This deletes the
+		 * existing references, if any, and indexes the new ones, refreshing the
+		 * index.
 		 * 
 		 * @param textId
 		 *            the text ID for which references should be stored.
 		 * @param newRefs
-		 *            an array of BibJSON objects, these will have the necessary textus fields added
-		 *            if they aren't already present.
+		 *            an array of BibJSON objects, these will have the necessary
+		 *            textus fields added if they aren't already present.
 		 * @param callback
-		 *            called with (err, result) where err is the error or null if everything was
-		 *            fine, and result is the set of references which were stored or null if the
-		 *            method failed.
+		 *            called with (err, result) where err is the error or null
+		 *            if everything was fine, and result is the set of
+		 *            references which were stored or null if the method failed.
 		 */
 		replaceReferencesForText : function(textId, newRefs, callback) {
 			newRefs.forEach(function(ref) {
@@ -565,33 +593,60 @@ module.exports = exports = function(conf) {
 				ref.textus.role = 'text';
 			});
 			/* Find the existing references, if any, and delete them */
-			datastore.getBibliographicReferences(textId, function(err, result) {
-				if (err) {
-					callback(err, null);
-				} else {
-					// console.log("Retrieved existing refs : ", JSON.stringify(result));
-					datastore.deleteByIds('bibjson', result.map(function(ref) {
-						return ref.textus.id;
-					}), function(err) {
-						if (err) {
-							/* Failed during the delete part! */
-							callback(err, null);
-						} else {
-							datastore.storeBibliographicReferences(newRefs, function(err) {
+			datastore
+					.getBibliographicReferences(
+							textId,
+							function(err, result) {
 								if (err) {
 									callback(err, null);
 								} else {
-									datastore.getBibliographicReferences(textId, function(err, result) {
-										// console.log("Store now contains : ",
-										// JSON.stringify(result));
-										callback(err, result);
-									});
+//									console.log("Retrieved existing refs : ",
+//											JSON.stringify(result));
+									datastore
+											.deleteByIds(
+													'bibjson',
+													result.map(function(ref) {
+														return ref.textus.id;
+													}),
+													function(err) {
+														if (err) {
+															/*
+															 * Failed during the
+															 * delete part!
+															 */
+															callback(err, null);
+														} else {
+															datastore
+																	.storeBibliographicReferences(
+																			newRefs,
+																			function(
+																					err) {
+																				if (err) {
+																					callback(
+																							err,
+																							null);
+																				} else {
+																					datastore
+																							.getBibliographicReferences(
+																									textId,
+																									function(
+																											err,
+																											result) {
+//																										console
+//																												.log(
+//																														"Store now contains	: ",
+//																														JSON
+//																																.stringify(result));
+																										callback(
+																												err,
+																												result);
+																									});
+																				}
+																			});
+														}
+													});
 								}
 							});
-						}
-					});
-				}
-			});
 		},
 
 		/**
@@ -600,10 +655,12 @@ module.exports = exports = function(conf) {
 		 * @param refs
 		 *            a list of bibJSON objects to store
 		 * @param callback
-		 *            function(err) called with null for success, an error message otherwise.
+		 *            function(err) called with null for success, an error
+		 *            message otherwise.
 		 */
 		storeBibliographicReferences : function(refs, callback) {
-			// console.log("storeBibliographicReferences", JSON.stringify(refs, null, 2));
+			// console.log("storeBibliographicReferences", JSON.stringify(refs,
+			// null, 2));
 			indexArray("bibjson", refs, function(err) {
 				if (err) {
 					console.log(err);
@@ -616,19 +673,21 @@ module.exports = exports = function(conf) {
 		},
 
 		/**
-		 * Retrieve all the references with textus.role === 'text' and the specified textus.textId
+		 * Retrieve all the references with textus.role === 'text' and the
+		 * specified textus.textId
 		 * 
 		 * @param textId
 		 * @param callback
-		 *            called with (err, result) where err is null if success and result is an array
-		 *            of BibJSON objects matching the search.
+		 *            called with (err, result) where err is null if success and
+		 *            result is an array of BibJSON objects matching the search.
 		 */
 		getBibliographicReferences : function(textId, callback) {
 			var query = buildTermQuery("bibjson", {
 				"textus.textId" : textId,
 				"textus.role" : "text"
 			});
-			// console.log("getBibliographicReferences for '" + textId + "'", JSON.stringify(query,
+			// console.log("getBibliographicReferences for '" + textId + "'",
+			// JSON.stringify(query,
 			// null, 2));
 			client.search(query, function(err, results, res) {
 				if (err) {
@@ -646,14 +705,15 @@ module.exports = exports = function(conf) {
 		},
 
 		/**
-		 * Retrieve the metadata document containing the structure markers and ownership information
-		 * for a single uploaded text.
+		 * Retrieve the metadata document containing the structure markers and
+		 * ownership information for a single uploaded text.
 		 * 
 		 * @param textId
 		 *            the text for which metadata should be retrieved
 		 * @param callback
-		 *            called with (err, result) where err is null or the error and result is the
-		 *            metadata document or null if the call failed.
+		 *            called with (err, result) where err is null or the error
+		 *            and result is the metadata document or null if the call
+		 *            failed.
 		 */
 		getTextMetadata : function(textId, callback) {
 			client.get(textusIndex, textId, function(err, doc, res) {
@@ -666,9 +726,10 @@ module.exports = exports = function(conf) {
 		},
 
 		/**
-		 * Exposes an ElasticSearch endpoint which can be used to query for bibliographic
-		 * information associated with texts held in this datastore. Modifies the query in-flight to
-		 * add a filter to restrict results to BibJSON blocks with the textus.role set to 'text'.
+		 * Exposes an ElasticSearch endpoint which can be used to query for
+		 * bibliographic information associated with texts held in this
+		 * datastore. Modifies the query in-flight to add a filter to restrict
+		 * results to BibJSON blocks with the textus.role set to 'text'.
 		 */
 		queryTexts : function(query, callback) {
 			query.filter = {
@@ -677,6 +738,7 @@ module.exports = exports = function(conf) {
 				}
 			};
 			query.index = textusIndex;
+			//console.log("Query from facetview", query);
 			client.search(query, function(err, results, res) {
 				if (err) {
 					callback(err, null);
@@ -687,23 +749,26 @@ module.exports = exports = function(conf) {
 		},
 
 		/**
-		 * Retrieves text along with the associated typographical and semantic annotations which
-		 * overlap at least partially with the specified range.
+		 * Retrieves text along with the associated typographical and semantic
+		 * annotations which overlap at least partially with the specified
+		 * range.
 		 * 
 		 * @param textId
 		 *            the textId of the text
 		 * @param start
-		 *            character offset within the text, this will be the first character in the
-		 *            result
+		 *            character offset within the text, this will be the first
+		 *            character in the result
 		 * @param end
-		 *            character offset within the text, this will be the character one beyond the
-		 *            end of the result, so the result is a string of end-start length
+		 *            character offset within the text, this will be the
+		 *            character one beyond the end of the result, so the result
+		 *            is a string of end-start length
 		 * @param callback
-		 *            a callback function callback(err, data) called with the data from the
-		 *            elasticsearch query massaged into the form { textId : STRING, text : STRING,
-		 *            typography : [], semantics : [], start : INT, end : INT }, and the err value
-		 *            set to any error (or null if no error) from the underlying elasticsearch
-		 *            instance.
+		 *            a callback function callback(err, data) called with the
+		 *            data from the elasticsearch query massaged into the form {
+		 *            textId : STRING, text : STRING, typography : [], semantics :
+		 *            [], start : INT, end : INT }, and the err value set to any
+		 *            error (or null if no error) from the underlying
+		 *            elasticsearch instance.
 		 */
 		fetchText : function(textId, start, end, callback) {
 			var query = buildRangeQuery(textId, start, end);
@@ -715,28 +780,32 @@ module.exports = exports = function(conf) {
 					var typography = [];
 					var semantics = [];
 					var error = null;
-					results.hits.forEach(function(hit) {
-						if (hit._type == "text") {
-							textChunks.push(hit._source);
-						} else if (hit._type == "typography") {
-							hit._source.id = hit._id;
-							typography.push(hit._source);
-						} else if (hit._type == "semantics") {
-							hit._source.id = hit._id;
-							semantics.push(hit._source);
-						} else {
-							error = "Unknown result type! '" + hit._type + "'.";
-							console.log(hit);
-						}
-					});
-					callback(error, {
-						'textId' : textId,
-						'text' : joinTextChunksAndTrim(start, end, textChunks).text,
-						'typography' : typography,
-						'semantics' : semantics,
-						'start' : start,
-						'end' : end
-					});
+					results.hits
+							.forEach(function(hit) {
+								if (hit._type == "text") {
+									textChunks.push(hit._source);
+								} else if (hit._type == "typography") {
+									hit._source.id = hit._id;
+									typography.push(hit._source);
+								} else if (hit._type == "semantics") {
+									hit._source.id = hit._id;
+									semantics.push(hit._source);
+								} else {
+									error = "Unknown result type! '"
+											+ hit._type + "'.";
+									console.log(hit);
+								}
+							});
+					callback(error,
+							{
+								'textId' : textId,
+								'text' : joinTextChunksAndTrim(start, end,
+										textChunks).text,
+								'typography' : typography,
+								'semantics' : semantics,
+								'start' : start,
+								'end' : end
+							});
 				}
 				;
 			});
@@ -766,62 +835,81 @@ module.exports = exports = function(conf) {
 							typography.push(hit._source);
 						}
 					});
-					callback(null, {
-						'textId' : textId,
-						'text' : joinTextChunksAndTrim(null, null, textChunks).text,
-						'typography' : typography
-					});
+					callback(null,
+							{
+								'textId' : textId,
+								'text' : joinTextChunksAndTrim(null, null,
+										textChunks).text,
+								'typography' : typography
+							});
 				}
 			});
 		},
 
 		/**
-		 * Index the given data, calling the callback function on completion with either an error
-		 * message or the text ID of the stored data.
+		 * Index the given data, calling the callback function on completion
+		 * with either an error message or the text ID of the stored data.
 		 * 
 		 * @param data {
-		 *            text : [ { text : STRING, sequence : INT } ... ], semantics : [], typography :
-		 *            []}
+		 *            text : [ { text : STRING, sequence : INT } ... ],
+		 *            semantics : [], typography : []}
 		 * @param callback
 		 *            a function of type function(error, textId)
 		 */
 		importData : function(data, callback) {
 			data.metadata.date = Date.now;
-			client.index(textusIndex, "metadata", data.metadata, function(err, res) {
-				if (!err) {
-					var textId = res._id;
-					var dataToIndex = [ {
-						type : "text",
-						list : createTextChunks(textChunkSize, data).map(function(chunk) {
-							return {
-								textId : textId,
-								text : chunk.text,
-								start : chunk.offset,
-								end : chunk.offset + chunk.text.length
-							};
-						})
-					}, {
-						type : "semantics",
-						list : data.semantics.map(function(annotation) {
-							annotation.textId = textId;
-							return annotation;
-						})
-					}, {
-						type : "typography",
-						list : data.typography.map(function(annotation) {
-							annotation.textId = textId;
-							return annotation;
-						})
-					} ];
-					indexArrays(dataToIndex, function(err) {
-						client.refresh(textusIndex, function(err, res) {
-							callback(err, textId);
-						});
-					});
-				} else {
-					callback(err, null);
-				}
-			});
+			client
+					.index(
+							textusIndex,
+							"metadata",
+							data.metadata,
+							function(err, res) {
+								if (!err) {
+									var textId = res._id;
+									var dataToIndex = [
+											{
+												type : "text",
+												list : createTextChunks(
+														textChunkSize, data)
+														.map(
+																function(chunk) {
+																	return {
+																		textId : textId,
+																		text : chunk.text,
+																		start : chunk.offset,
+																		end : chunk.offset
+																				+ chunk.text.length
+																	};
+																})
+											},
+											{
+												type : "semantics",
+												list : data.semantics
+														.map(function(
+																annotation) {
+															annotation.textId = textId;
+															return annotation;
+														})
+											},
+											{
+												type : "typography",
+												list : data.typography
+														.map(function(
+																annotation) {
+															annotation.textId = textId;
+															return annotation;
+														})
+											} ];
+									indexArrays(dataToIndex, function(err) {
+										client.refresh(textusIndex, function(
+												err, res) {
+											callback(err, textId);
+										});
+									});
+								} else {
+									callback(err, null);
+								}
+							});
 		}
 
 	};

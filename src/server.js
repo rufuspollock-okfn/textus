@@ -286,7 +286,7 @@ app.get("/api/texts-es", function(req, res) {
 			console.log("Unable to query ES index for texts ", esQuery, err);
 			res.send(err, 500);
 		} else {
-			res.json(data);
+			res.jsonp(data);
 		}
 	});
 });

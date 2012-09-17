@@ -10,6 +10,7 @@ exports.parse = function(wikiText) {
 	var linegroups = wikiText.split(/(?=(?:\r?\n){2,})|(?:\r?\n(?=[\*|\:|\#]))/);
 	linegroups.forEach(function(linegroup) {
 		var line = linegroup.split(/\r?\n/).join(" ").trim();
+		//console.log(line);
 		if (line != "") {
 			/* Avoid processing lines consisting entirely of whitespace */
 			processString(line);
