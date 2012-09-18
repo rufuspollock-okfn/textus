@@ -3,6 +3,8 @@
  */
 module.exports = exports = function(conf) {
 
+	var markers = require('../../public/js/markers.js');
+	
 	/**
 	 * Create a new ElasticSearch client using the Elastical API
 	 */
@@ -302,7 +304,7 @@ module.exports = exports = function(conf) {
 				mapping[type] = {
 					'properties' : mappings[type]
 				};
-				//console.log(mapping);
+				// console.log(mapping);
 				mappingArray.push(mapping);
 			}
 		}
@@ -322,8 +324,8 @@ module.exports = exports = function(conf) {
 							callback("Failed while creating mapping for "
 									+ type + " : " + err);
 						} else {
-//							console.log("Created mapping for type '"
-//									+ mapping.type + "'", mapping[type]);
+							// console.log("Created mapping for type '"
+							// + mapping.type + "'", mapping[type]);
 							createMappingsFromList(mappingArray, callback);
 						}
 					});
@@ -600,8 +602,8 @@ module.exports = exports = function(conf) {
 								if (err) {
 									callback(err, null);
 								} else {
-//									console.log("Retrieved existing refs : ",
-//											JSON.stringify(result));
+									// console.log("Retrieved existing refs : ",
+									// JSON.stringify(result));
 									datastore
 											.deleteByIds(
 													'bibjson',
@@ -632,11 +634,14 @@ module.exports = exports = function(conf) {
 																									function(
 																											err,
 																											result) {
-//																										console
-//																												.log(
-//																														"Store now contains	: ",
-//																														JSON
-//																																.stringify(result));
+																										// console
+																										// .log(
+																										// "Store
+																										// now
+																										// contains
+																										// : ",
+																										// JSON
+																										// .stringify(result));
 																										callback(
 																												err,
 																												result);
@@ -738,7 +743,7 @@ module.exports = exports = function(conf) {
 				}
 			};
 			query.index = textusIndex;
-			//console.log("Query from facetview", query);
+			// console.log("Query from facetview", query);
 			client.search(query, function(err, results, res) {
 				if (err) {
 					callback(err, null);
@@ -859,7 +864,7 @@ module.exports = exports = function(conf) {
 		importData : function(data, callback) {
 			if (!data.metadata) {
 				data.metadata = {
-						title: "New Upload"
+					title : "New Upload"
 				};
 			}
 			client
@@ -904,12 +909,41 @@ module.exports = exports = function(conf) {
 															return annotation;
 														})
 											} ];
-									indexArrays(dataToIndex, function(err) {
-										client.refresh(textusIndex, function(
-												err, res) {
-											callback(err, textId);
-										});
-									});
+									indexArrays(
+											dataToIndex,
+											function(err) {
+												client
+														.refresh(
+																textusIndex,
+																function(err,
+																		res) {
+																	if (data.metadata.markers) {
+																		var parsedMarkerSet = markers(data.metadata);
+																		var newRefs = parsedMarkerSet
+																				.discoverableBibJson();
+																		datastore
+																				.replaceReferencesForText(
+																						textId,
+																						newRefs,
+																						function(
+																								err,
+																								response) {
+																							if (err) {
+																								callback(
+																										err,
+																										null);
+																							} else {
+																								callback(
+																										null,
+																										textId);
+																							}
+																						});
+																	} else
+																		(callback(
+																				textId,
+																				err));
+																});
+											});
 								} else {
 									callback(err, null);
 								}
