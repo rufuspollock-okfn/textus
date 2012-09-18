@@ -6,7 +6,6 @@
  */
 var conf = require('../js/textusConfiguration.js').conf();
 var ds = require('../js/datastore/dataStore-elastic.js')(conf);
-var markers = require('../public/js/markers.js');
 
 /**
  * This is the data type required by the datastore's import operation
