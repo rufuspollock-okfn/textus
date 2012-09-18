@@ -857,7 +857,11 @@ module.exports = exports = function(conf) {
 		 *            a function of type function(error, textId)
 		 */
 		importData : function(data, callback) {
-			data.metadata.date = Date.now;
+			if (!data.metadata) {
+				data.metadata = {
+						title: "New Upload"
+				};
+			}
 			client
 					.index(
 							textusIndex,
