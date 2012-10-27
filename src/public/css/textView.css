@@ -160,6 +160,9 @@ span.i {
 	overflow-y: hidden;
 	z-index: 2;
 	-webkit-user-select: text;
+  font-family: 'IM Fell English',times;
+  font-size: 20px;
+  line-height: 30px;
 }
 
 .pageTextMeasure,.pageContainer .pageText {
@@ -190,3 +193,19 @@ span.i {
 	display: inline-block;
 	white-space: nowrap;
 }
+
+.pageContainer .pageText h2 {
+  font-size: 35px;
+  line-height: 45px;
+}
+
+.pageContainer .pageText h3 {
+  font-size: 30px;
+  line-height: 40px;
+}
+
+.pageContainer .pageText h4 {
+  font-size: 25px;
+  line-height: 30px;
+}
+
