@@ -19,3 +19,13 @@ Quick getting started guide, this is the version on beta.openphilosophy.org
 	* node src/server.js --help
 + Call 'node src/server.js' with appropriate options (see the message returned from the help option)
 + Point your web browser at localhost on whatever port you've configured for Textus (defaults to 8080 if not specified).
+
+Copyright and License
+====================
+Copyright 2011-2013 Open Knowledge Foundation
+
+Licensed under the `MIT License`_
+
+A copy of the license can be found in the LICENSE file
+
+.. _MIT License: http://www.opensource.org/licenses/mit-license.php
