@@ -1,3 +1,5 @@
+**This repo is DEPRECATED**. Please see the primary repo at **<https://github.com/culturelabs/textus>**
+
 Textus_ is a toolbox and web application for working with and presenting textual material
 from shakespeare to schopenhauer, and letters to literature.
 
