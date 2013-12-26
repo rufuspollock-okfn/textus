@@ -1,4 +1,7 @@
-# Textus JSON Import Format and Textus Basic Profile
+---
+layout: default
+title: Textus Text Format
+---
 
 Version 1.0-DRAFT-INCOMPLETE
 

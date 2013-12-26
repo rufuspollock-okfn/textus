@@ -1,4 +1,7 @@
-# Text Rendering
+---
+layout: default
+title: Text Rendering
+---
 
 Textus displays texts and annotations to the user one screen at a time. This is partly to fit with how people are used to reading and partly to avoid having to retrieve all annotations for a text in one go. This is subject to change - if we trial this with users and they all hate it we can try to work with loading the entire text and only rendering annotation markers etc on the currently visible viewport, but at the present this is how everything fits together:
 

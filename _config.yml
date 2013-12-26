@@ -1,0 +1,7 @@
+pygments: true
+auto: true
+markdown: kramdown
+title: Textus - An Open Platform for Working With Cultural and Historial Texts
+github: http://github.com/okfn/textus
+googleanalytics: UA-33874954-3
+

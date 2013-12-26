@@ -1,4 +1,7 @@
-# Textus Architecture
+---
+layout: default
+title: Textus Architecture
+---
 
 This document gives an overview of how we're building Textus along with some of the motivation for the decisions we've taken.
 

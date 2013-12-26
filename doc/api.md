@@ -1,4 +1,7 @@
-# TEXTUS API Documentation
+---
+layout: default
+title: Textus API Documentation
+---
 
 ## Texts and annotations
 
@@ -10,7 +13,7 @@ For example:
 
 Machiavelli - the Prince <http://beta.openphilosophy.org/api/text/X4-FN2J9T4GzvVWppea7KA/0/2048>
 
-```json
+{% highlight json %}
 
 {
   "textId": "X4-FN2J9T4GzvVWppea7KA",
@@ -180,7 +183,7 @@ Machiavelli - the Prince <http://beta.openphilosophy.org/api/text/X4-FN2J9T4GzvV
   "start": 0,
   "end": 2048
 }
-```
+{% endhighlight %}
 
 <http://beta.openphilosophy.org/api/text/_YssDZ_ZQiGNAuOiuQzAZg/500/510>
 
