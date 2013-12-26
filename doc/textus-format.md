@@ -3,9 +3,14 @@ layout: default
 title: Textus Text Format
 ---
 
-Version 1.0-DRAFT-INCOMPLETE
+* Will be deleted
+{:toc}
 
-This document defines the format used when importing a new document into Textus. The document format is based on one or more files containing information in Javascript Object Notation (JSON) format. It is strongly recommended to use a JSON API to generate these files as JSON has specific quoting rules which are non-trivial to implement from scratch!
+* Status: Version 1.0-DRAFT
+
+This document defines the Textus (text) Format. The format is designed for text-based documents and is the format required by the Textus platform.
+
+The document format is based on one or more files containing information in Javascript Object Notation (JSON) format. It is strongly recommended to use a JSON API to generate these files as JSON has specific quoting rules which are non-trivial to implement from scratch!
 
 This document also defines the set of typographical classes, semantic annotation types and structural marker types that make up the Textus Basic Profile and which should be available to any text within a Textus based system. These sets may be extended by domain specific systems to include more specific concepts, those in the basic profile are intended to have general application across all subject domains.
 
