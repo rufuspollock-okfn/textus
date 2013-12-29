@@ -52,7 +52,7 @@ The Textus Platform is now being refactored composed of 4 separate components:
   cultural texts
 * [Textus API][api-component] - create an API for texts in Textus format
 
-Note these components are under **active development** as under
+Note these components are under **active development** as of December 2013.
 
 [formatter]: https://github.com/okfn/textus-formatter
 [viewer]: https://github.com/okfn/textus-viewer
