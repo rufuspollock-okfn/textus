@@ -41,4 +41,5 @@ Our solution to this is to allow people to flag annotations as “Provisional”
 Some members of the group were concerned that this would mean no one ever flagged their annotations as “Final”. An alternative solution was suggested: users would not be able to edit annotations but would be able to update version of annotations. The most recent versions of an annotation would be the most visible if you filtered for the annotations of a given user on a particular section of text, but previous annotations will still be discoverable in case they had been referred to.
 
 ## Going forward
+
 In the coming days we will be incorporating the feedback we have received at Cambridge and [King’s College London](http://textusproject.org/2012/06/26/user-testing-workshop-at-kings-college-london/) into our [user stories](http://wiki.okfn.org/Projects/Textus#User_stories) and continuing discussions with all involved on the [Open Humanities mailing list](http://lists.okfn.org/mailman/listinfo/open-humanities).
