@@ -1,7 +1,6 @@
 ---
 layout: post
 title: User Testing Workshop at Cambridge University
-category: Project update
 date: 2012-06-27
 ---
 

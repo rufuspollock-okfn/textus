@@ -1,7 +1,6 @@
 ---
 layout: post
 title: Testing TEXTUS: On the Idea of ‘Open’ Philosophy
-category: Project update
 date: 2012-10-29
 ---
 

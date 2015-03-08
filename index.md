@@ -6,7 +6,7 @@ subtitle: An open source platform for presenting and working with cultural and h
 
 ![Textus: an open source platform for collaborating around collections of texts](images/textus_logo.jpg)
 
-Textus is an **open source** platform for working with collections of texts. It enables students, researchers and teachers to **share** and **collaborate** around texts using a simple and intuitive interface.
+Textus is an **open source** platform for presenting and working with cultural and historical texts. It enables students, researchers and teachers to **share** and **collaborate** around texts using a simple and intuitive interface.
 
 ## What does Textus do?
 Textus currently enables users to:
@@ -14,6 +14,12 @@ Textus currently enables users to:
 * Collaboratively annotate texts and view the annotations of others
 * Reliably cite electronic versions of texts
 * Create bibliographies with stable URLs to online versions of those texts
+
+<iframe src="https://docs.google.com/presentation/d/1OlXIaGgntenmBLNMu0tZYTdrP09TvzZ-R5bpJAgznF4/embed?start=false&amp;loop=false&amp;delayms=3000" frameborder="0" width="580" height="464" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" style="margin-bottom: 20px;"></iframe>
+
+We are also in the process of upgrading [Open Literature][lit] to use Textus.
+
+[lit]: http://openliterature.net/
 
 ## Where has Textus been deployed?
 The first instance of Textus will be deployed as [beta.OpenPhilosophy.org](http://beta.openphilosophy.org/). We are working closely with students from [Goldsmiths University](http://www.gold.ac.uk/), the [University of Oxford](http://www.ox.ac.uk/) and a distinguished advisory board of philosophy academics to make sure that OpenPhilosophy meets the needs of the philosophical community.
@@ -30,12 +36,6 @@ Textus is an open source platform developed by the [Open Knowledge Foundation](h
 * [Sign up to the discussion list](http://lists.okfn.org/mailman/listinfo/open-humanities)
 * [Sign up to the developer list](http://lists.okfn.org/mailman/listinfo/humanities-dev)
 * [Get the code on Github](https://github.com/okfn/Textus)
-
-<iframe src="https://docs.google.com/presentation/d/1OlXIaGgntenmBLNMu0tZYTdrP09TvzZ-R5bpJAgznF4/embed?start=false&amp;loop=false&amp;delayms=3000" frameborder="0" width="580" height="464" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true" style="margin-bottom: 20px;"></iframe>
-
-We are also in the process of upgrading [Open Literature][lit] to use Textus.
-
-[lit]: http://openliterature.net/
 
 ## The Textus 'Standard'
 
