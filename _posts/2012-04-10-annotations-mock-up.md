@@ -24,5 +24,5 @@ Another key point to note is that the number of annotations is given for each le
 
 It would be great to hear what you think about this mock-up so that we can tweak and adjust what we've got in the lead up to our beta release in a couple of months. So we'd very much appreciate your comments below!
 
-[1]: /images/TEXTUS-mock-up.png "TEXTUS mock-up"
+[1]: ./images/TEXTUS-mock-up.png "TEXTUS mock-up"
   

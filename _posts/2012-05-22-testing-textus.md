@@ -73,18 +73,18 @@ In the next few days we will be getting the BETA version of TEXTUS we were using
 
 The most up-to-date version of TEXTUS is of course available to download from the [GitHub repo][14].
 
-[1]: /images/TEXTUS-1.jpg "TEXTUS 1"
-[2]: /images/textus1.png "textus1"
+[1]: ./images/TEXTUS-1.jpg "TEXTUS 1"
+[2]: ./images/textus1.png "textus1"
 [3]: http://www.gutenberg.org/
 [4]: http://wikisource.org/
 [5]: http://wiki.okfn.org/Projects/Textus/User_Stories/15
-[6]: /images/textus2-crop.png "textus2-crop"
+[6]: ./images/textus2-crop.png "textus2-crop"
 [7]: http://lists.okfn.org/mailman/listinfo/open-humanities
 [8]: http://wiki.okfn.org/Projects/Textus/User_Stories/14
 [9]: http://wiki.okfn.org/Projects/Textus/User_Stories/11
 [10]: http://wiki.okfn.org/Projects/Textus/User_Stories/13
 [11]: http://wiki.okfn.org/Projects/Textus/User_Stories/9
-[12]: /images/TEXTUS-2.jpg "TEXTUS 2"
+[12]: ./images/TEXTUS-2.jpg "TEXTUS 2"
 [13]: https://docs.google.com/spreadsheet/viewform?formkey=dEhSTy1rYk9pOFNzbTJZUmt5NDRJZEE6MQ
 [14]: https://github.com/okfn/textus
   
