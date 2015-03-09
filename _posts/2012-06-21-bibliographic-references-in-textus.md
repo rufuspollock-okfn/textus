@@ -10,7 +10,7 @@ Sites such as the upcoming [openphilosophy.org](http://openphilosophy.org/) and 
 
 Many thanks to all the participants at the openBiblio event for their comments and help, in particular to Peter Murray-Rust and Simone Fonda, and to the organisers for getting everyone into the same room.
 
-![Textus](./images/Capture1-1024x761.png)
+![Textus](http://okfnlabs.org/textus/images/Capture1-1024x761.png)
 
 ## New features
 
