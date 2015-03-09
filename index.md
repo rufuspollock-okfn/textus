@@ -61,5 +61,5 @@ Note these components are under **active development** as of December 2013.
 
 ## Funded By
 
-<a href="http://www.jisc.ac.uk/whatwedo/programmes/di_research/researchtools/textus.aspx"><img src="http://www.jisc.ac.uk/media/3/4/5/%7B345F1B7F-4AD6-4A61-B5BE-70AFA60F002F%7Djisclogojpgweb.jpg" /></a>
+<a href="http://www.jisc.ac.uk/whatwedo/programmes/di_research/researchtools/Textus.aspx"><img src="images/jisc_logo.png" /></a>
 
