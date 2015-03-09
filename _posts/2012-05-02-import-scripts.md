@@ -26,7 +26,7 @@ Beyond import from Wikisource, Project Gutenberg and TEI documents — we also w
 
 **If you have any public domain digitsed philosophy texts that you would like to get into our first instance of TEXTUS on openphilosophy.org drop us a line on&nbsp;[humanities developer list][4], so that we can assist you in writing your import script.**
 
-[1]: /images/g24561.png "g2456"
+[1]: http://okfnlabs.org/textus/images/g24561.png "g2456"
 [2]: http://www.tei-c.org/index.xml
 [3]: https://github.com/okfn/textus/blob/master/docs/json_import_format.md
 [4]: http://lists.okfn.org/mailman/listinfo/humanities-dev

@@ -16,6 +16,6 @@ Here is a brief summary of the thoughts sparked by inspection of the user interf
 
 We'll be working hard in the coming weeks to take into account all these suggestions and make sure that they are catered for in the final release of TEXTUS.
 
-[1]: ./2012/02/20/openphilosophy-org-mock-ups.html
-[2]: ./2012/02/17/what-do-users-want-from-textus.html
+[1]: http://okfnlabs.org/textus/2012/02/20/openphilosophy-org-mock-ups.html
+[2]: http://okfnlabs.org/textus/2012/02/17/what-do-users-want-from-textus.html
 [3]: http://openphilosophy.org

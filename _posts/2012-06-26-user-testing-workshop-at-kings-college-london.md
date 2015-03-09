@@ -4,7 +4,7 @@ title: User Testing Workshop at King’s College London
 date: 2012-06-26
 ---
 
-<img src="./images/Kings_College_London_Digital_Humanities.png" alt="King's College London Digital Humanities" style="float: right; max-width: 200px">
+<img src="http://okfnlabs.org/textus/images/Kings_College_London_Digital_Humanities.png" alt="King's College London Digital Humanities" style="float: right; max-width: 200px">
 
 The first of our two TEXTUS user testing sessions this week took place at the [King’s College London Digital Humanities Department](http://www.kcl.ac.uk/artshums/depts/ddh/index.aspx).
 
