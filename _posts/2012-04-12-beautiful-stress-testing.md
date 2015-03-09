@@ -12,5 +12,5 @@ Turns out it was pretty resilient and in the process gave some rather visually p
 
 ![][1]
 
-[1]: /images/stress.png "stress"
+[1]: ./images/stress.png "stress"
   
