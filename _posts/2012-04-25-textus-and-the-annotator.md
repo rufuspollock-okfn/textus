@@ -2,6 +2,7 @@
 layout: post
 title: TEXTUS and The Annotator
 date: 2012-04-25
+author: Sam Leon
 ---
 
 The first phase of user requirements gathering has been concluded and we're only a few weeks away from having a first beta version of our platform up and running. You can read about how these sessions went [here][1] and [here][2].

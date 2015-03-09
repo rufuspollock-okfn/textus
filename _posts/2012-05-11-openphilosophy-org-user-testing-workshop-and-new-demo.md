@@ -2,6 +2,7 @@
 layout: post
 title: OpenPhilosophy.org User Testing Workshop and New Demo
 date: 2012-05-11
+author: Sam Leon
 ---
 
 ![][1]

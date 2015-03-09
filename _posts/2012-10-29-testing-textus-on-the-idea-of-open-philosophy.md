@@ -1,7 +1,8 @@
 ---
 layout: post
-title: Testing TEXTUS&#58; On the Idea of "Open" Philosophy
+title: Testing TEXTUS&#58; On the Idea of ‘Open’ Philosophy
 date: 2012-10-29
+author: Anca Pusca
 ---
 
 ![Reading Group TEXTUS](http://okfnlabs.org/textus/images/Reading-Group-TEXTUS.jpg)

@@ -2,6 +2,7 @@
 layout: post
 title: Curating the Commons with TEXTUS
 date: 2012-04-11
+author: Jonathan Gray
 ---
 
 ![][1]

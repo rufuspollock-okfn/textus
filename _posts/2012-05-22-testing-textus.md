@@ -2,6 +2,7 @@
 layout: post
 title: Testing TEXTUS
 date: 2012-05-22
+author: Sam Leon
 ---
 
 ![][1]

@@ -2,6 +2,7 @@
 layout: post
 title: Annotations Mock-Up
 date: 2012-04-10
+author: Sam Leon
 ---
 
 We have a new mock-up of the TEXTUS annotation system based on the feedback we've been given since the project kicked off.

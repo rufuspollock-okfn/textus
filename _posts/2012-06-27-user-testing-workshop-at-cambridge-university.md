@@ -2,6 +2,7 @@
 layout: post
 title: User Testing Workshop at Cambridge University
 date: 2012-06-27
+author: Sam Leon
 ---
 
 ![Cambridge Workshop TEXTUS by okfn, on Flickr](http://farm9.staticflickr.com/8161/7455815768_63b0f9a8a5.jpg 'Cambridge Workshop TEXTUS by okfn, on Flickr')

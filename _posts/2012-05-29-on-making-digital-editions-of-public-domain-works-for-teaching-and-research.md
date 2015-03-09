@@ -2,6 +2,7 @@
 layout: post
 title: On making digital editions of public domain works for teaching and research
 date: 2012-05-29
+author: Jonathan Gray
 ---
 
 There are lots of freely available public domain texts on the internet, but not all of them are immediately suitable for use in teaching and research in their current form. The following post looks at challenges and opportunities in this area based on a brief survey of existing online resources.

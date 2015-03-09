@@ -2,6 +2,7 @@
 layout: post
 title: User Testing Workshop at King’s College London
 date: 2012-06-26
+author: Sam Leon
 ---
 
 <img src="http://okfnlabs.org/textus/images/Kings_College_London_Digital_Humanities.png" alt="King's College London Digital Humanities" style="float: right; max-width: 200px">

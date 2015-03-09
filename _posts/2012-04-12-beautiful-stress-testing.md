@@ -2,6 +2,7 @@
 layout: post
 title: Beautiful Stress Testing
 date: 2012-04-12
+author: Sam Leon
 ---
 
 Another image of our emerging platform. This one shows the results of some stress testing.

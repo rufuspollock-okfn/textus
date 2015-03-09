@@ -2,6 +2,7 @@
 layout: post
 title: What Do Users Want Part II
 date: 2012-03-16
+author: Sam Leon
 ---
 
 Armed with our set of [user interface mock-ups][1] I went to visit the group of students who we had first met back in February for our [initial user requirements workshop][2] to see what they thought of what we'd come up with.

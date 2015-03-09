@@ -2,6 +2,7 @@
 layout: post
 title: Bibliographic References in Textus
 date: 2012-06-21
+author: Tom Oinn
 ---
 
 [Textus](http://okfnlabs.org/textus/) is the OKFN’s open source platform for working with collections of texts. It harnesses the power of semantic web technologies and delivers them in a simple and intuitive interface so that students, researchers and teachers can share and collaborate around collections of texts.
