@@ -1,10 +1,10 @@
 ---
 layout: post
-title: Testing TEXTUS: On the Idea of ‘Open’ Philosophy
+title: Testing TEXTUS&#58; On the Idea of "Open" Philosophy
 date: 2012-10-29
 ---
 
-![Reading Group TEXTUS](../images/Reading-Group-TEXTUS.jpg)
+![Reading Group TEXTUS](/images/Reading-Group-TEXTUS.jpg)
 
 Much of the discussion on open publication platforms within academia focuses on the accessibility issue from a very unique point of view: that of the actual ability to find and access publications/texts, as opposed to making the actual meaning and context in which these texts exist more ‘accessible’ to a wider audience. TEXTUS, a project supported by the Open Knowledge Foundation and Goldsmiths College, has tried to address both: first, by making philosophy texts already in the public domain more easily accessible, and second, by creating an environment where these texts can be read collectively online with readers benefiting from other readers’ notes, comments, questions and puzzles. This makes the reading experience much more accessible, less intimidating – particularly when you are talking about philosophy texts, and much more conducive to interaction and discussion.
 
