@@ -76,7 +76,7 @@ In the coming weeks we will be working on interface mock-ups for OpenPhilosophy.
 
 If you would like to be involved in user testing when the platform is ready, request an invite [here][6].
 
-[1]: http://okfnlabs.org/textus/images/IMG_0255-1024x764.jpg "IMG_0255"
+[1]: http://okfnlabs.org/textus/images/IMG_0255.jpg "IMG_0255"
 [2]: http://openphilosophy.org
 [3]: http://www.flickr.com/photos/okfn/sets/72157629346578571
 [4]: http://wiki.okfn.org/Projects/Textus

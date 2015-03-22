@@ -51,14 +51,14 @@ After a couple of hours, I left Aya in peace to read in the quiet of the library
 
 &nbsp;
 
-[1]: http://okfnlabs.org/textus/images/IMG_1151-300x225.jpg "IMG_1151"
-[2]: http://okfnlabs.org/textus/images/IMG_1129-300x225.jpg "IMG_1129"
-[3]: http://okfnlabs.org/textus/images/IMG_1169-300x225.jpg "IMG_1169"
+[1]: http://okfnlabs.org/textus/images/IMG_1151.jpg "IMG_1151"
+[2]: http://okfnlabs.org/textus/images/IMG_1129.jpg "IMG_1129"
+[3]: http://okfnlabs.org/textus/images/IMG_1169.jpg "IMG_1169"
 [4]: http://okfnlabs.org/textus/images/IMG_1156.jpg
-[5]: http://okfnlabs.org/textus/images/IMG_1107-300x225.jpg "IMG_1107"
-[6]: http://okfnlabs.org/textus/images/IMG_1156-225x300.jpg "IMG_1156"
-[7]: http://okfnlabs.org/textus/images/IMG_11231-300x225.jpg "IMG_1123"
+[5]: http://okfnlabs.org/textus/images/IMG_1107.jpg "IMG_1107"
+[6]: http://okfnlabs.org/textus/images/IMG_1156.jpg "IMG_1156"
+[7]: http://okfnlabs.org/textus/images/IMG_11231.jpg "IMG_1123"
 [8]: http://lists.okfn.org/mailman/listinfo/open-humanities
-[9]: http://okfnlabs.org/textus/images/IMG_1110-300x225.jpg "IMG_1110"
-[10]: http://okfnlabs.org/textus/images/IMG_1137-300x225.jpg "IMG_1137"
-[11]: http://okfnlabs.org/textus/images/IMG_11771-300x225.jpg "IMG_1177"
+[9]: http://okfnlabs.org/textus/images/IMG_1110.jpg "IMG_1110"
+[10]: http://okfnlabs.org/textus/images/IMG_1137.jpg "IMG_1137"
+[11]: http://okfnlabs.org/textus/images/IMG_11771.jpg "IMG_1177"
