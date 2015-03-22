@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Permalink to In the Paper Workflow
+title: In the Paper Workflow
 date: 2012-03-16
 author: Sam Leon
 ---
