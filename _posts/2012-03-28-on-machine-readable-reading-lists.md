@@ -1,7 +1,7 @@
 ---
 layout: post
 title: On Machine Readable Reading Lists
-date: 2012-04-10
+date: 2012-03-28
 author: Jonathan Gray
 ---
 
